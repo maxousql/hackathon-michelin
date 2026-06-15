@@ -4,12 +4,12 @@
   "private": true,
   "main": "index.ts",
   "scripts": {
-    "android": "expo start --android --tunnel",
+    "android": "expo start--android ",
     "build": "expo export --platform android --output-dir dist/android && expo export --platform ios --output-dir dist/ios",
-    "dev": "expo start --tunnel",
-    "ios": "expo start --ios --tunnel",
+    "dev": "expo start",
+    "ios": "expo start--ios ",
     "lint": "eslint .",
-    "start": "expo start --tunnel",
+    "start": "expo start",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

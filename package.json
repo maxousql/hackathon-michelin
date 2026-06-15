@@ -28,12 +28,5 @@
   },
   "lint-staged": {
     "*.{js,cjs,mjs,jsx,ts,tsx,json,jsonc,md,mdx,yaml,yml,css}": "prettier --write"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@nestjs/core",
-      "esbuild",
-      "sharp"
-    ]
   }
 }

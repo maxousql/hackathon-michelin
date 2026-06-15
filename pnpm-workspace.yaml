@@ -3,3 +3,8 @@ packages:
   - packages/*
 
 injectWorkspacePackages: true
+
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - esbuild
+  - sharp
