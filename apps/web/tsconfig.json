@@ -1,7 +1,6 @@
 {
   "extends": "@michelin/config-typescript/nextjs.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }

@@ -1,9 +1,8 @@
 FROM node:22-bookworm-slim AS base
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
+ARG PNPM_VERSION=10.22.0
 
-RUN corepack enable
+RUN npm install --global "pnpm@${PNPM_VERSION}"
 WORKDIR /app
 
 FROM base AS dependencies

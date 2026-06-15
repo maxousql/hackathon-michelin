@@ -1,7 +1,6 @@
 {
   "extends": "@michelin/config-typescript/nestjs.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "outDir": "./dist"
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]
