@@ -2,7 +2,7 @@
   "name": "@michelin/mobile",
   "version": "0.1.0",
   "private": true,
-  "main": "expo/AppEntry",
+  "main": "index.ts",
   "scripts": {
     "android": "expo start --android",
     "build": "expo export --platform android --output-dir dist/android && expo export --platform ios --output-dir dist/ios",
@@ -15,19 +15,19 @@
   "dependencies": {
     "@michelin/api-client": "workspace:*",
     "@michelin/contracts": "workspace:*",
-    "expo": "~56.0.11",
-    "expo-status-bar": "~56.0.4",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "react-native": "0.85.3"
+    "expo": "~54.0.35",
+    "expo-status-bar": "~3.0.9",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5"
   },
   "devDependencies": {
-    "@expo/metro-config": "56.0.14",
+    "@expo/metro-config": "~54.0.14",
     "@michelin/config-eslint": "workspace:*",
     "@michelin/config-typescript": "workspace:*",
     "@types/node": "^22.19.0",
-    "@types/react": "19.2.17",
-    "babel-preset-expo": "56.0.15",
+    "@types/react": "~19.1.10",
+    "babel-preset-expo": "~54.0.10",
     "eslint": "^9.39.1",
     "typescript": "5.9.3"
   }
