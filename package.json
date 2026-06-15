@@ -24,7 +24,7 @@
     "lint-staged": "17.0.7",
     "prettier": "3.8.4",
     "turbo": "2.9.18",
-    "typescript": "5.9.3"
+    "typescript": "6.0.3"
   },
   "lint-staged": {
     "*.{js,cjs,mjs,jsx,ts,tsx,json,jsonc,md,mdx,yaml,yml,css}": "prettier --write"

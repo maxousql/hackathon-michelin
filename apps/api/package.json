@@ -17,7 +17,7 @@
     "@nestjs/platform-express": "11.1.27",
     "@nestjs/swagger": "11.4.4",
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.3",
+    "class-validator": "^0.15.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "zod": "4.4.3"
@@ -28,11 +28,11 @@
     "@michelin/contracts": "workspace:*",
     "@nestjs/cli": "^11.0.16",
     "@nestjs/testing": "11.1.27",
-    "@types/node": "^22.19.0",
-    "@types/supertest": "^6.0.3",
+    "@types/node": "^25.9.3",
+    "@types/supertest": "^7.2.0",
     "eslint": "^9.39.1",
     "supertest": "^7.1.4",
-    "typescript": "5.9.3",
+    "typescript": "6.0.3",
     "vitest": "4.1.9"
   },
   "files": [

@@ -20,7 +20,7 @@
     "@michelin/config-eslint": "workspace:*",
     "@michelin/config-typescript": "workspace:*",
     "eslint": "^9.39.1",
-    "typescript": "5.9.3",
+    "typescript": "6.0.3",
     "vitest": "4.1.9"
   }
 }
