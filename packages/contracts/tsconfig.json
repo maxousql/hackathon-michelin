@@ -1,0 +1,4 @@
+{
+  "extends": "@michelin/config-typescript/library.json",
+  "include": ["src/**/*.ts"]
+}

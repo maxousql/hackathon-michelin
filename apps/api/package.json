@@ -1,0 +1,41 @@
+{
+  "name": "@michelin/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "lint": "eslint src test",
+    "start": "node dist/main.js",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@nestjs/common": "11.1.27",
+    "@nestjs/config": "4.0.4",
+    "@nestjs/core": "11.1.27",
+    "@nestjs/platform-express": "11.1.27",
+    "@nestjs/swagger": "11.4.4",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@michelin/config-eslint": "workspace:*",
+    "@michelin/config-typescript": "workspace:*",
+    "@michelin/contracts": "workspace:*",
+    "@nestjs/cli": "^11.0.16",
+    "@nestjs/testing": "11.1.27",
+    "@types/node": "^22.19.0",
+    "@types/supertest": "^6.0.3",
+    "eslint": "^9.39.1",
+    "supertest": "^7.1.4",
+    "typescript": "5.9.3",
+    "vitest": "4.1.9"
+  },
+  "files": [
+    "dist"
+  ]
+}
