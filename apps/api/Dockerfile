@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim AS base
+FROM node:26-bookworm-slim AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -26,7 +26,7 @@ COPY . .
 RUN pnpm --filter @michelin/api build
 RUN pnpm --filter @michelin/api deploy --prod /prod/api
 
-FROM node:22-bookworm-slim AS runner
+FROM node:26-bookworm-slim AS runner
 
 ENV NODE_ENV=production
 ENV PORT=3001
