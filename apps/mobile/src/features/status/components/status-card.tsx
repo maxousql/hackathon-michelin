@@ -1,5 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
+import { colors, radius, spacing } from '../../../theme';
 import { useStatus } from '../hooks/use-status';
 
 export function StatusCard() {
@@ -9,7 +10,7 @@ export function StatusCard() {
   return (
     <View style={styles.card}>
       {isLoading ? (
-        <ActivityIndicator color="#2854a1" />
+        <ActivityIndicator color={colors.blue} />
       ) : (
         <View
           style={[
@@ -22,7 +23,7 @@ export function StatusCard() {
       <View style={styles.copy}>
         <Text style={styles.label}>
           {isLoading
-            ? 'Vérification de l’API'
+            ? "Vérification de l'API"
             : isHealthy
               ? 'API opérationnelle'
               : 'API indisponible'}
@@ -44,35 +45,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 22,
     borderWidth: 1,
-    borderColor: '#dedbd1',
-    borderRadius: 22,
-    backgroundColor: '#fffefa',
+    borderColor: colors.cardBorder,
+    borderRadius: radius.lg,
+    backgroundColor: colors.cardBg,
   },
   dot: {
     width: 14,
     height: 14,
-    marginHorizontal: 4,
+    marginHorizontal: spacing.xs,
     borderRadius: 7,
   },
-  dotHealthy: {
-    backgroundColor: '#179b59',
-  },
-  dotUnavailable: {
-    backgroundColor: '#e65e31',
-  },
-  copy: {
-    flex: 1,
-    marginLeft: 18,
-  },
+  dotHealthy: { backgroundColor: colors.success },
+  dotUnavailable: { backgroundColor: colors.error },
+  copy: { flex: 1, marginLeft: 18 },
   label: {
     marginBottom: 5,
-    color: '#151713',
+    color: colors.dark,
     fontSize: 17,
     fontWeight: '800',
   },
-  detail: {
-    color: '#686c64',
-    fontSize: 13,
-    lineHeight: 18,
-  },
+  detail: { color: colors.subtle, fontSize: 13, lineHeight: 18 },
 });
