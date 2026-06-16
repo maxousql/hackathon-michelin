@@ -1,10 +1,13 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '../features/auth/context/auth-context';
 import { LoginScreen } from '../features/auth/screens/login-screen';
 import { RegisterScreen } from '../features/auth/screens/register-screen';
 import { HomeScreen } from '../features/home/screens/home-screen';
+import { CatalogScreen } from '../features/products/components/catalog-screen';
+import { ProductDetailScreen } from '../features/products/components/product-detail-screen';
 import { colors } from '../theme';
 import type { AppStackParamList, AuthStackParamList } from './types';
 
@@ -20,10 +23,37 @@ function AuthNavigator() {
   );
 }
 
+function CatalogScreenWrapper({
+  navigation,
+}: NativeStackScreenProps<AppStackParamList, 'Catalog'>) {
+  return (
+    <CatalogScreen
+      onSelect={(id) => navigation.navigate('ProductDetail', { id })}
+    />
+  );
+}
+
+function ProductDetailScreenWrapper({
+  route,
+  navigation,
+}: NativeStackScreenProps<AppStackParamList, 'ProductDetail'>) {
+  return (
+    <ProductDetailScreen
+      id={route.params.id}
+      onBack={() => navigation.goBack()}
+    />
+  );
+}
+
 function AppNavigator() {
   return (
     <AppStack.Navigator screenOptions={{ headerShown: false }}>
       <AppStack.Screen name="Home" component={HomeScreen} />
+      <AppStack.Screen name="Catalog" component={CatalogScreenWrapper} />
+      <AppStack.Screen
+        name="ProductDetail"
+        component={ProductDetailScreenWrapper}
+      />
     </AppStack.Navigator>
   );
 }
@@ -34,7 +64,7 @@ export function RootNavigator() {
   if (isLoading) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color={colors.dark} />
+        <ActivityIndicator size="large" color={colors.brandBlue} />
       </View>
     );
   }
@@ -47,6 +77,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.bg,
+    backgroundColor: colors.surfaceCanvas,
   },
 });

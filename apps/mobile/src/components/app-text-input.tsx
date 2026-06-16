@@ -7,7 +7,7 @@ import {
   View,
 } from 'react-native';
 
-import { colors, radius, spacing } from '../theme';
+import { colors, radius } from '../theme';
 
 interface Props extends TextInputProps {
   label: string;
@@ -24,7 +24,7 @@ export const AppTextInput = forwardRef<TextInput, Props>(
         <TextInput
           ref={ref}
           style={[styles.input, error ? styles.inputError : null, style]}
-          placeholderTextColor={colors.placeholder}
+          placeholderTextColor={colors.borderStrong}
           accessibilityLabel={label}
           accessibilityHint={error ?? hint}
           {...props}
@@ -52,24 +52,24 @@ export const AppTextInput = forwardRef<TextInput, Props>(
 AppTextInput.displayName = 'AppTextInput';
 
 const styles = StyleSheet.create({
-  field: { gap: spacing.xs + 2 },
+  field: { gap: 6 },
   label: {
     fontSize: 13,
     fontWeight: '700',
     letterSpacing: 0.3,
-    color: colors.dark,
+    color: colors.textPrimary,
   },
   input: {
     padding: 14,
     borderWidth: 1.5,
-    borderColor: colors.inputBorder,
-    borderRadius: radius.md,
-    backgroundColor: colors.inputBg,
-    color: colors.dark,
+    borderColor: colors.borderDefault,
+    borderRadius: radius.medium,
+    backgroundColor: colors.surfaceDefault,
+    color: colors.textPrimary,
     fontSize: 15,
   },
-  inputError: { borderColor: colors.error },
-  error: { fontSize: 12, color: colors.error },
-  hint: { fontSize: 12, color: colors.subtle },
-  hintSuccess: { color: colors.success },
+  inputError: { borderColor: colors.stateError },
+  error: { fontSize: 12, color: colors.stateError },
+  hint: { fontSize: 12, color: colors.textSecondary },
+  hintSuccess: { color: colors.stateSuccess },
 });

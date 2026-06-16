@@ -37,11 +37,11 @@ export function ScreenWrapper({ children, scroll = true }: Props) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
+  safe: { flex: 1, backgroundColor: colors.surfaceCanvas },
   flex: { flex: 1 },
   content: {
     flexGrow: 1,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.xxl,
+    paddingHorizontal: spacing[6],
+    paddingVertical: spacing[12],
   },
 });

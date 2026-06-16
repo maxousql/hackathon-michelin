@@ -1,6 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radius, spacing } from '../../../theme';
+import { colors, fontSize, fontWeight, radius, spacing } from '../../../theme';
 import { useStatus } from '../hooks/use-status';
 
 export function StatusCard() {
@@ -10,7 +10,7 @@ export function StatusCard() {
   return (
     <View style={styles.card}>
       {isLoading ? (
-        <ActivityIndicator color={colors.blue} />
+        <ActivityIndicator color={colors.brandBlue} />
       ) : (
         <View
           style={[
@@ -43,26 +43,29 @@ const styles = StyleSheet.create({
     minHeight: 96,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 22,
+    padding: spacing[6],
     borderWidth: 1,
-    borderColor: colors.cardBorder,
-    borderRadius: radius.lg,
-    backgroundColor: colors.cardBg,
+    borderColor: colors.borderDefault,
+    borderRadius: radius.large,
+    backgroundColor: colors.surfaceDefault,
   },
   dot: {
     width: 14,
     height: 14,
-    marginHorizontal: spacing.xs,
-    borderRadius: 7,
+    marginHorizontal: spacing[1],
+    borderRadius: radius.full,
   },
-  dotHealthy: { backgroundColor: colors.success },
-  dotUnavailable: { backgroundColor: colors.error },
-  copy: { flex: 1, marginLeft: 18 },
+  dotHealthy: { backgroundColor: colors.stateSuccess },
+  dotUnavailable: { backgroundColor: colors.stateError },
+  copy: { flex: 1, marginLeft: spacing[4] },
   label: {
-    marginBottom: 5,
-    color: colors.dark,
-    fontSize: 17,
-    fontWeight: '800',
+    marginBottom: spacing[1],
+    fontSize: fontSize.bodyLarge,
+    fontWeight: fontWeight.black,
+    color: colors.textPrimary,
   },
-  detail: { color: colors.subtle, fontSize: 13, lineHeight: 18 },
+  detail: {
+    fontSize: fontSize.bodySmall,
+    color: colors.textSecondary,
+  },
 });

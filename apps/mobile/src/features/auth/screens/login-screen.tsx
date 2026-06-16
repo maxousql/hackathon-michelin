@@ -68,14 +68,14 @@ export function LoginScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   eyebrow: {
     marginBottom: 12,
-    color: colors.blue,
+    color: colors.brandBlue,
     fontSize: 11,
     fontWeight: '800',
     letterSpacing: 2,
   },
   title: {
-    marginBottom: spacing.sm,
-    color: colors.dark,
+    marginBottom: spacing[2],
+    color: colors.textPrimary,
     fontSize: 42,
     fontWeight: '900',
     letterSpacing: -2,
@@ -83,23 +83,23 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginBottom: 40,
-    color: colors.muted,
+    color: colors.textSecondary,
     fontSize: 16,
     lineHeight: 24,
   },
-  form: { gap: spacing.md },
+  form: { gap: spacing[4] },
   errorBox: {
     padding: 14,
     borderRadius: 10,
-    backgroundColor: colors.errorBg,
-    color: colors.errorDark,
+    backgroundColor: 'rgba(179,38,30,0.10)',
+    color: colors.stateError,
     fontSize: 13,
   },
   switchText: {
     textAlign: 'center',
-    color: colors.subtle,
+    color: colors.textSecondary,
     fontSize: 13,
-    marginTop: spacing.sm,
+    marginTop: spacing[2],
   },
-  switchLink: { color: colors.dark, fontWeight: '700' },
+  switchLink: { color: colors.textPrimary, fontWeight: '700' },
 });

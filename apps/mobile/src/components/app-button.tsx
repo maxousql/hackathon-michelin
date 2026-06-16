@@ -49,19 +49,19 @@ export function AppButton({
 
 const styles = StyleSheet.create({
   base: {
-    padding: spacing.md,
-    borderRadius: radius.md,
+    padding: spacing[4],
+    borderRadius: radius.medium,
     alignItems: 'center',
   },
-  primary: { backgroundColor: colors.dark },
+  primary: { backgroundColor: colors.brandBlue },
   outline: {
     backgroundColor: 'transparent',
     borderWidth: 1.5,
-    borderColor: colors.border,
+    borderColor: colors.borderDefault,
   },
   pressed: { opacity: 0.85 },
   disabled: { opacity: 0.5 },
   text: { fontSize: 15, fontWeight: '700' },
-  textPrimary: { color: colors.yellow },
-  textOutline: { color: colors.dark },
+  textPrimary: { color: colors.textOnBrand },
+  textOutline: { color: colors.textPrimary },
 });

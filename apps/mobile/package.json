@@ -20,6 +20,7 @@
     ]
   },
   "dependencies": {
+    "@expo/metro-runtime": "~6.1.2",
     "@michelin/api-client": "workspace:*",
     "@michelin/contracts": "workspace:*",
     "@react-navigation/native": "^7.3.3",
@@ -31,7 +32,8 @@
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
     "react-native-safe-area-context": "~5.6.0",
-    "react-native-screens": "~4.16.0"
+    "react-native-screens": "~4.16.0",
+    "react-native-web": "^0.21.2"
   },
   "devDependencies": {
     "@expo/metro-config": "~54.0.14",

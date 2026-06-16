@@ -5,4 +5,6 @@ export type AuthStackParamList = {
 
 export type AppStackParamList = {
   Home: undefined;
+  Catalog: undefined;
+  ProductDetail: { id: number };
 };

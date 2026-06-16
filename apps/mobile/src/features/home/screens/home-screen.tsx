@@ -1,19 +1,23 @@
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppButton } from '../../../components/app-button';
-import { colors, spacing } from '../../../theme';
+import type { AppStackParamList } from '../../../navigation/types';
+import { colors, fontSize, fontWeight, radius, spacing } from '../../../theme';
 import { useAuth } from '../../auth/context/auth-context';
 import { StatusCard } from '../../status/components/status-card';
 
-export function HomeScreen() {
+type Props = NativeStackScreenProps<AppStackParamList, 'Home'>;
+
+export function HomeScreen({ navigation }: Props) {
   const { user, logout } = useAuth();
 
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar style="dark" />
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <View>
             <Text style={styles.eyebrow}>HACKATHON MICHELIN</Text>
@@ -32,6 +36,11 @@ export function HomeScreen() {
 
         <StatusCard />
 
+        <AppButton
+          title="Explorer le catalogue"
+          onPress={() => navigation.navigate('Catalog')}
+        />
+
         <View style={styles.feature}>
           <Text style={styles.featureIndex}>01</Text>
           <Text style={styles.featureTitle}>iOS et Android</Text>
@@ -39,36 +48,34 @@ export function HomeScreen() {
             Une base React Native commune, prête à être distribuée avec EAS.
           </Text>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
+  safe: { flex: 1, backgroundColor: colors.surfaceCanvas },
   content: {
-    flex: 1,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.xxl,
+    paddingHorizontal: spacing[6],
+    paddingVertical: spacing[8],
+    gap: spacing[6],
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.lg,
   },
   eyebrow: {
     marginBottom: 4,
-    color: colors.blue,
-    fontSize: 11,
-    fontWeight: '800',
+    color: colors.brandBlue,
+    fontSize: fontSize.caption,
+    fontWeight: fontWeight.black,
     letterSpacing: 2,
   },
-  welcome: { color: colors.dark, fontSize: 16, fontWeight: '600' },
+  welcome: { color: colors.textPrimary, fontSize: 16, fontWeight: '600' },
   title: {
     maxWidth: 330,
-    marginBottom: 20,
-    color: colors.dark,
+    color: colors.textPrimary,
     fontSize: 56,
     fontWeight: '900',
     letterSpacing: -3,
@@ -76,33 +83,31 @@ const styles = StyleSheet.create({
   },
   introduction: {
     maxWidth: 340,
-    marginBottom: 36,
-    color: colors.muted,
-    fontSize: 18,
+    color: colors.textSecondary,
+    fontSize: fontSize.bodyLarge,
     lineHeight: 28,
   },
   feature: {
     minHeight: 210,
-    marginTop: spacing.md,
-    padding: spacing.lg,
-    borderRadius: 22,
-    backgroundColor: colors.darkCardBg,
+    padding: spacing[6],
+    borderRadius: radius.xlarge,
+    backgroundColor: colors.surfaceBrand,
   },
   featureIndex: {
     marginBottom: 56,
-    color: colors.yellow,
+    color: colors.brandYellow,
     fontFamily: 'monospace',
-    fontSize: 14,
+    fontSize: fontSize.bodySmall,
   },
   featureTitle: {
     marginBottom: 10,
-    color: colors.darkCardText,
-    fontSize: 24,
-    fontWeight: '800',
+    color: colors.textOnBrand,
+    fontSize: fontSize.h3,
+    fontWeight: fontWeight.black,
   },
   featureCopy: {
-    color: colors.darkCardSubtext,
-    fontSize: 16,
+    color: 'rgba(255,255,255,0.65)',
+    fontSize: fontSize.body,
     lineHeight: 24,
   },
 });
