@@ -19,7 +19,9 @@
     "db:link": "supabase link",
     "db:push": "supabase db push",
     "db:diff": "supabase db diff",
-    "db:reset": "supabase db reset"
+    "db:reset": "supabase db reset",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "devDependencies": {
     "@commitlint/cli": "21.0.2",
@@ -27,6 +29,8 @@
     "husky": "9.1.7",
     "lint-staged": "17.0.7",
     "prettier": "3.8.4",
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.0.0",
     "supabase": "^2.106.0",
     "turbo": "2.9.18",
     "typescript": "5.9.3"
