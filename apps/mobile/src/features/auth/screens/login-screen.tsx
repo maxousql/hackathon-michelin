@@ -1,11 +1,11 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 import { AppButton } from '../../../components/app-button';
 import { AppTextInput } from '../../../components/app-text-input';
-import { ScreenWrapper } from '../../../components/screen-wrapper';
 import type { AuthStackParamList } from '../../../navigation/types';
 import { colors, spacing } from '../../../theme';
+import { AuthScreenShell } from '../components/auth-screen-shell';
 import { useLoginForm } from '../hooks/use-login-form';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
@@ -14,80 +14,52 @@ export function LoginScreen({ navigation }: Props) {
   const { fields, update, error, pending, submit } = useLoginForm();
 
   return (
-    <ScreenWrapper>
-      <Text style={styles.eyebrow}>MICHELIN</Text>
-      <Text style={styles.title}>Connexion</Text>
-      <Text style={styles.subtitle}>Content de te revoir.</Text>
+    <AuthScreenShell title="Connexion" subtitle="Content de te revoir.">
+      <AppTextInput
+        label="Adresse email"
+        value={fields.email}
+        onChangeText={update('email')}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        autoComplete="email"
+        placeholder="jane@example.com"
+        returnKeyType="next"
+      />
 
-      <View style={styles.form}>
-        <AppTextInput
-          label="Adresse email"
-          value={fields.email}
-          onChangeText={update('email')}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoComplete="email"
-          placeholder="jane@example.com"
-          returnKeyType="next"
-        />
+      <AppTextInput
+        label="Mot de passe"
+        value={fields.password}
+        onChangeText={update('password')}
+        secureTextEntry
+        autoComplete="current-password"
+        placeholder="••••••••"
+        returnKeyType="done"
+        onSubmitEditing={submit}
+      />
 
-        <AppTextInput
-          label="Mot de passe"
-          value={fields.password}
-          onChangeText={update('password')}
-          secureTextEntry
-          autoComplete="current-password"
-          placeholder="••••••••"
-          returnKeyType="done"
-          onSubmitEditing={submit}
-        />
+      {error ? <Text style={styles.errorBox}>{error}</Text> : null}
 
-        {error ? <Text style={styles.errorBox}>{error}</Text> : null}
+      <AppButton
+        title="Se connecter"
+        loadingTitle="Connexion…"
+        onPress={submit}
+        loading={pending}
+        disabled={!fields.email || !fields.password}
+      />
 
-        <AppButton
-          title="Se connecter"
-          loadingTitle="Connexion…"
-          onPress={submit}
-          loading={pending}
-          disabled={!fields.email || !fields.password}
-        />
-
-        <Text
-          style={styles.switchText}
-          onPress={() => navigation.navigate('Register')}
-          accessibilityRole="link"
-        >
-          Pas encore de compte ?{' '}
-          <Text style={styles.switchLink}>Créer un compte</Text>
-        </Text>
-      </View>
-    </ScreenWrapper>
+      <Text
+        style={styles.switchText}
+        onPress={() => navigation.navigate('Register')}
+        accessibilityRole="link"
+      >
+        Pas encore de compte ?{' '}
+        <Text style={styles.switchLink}>Créer un compte</Text>
+      </Text>
+    </AuthScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  eyebrow: {
-    marginBottom: 12,
-    color: colors.brandBlue,
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 2,
-  },
-  title: {
-    marginBottom: spacing[2],
-    color: colors.textPrimary,
-    fontSize: 42,
-    fontWeight: '900',
-    letterSpacing: -2,
-    lineHeight: 44,
-  },
-  subtitle: {
-    marginBottom: 40,
-    color: colors.textSecondary,
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  form: { gap: spacing[4] },
   errorBox: {
     padding: 14,
     borderRadius: 10,
