@@ -31,6 +31,7 @@ async function bootstrap() {
     .setTitle('Michelin Hackathon API')
     .setDescription('API shared by the Next.js and React Native applications.')
     .setVersion(config.get('APP_VERSION', { infer: true }))
+    .addBearerAuth()
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
 

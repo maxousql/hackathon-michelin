@@ -1,5 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
+import { colors, fontSize, fontWeight, radius, spacing } from '../../../theme';
 import { useStatus } from '../hooks/use-status';
 
 export function StatusCard() {
@@ -9,7 +10,7 @@ export function StatusCard() {
   return (
     <View style={styles.card}>
       {isLoading ? (
-        <ActivityIndicator color="#2854a1" />
+        <ActivityIndicator color={colors.brandBlue} />
       ) : (
         <View
           style={[
@@ -22,7 +23,7 @@ export function StatusCard() {
       <View style={styles.copy}>
         <Text style={styles.label}>
           {isLoading
-            ? 'Vérification de l’API'
+            ? "Vérification de l'API"
             : isHealthy
               ? 'API opérationnelle'
               : 'API indisponible'}
@@ -42,37 +43,29 @@ const styles = StyleSheet.create({
     minHeight: 96,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 22,
+    padding: spacing[6],
     borderWidth: 1,
-    borderColor: '#dedbd1',
-    borderRadius: 22,
-    backgroundColor: '#fffefa',
+    borderColor: colors.borderDefault,
+    borderRadius: radius.large,
+    backgroundColor: colors.surfaceDefault,
   },
   dot: {
     width: 14,
     height: 14,
-    marginHorizontal: 4,
-    borderRadius: 7,
+    marginHorizontal: spacing[1],
+    borderRadius: radius.full,
   },
-  dotHealthy: {
-    backgroundColor: '#179b59',
-  },
-  dotUnavailable: {
-    backgroundColor: '#e65e31',
-  },
-  copy: {
-    flex: 1,
-    marginLeft: 18,
-  },
+  dotHealthy: { backgroundColor: colors.stateSuccess },
+  dotUnavailable: { backgroundColor: colors.stateError },
+  copy: { flex: 1, marginLeft: spacing[4] },
   label: {
-    marginBottom: 5,
-    color: '#151713',
-    fontSize: 17,
-    fontWeight: '800',
+    marginBottom: spacing[1],
+    fontSize: fontSize.bodyLarge,
+    fontWeight: fontWeight.black,
+    color: colors.textPrimary,
   },
   detail: {
-    color: '#686c64',
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: fontSize.bodySmall,
+    color: colors.textSecondary,
   },
 });

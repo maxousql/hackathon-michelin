@@ -1,0 +1,27 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  font-size: var(--type-caption);
+  font-weight: var(--weight-semibold);
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.badge[data-tone='neutral'] {
+  background: var(--surface-canvas);
+  color: var(--text-secondary);
+  border-color: var(--border-default);
+}
+
+.badge[data-tone='brand'] {
+  background: rgb(39 80 155 / 10%);
+  color: var(--brand-blue);
+}
+
+.badge[data-tone='success'] {
+  background: rgb(46 125 50 / 10%);
+  color: var(--state-success);
+}

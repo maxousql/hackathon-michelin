@@ -1,0 +1,41 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  margin-top: var(--space-12);
+}
+
+.link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--brand-blue);
+  border-radius: var(--radius-medium);
+  color: var(--brand-blue);
+  font-weight: var(--weight-bold);
+  font-size: var(--type-body-small);
+  text-decoration: none;
+}
+
+.link:hover {
+  background: rgb(39 80 155 / 8%);
+}
+
+.disabled {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-medium);
+  color: var(--border-strong);
+  font-size: var(--type-body-small);
+}
+
+.status {
+  font-size: var(--type-body-small);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+}

@@ -34,3 +34,6 @@ export const typography = Object.freeze({
     caption: 16,
   }),
 });
+
+export const fontSize = typography.size;
+export const fontWeight = typography.weight;

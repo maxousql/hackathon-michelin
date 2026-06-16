@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { validateEnvironment } from './config/environment';
+import { AuthModule } from './features/auth/auth.module';
+import { ProductsModule } from './features/products/products.module';
 import { StatusModule } from './features/status/status.module';
 
 @Module({
@@ -11,6 +13,8 @@ import { StatusModule } from './features/status/status.module';
       isGlobal: true,
       validate: validateEnvironment,
     }),
+    AuthModule,
+    ProductsModule,
     StatusModule,
   ],
 })

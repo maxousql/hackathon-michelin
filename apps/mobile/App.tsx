@@ -1,12 +1,17 @@
-import { StatusBar } from 'expo-status-bar';
+import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { LandingScreen } from './src/features/landing/components/landing-screen';
+import { AuthProvider } from './src/features/auth/context/auth-context';
+import { RootNavigator } from './src/navigation/root-navigator';
 
 export default function App() {
   return (
-    <>
-      <StatusBar style="dark" />
-      <LandingScreen />
-    </>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }

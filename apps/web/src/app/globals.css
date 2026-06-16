@@ -1482,6 +1482,202 @@ h3 {
   gap: var(--space-4);
 }
 
+.auth-page {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  padding: var(--space-12);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xlarge);
+  background: var(--surface-default);
+  box-shadow: var(--shadow-medium);
+}
+
+.auth-card h1 {
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+  font-size: var(--type-h2);
+  font-weight: var(--weight-black);
+}
+
+.auth-subtitle {
+  margin-bottom: var(--space-10);
+  color: var(--text-secondary);
+  font-size: var(--type-body-small);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.form-row .form-group {
+  min-width: 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-group label {
+  color: var(--text-primary);
+  font-size: var(--type-label);
+  font-weight: var(--weight-bold);
+}
+
+.form-group input {
+  min-height: 48px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-medium);
+  background: var(--surface-default);
+  color: var(--text-primary);
+  font-size: var(--type-body);
+  outline: none;
+  transition: border-color var(--motion-fast) var(--motion-easing);
+}
+
+.form-group input:hover {
+  border-color: var(--border-strong);
+}
+
+.form-group input:focus {
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 1px var(--focus-ring);
+}
+
+.form-group input:invalid:not(:placeholder-shown) {
+  border-color: var(--state-error);
+}
+
+.field-error {
+  margin: 0;
+  color: var(--state-error);
+  font-size: var(--type-caption);
+}
+
+.field-valid {
+  margin: 0;
+  color: var(--state-success);
+  font-size: var(--type-caption);
+}
+
+.form-error {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-medium);
+  background: rgb(179 38 30 / 8%);
+  color: var(--state-error);
+  font-size: var(--type-body-small);
+}
+
+.password-rules {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.password-rules li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--type-caption);
+  transition: color var(--motion-fast) var(--motion-easing);
+}
+
+.password-rules li.valid {
+  color: var(--state-success);
+}
+
+.password-rules li::before {
+  flex-shrink: 0;
+  content: '○';
+  font-size: 0.65rem;
+}
+
+.password-rules li.valid::before {
+  color: var(--state-success);
+  content: '●';
+}
+
+.btn-primary {
+  min-height: 48px;
+  padding: var(--space-3) var(--space-6);
+  border: none;
+  border-radius: var(--radius-medium);
+  background: var(--brand-yellow);
+  color: var(--text-on-yellow);
+  cursor: pointer;
+  font-size: var(--type-body);
+  font-weight: var(--weight-bold);
+  transition:
+    background var(--motion-fast) var(--motion-easing),
+    opacity var(--motion-fast) var(--motion-easing);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #ffec4d;
+}
+
+.btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.auth-switch {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--type-body-small);
+  text-align: center;
+}
+
+.auth-switch a {
+  color: var(--brand-blue);
+  font-weight: var(--weight-bold);
+  text-decoration: none;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
+.btn-logout {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-6);
+  border: 1px solid var(--brand-blue);
+  border-radius: var(--radius-medium);
+  background: transparent;
+  color: var(--brand-blue);
+  cursor: pointer;
+  font-size: var(--type-body-small);
+  font-weight: var(--weight-bold);
+  transition: background var(--motion-fast) var(--motion-easing);
+}
+
+.btn-logout:hover {
+  background: rgb(var(--brand-blue-rgb) / 8%);
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .reveal {
     animation: reveal-up 640ms cubic-bezier(0.2, 0, 0, 1) both;

@@ -30,6 +30,13 @@ ios/
 .idea/
 .vscode/
 
+# Supabase CLI temp files
+supabase/.temp/
+
+# Playwright
+playwright-report/
+test-results/
+
 # Logs
 *.log
 npm-debug.log*

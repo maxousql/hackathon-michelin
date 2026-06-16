@@ -9,8 +9,6 @@ describe('Status endpoint', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    process.env.NODE_ENV = 'test';
-
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();

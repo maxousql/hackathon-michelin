@@ -4,6 +4,13 @@ packages:
 
 injectWorkspacePackages: true
 
+strictPeerDependencies: false
+
+overrides:
+  jest-runtime: '^29.0.0'
+  jest-circus: '^29.0.0'
+  jest-config: '^29.0.0'
+
 onlyBuiltDependencies:
   - '@nestjs/core'
   - esbuild
