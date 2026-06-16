@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 export function AuthShell({ children }: { children: ReactNode }) {
@@ -6,7 +7,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
     <>
       <header className="site-header">
         <div className="site-header-inner">
-          <a
+          <Link
             className="brand-mark"
             href="/"
             aria-label="Michelin Race – Accueil"
@@ -19,7 +20,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
               src="/logo-michelin-race.png"
               width={240}
             />
-          </a>
+          </Link>
         </div>
       </header>
       <main className="auth-page">{children}</main>
