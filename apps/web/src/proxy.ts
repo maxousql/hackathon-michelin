@@ -1,6 +1,12 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
-const PUBLIC_PATHS = ['/login', '/register'];
+// Pages d'authentification : un utilisateur déjà connecté en est renvoyé vers
+// l'accueil.
+const AUTH_PATHS = ['/login', '/register'];
+
+// Pages accessibles sans être connecté (et sans redirection si on l'est).
+// Le catalogue produits est public.
+const OPEN_PATHS = ['/products'];
 
 export function proxy(request: NextRequest) {
   // Server Actions are POST requests — never redirect them
@@ -9,15 +15,19 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('auth_token')?.value;
 
-  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+  const isAuthPage = AUTH_PATHS.some((p) => pathname.startsWith(p));
+  const isOpen = OPEN_PATHS.some((p) => pathname.startsWith(p));
 
-  if (!token && !isPublic) {
+  // Non connecté : seules les pages d'auth et publiques sont accessibles.
+  if (!token && !isAuthPage && !isOpen) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
     return NextResponse.redirect(loginUrl);
   }
 
-  if (token && isPublic) {
+  // Connecté : on ne reste pas sur les pages d'auth (mais on peut voir les
+  // pages publiques comme le catalogue).
+  if (token && isAuthPage) {
     const homeUrl = request.nextUrl.clone();
     homeUrl.pathname = '/';
     return NextResponse.redirect(homeUrl);

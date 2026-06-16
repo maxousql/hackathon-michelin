@@ -1,11 +1,18 @@
 import {
   authResponseSchema,
   authUserSchema,
+  michelinProductSchema,
+  productFacetsSchema,
+  productListResponseSchema,
+  statusResponseSchema,
   type AuthResponse,
   type AuthUser,
   type LoginRequest,
+  type MichelinProduct,
+  type ProductFacets,
+  type ProductFilters,
+  type ProductListResponse,
   type RegisterRequest,
-  statusResponseSchema,
   type StatusResponse,
 } from '@michelin/contracts';
 
@@ -19,6 +26,29 @@ export interface ApiClient {
   register(data: RegisterRequest, signal?: AbortSignal): Promise<AuthResponse>;
   login(data: LoginRequest, signal?: AbortSignal): Promise<AuthResponse>;
   getMe(token: string, signal?: AbortSignal): Promise<AuthUser>;
+  getProducts(
+    filters: ProductFilters,
+    signal?: AbortSignal,
+  ): Promise<ProductListResponse>;
+  getProductFacets(signal?: AbortSignal): Promise<ProductFacets>;
+  getProduct(id: number, signal?: AbortSignal): Promise<MichelinProduct>;
+}
+
+/** Sérialise les filtres catalogue en query string (omet les valeurs vides). */
+function serializeProductFilters(filters: ProductFilters): string {
+  const params = new URLSearchParams();
+  if (filters.q) params.set('q', filters.q);
+  if (filters.cycleType) params.set('cycleType', filters.cycleType);
+  if (filters.segment) params.set('segment', filters.segment);
+  if (filters.productType) params.set('productType', filters.productType);
+  if (filters.sealing) params.set('sealing', filters.sealing);
+  if (filters.diameter) params.set('diameter', filters.diameter);
+  if (filters.width) params.set('width', filters.width);
+  if (filters.ebike) params.set('ebike', '1');
+  if (filters.sort !== 'range') params.set('sort', filters.sort);
+  if (filters.page > 1) params.set('page', String(filters.page));
+  const query = params.toString();
+  return query ? `?${query}` : '';
 }
 
 export class ApiClientError extends Error {
@@ -127,6 +157,30 @@ export function createApiClient({
           headers: { Authorization: `Bearer ${token}` },
           schema: authUserSchema,
         },
+        signal,
+      );
+    },
+
+    getProducts(filters, signal) {
+      return request(
+        `/products${serializeProductFilters(filters)}`,
+        { schema: productListResponseSchema },
+        signal,
+      );
+    },
+
+    getProductFacets(signal) {
+      return request(
+        '/products/facets',
+        { schema: productFacetsSchema },
+        signal,
+      );
+    },
+
+    getProduct(id, signal) {
+      return request(
+        `/products/${id}`,
+        { schema: michelinProductSchema },
         signal,
       );
     },

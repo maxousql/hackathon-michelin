@@ -1,0 +1,96 @@
+/*
+ * MICHELIN Ride ID — Tokens de design (implémentation CSS)
+ * Source de vérité : docs/11-design-system-michelin.md (§11.5 à §11.15)
+ * Règle : pas de couleur ni d'espacement en valeur brute dans un composant
+ * si un token existe ici.
+ */
+
+:root {
+  /* ── Palette de marque (OFFICIEL MICHELIN) ─────────────────── */
+  --brand-blue: #27509b;
+  --brand-yellow: #fce500;
+  --brand-dark-blue: #00205b;
+  --brand-midnight: #000c34;
+  --brand-gray: #53565a;
+  --brand-purple: #582c83;
+  --brand-green: #84bd00;
+  --base-white: #ffffff;
+  --base-black: #000000;
+
+  /* ── Tokens sémantiques ────────────────────────────────────── */
+  --surface-canvas: #f7f8fa;
+  --surface-default: #ffffff;
+  --surface-brand: #00205b;
+  --surface-highlight: #fff9cc;
+
+  --text-primary: #202124;
+  --text-secondary: #53565a;
+  --text-on-brand: #ffffff;
+  --text-on-yellow: #000c34;
+
+  --border-default: #d6d8db;
+  --border-strong: #8a8d91;
+
+  --state-success: #2e7d32;
+  --state-warning: #8a6500;
+  --state-error: #b3261e;
+  --state-info: #27509b;
+  --focus-ring: #27509b;
+
+  /* ── Typographie ───────────────────────────────────────────── */
+  --font-body: var(--font-noto-sans), Arial, sans-serif;
+  --font-title: var(--font-noto-sans), Arial, sans-serif;
+
+  --type-display: clamp(2.5rem, 6vw, 4rem); /* 40 → 64 px */
+  --type-h1: clamp(2.25rem, 5vw, 3.25rem); /* 36 → 52 px */
+  --type-h2: clamp(1.875rem, 4vw, 2.5rem); /* 30 → 40 px */
+  --type-h3: clamp(1.5rem, 3vw, 1.875rem); /* 24 → 30 px */
+  --type-h4: clamp(1.25rem, 2vw, 1.375rem); /* 20 → 22 px */
+  --type-body-large: 1.125rem; /* 18 → 20 px */
+  --type-body: 1rem; /* 16 px */
+  --type-body-small: 0.875rem; /* 14 px */
+  --type-label: 0.875rem; /* 14 px */
+  --type-caption: 0.75rem; /* 12 px */
+
+  --weight-regular: 400;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 800;
+
+  /* ── Espacement (base 4 px) ────────────────────────────────── */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* ── Rayons ────────────────────────────────────────────────── */
+  --radius-none: 0;
+  --radius-small: 4px;
+  --radius-medium: 8px;
+  --radius-large: 16px;
+  --radius-xlarge: 24px;
+  --radius-full: 999px;
+
+  /* ── Ombres ────────────────────────────────────────────────── */
+  --shadow-none: none;
+  --shadow-low: 0 2px 8px rgb(0 12 52 / 8%);
+  --shadow-medium: 0 8px 24px rgb(0 12 52 / 12%);
+
+  /* ── Mouvement ─────────────────────────────────────────────── */
+  --motion-fast: 120ms;
+  --motion-standard: 200ms;
+  --motion-slow: 320ms;
+  --motion-easing: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ── Conteneur Ride ID (§11.8) ─────────────────────────────── */
+  --container-max: 1200px;
+  --container-pad: var(--space-8);
+}
