@@ -6,10 +6,12 @@ export {
 } from './status/status.contract';
 
 export {
+  adminUserSchema,
   authResponseSchema,
   authUserSchema,
   loginRequestSchema,
   registerRequestSchema,
+  type AdminUser,
   type AuthResponse,
   type AuthUser,
   type LoginRequest,

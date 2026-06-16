@@ -1,5 +1,7 @@
 import Image from 'next/image';
 
+import { UserMenu } from '@/features/auth/components/user-menu';
+
 import {
   AnimatedBadge,
   BicycleCategoryCard,
@@ -186,7 +188,7 @@ const assuranceItems = [
   'Achat ou montage simple à déclencher',
 ];
 
-export function LandingPage() {
+export function LandingPage({ isAdmin = false }: { isAdmin?: boolean }) {
   const year = new Date().getFullYear();
 
   return (
@@ -211,12 +213,15 @@ export function LandingPage() {
             <a href="#actu">Actualités vélo</a>
           </nav>
 
-          <a className="header-finder" href="#recherche">
-            <span className="header-finder-copy">Trouver le bon pneu</span>
-            <span className="header-finder-arrow" aria-hidden="true">
-              →
-            </span>
-          </a>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <a className="header-finder" href="#recherche">
+              <span className="header-finder-copy">Trouver le bon pneu</span>
+              <span className="header-finder-arrow" aria-hidden="true">
+                →
+              </span>
+            </a>
+            <UserMenu isAdmin={isAdmin} />
+          </div>
 
           <details className="mobile-menu">
             <summary>Menu</summary>

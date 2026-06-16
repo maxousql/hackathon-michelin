@@ -16,6 +16,7 @@ import type { RegisterDto } from './dto/register.dto';
 interface ProfileRow {
   first_name: string;
   last_name: string;
+  is_admin: boolean;
 }
 
 @Injectable()
@@ -77,6 +78,7 @@ export class AuthService {
         email: dto.email,
         firstName: dto.firstName,
         lastName: dto.lastName,
+        isAdmin: false,
       } satisfies AuthUserDto,
     };
   }
@@ -103,6 +105,7 @@ export class AuthService {
         email: data.user.email ?? '',
         firstName: profile.first_name,
         lastName: profile.last_name,
+        isAdmin: profile.is_admin,
       } satisfies AuthUserDto,
     };
   }
@@ -111,12 +114,13 @@ export class AuthService {
     id: string,
     email: string,
   ): Promise<AuthenticatedUser | null> {
-    const { data: profile } = await this.supabase
+    const { data: profile, error } = await this.supabase
       .from('profiles')
-      .select('first_name, last_name')
+      .select('first_name, last_name, is_admin')
       .eq('id', id)
       .single<ProfileRow>();
 
+    if (error) console.error('[getUserProfile] Supabase error:', error);
     if (!profile) return null;
 
     return {
@@ -124,6 +128,7 @@ export class AuthService {
       email,
       firstName: profile.first_name,
       lastName: profile.last_name,
+      isAdmin: profile.is_admin,
     };
   }
 
@@ -135,7 +140,7 @@ export class AuthService {
   ): Promise<ProfileRow> {
     const { data: existing } = await this.supabase
       .from('profiles')
-      .select('first_name, last_name')
+      .select('first_name, last_name, is_admin')
       .eq('id', userId)
       .single<ProfileRow>();
 
@@ -144,9 +149,14 @@ export class AuthService {
     const fallback: ProfileRow = {
       first_name: meta.firstName ?? '',
       last_name: meta.lastName ?? '',
+      is_admin: false,
     };
 
-    await this.supabase.from('profiles').insert({ id: userId, ...fallback });
+    await this.supabase.from('profiles').insert({
+      id: userId,
+      first_name: fallback.first_name,
+      last_name: fallback.last_name,
+    });
 
     return fallback;
   }

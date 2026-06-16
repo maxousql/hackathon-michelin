@@ -1,4 +1,7 @@
+import { z } from 'zod';
+
 import {
+  adminUserSchema,
   authResponseSchema,
   authUserSchema,
   buybackEstimateSchema,
@@ -8,6 +11,7 @@ import {
   productFacetsSchema,
   productListResponseSchema,
   statusResponseSchema,
+  type AdminUser,
   type AuthResponse,
   type AuthUser,
   type BuybackEstimate,
@@ -52,6 +56,18 @@ export interface ApiClient {
     token: string,
     signal?: AbortSignal,
   ): Promise<BuybackRequest[]>;
+  getAdminUsers(token: string, signal?: AbortSignal): Promise<AdminUser[]>;
+  updateAdminUser(
+    token: string,
+    id: string,
+    isAdmin: boolean,
+    signal?: AbortSignal,
+  ): Promise<void>;
+  deleteAdminUser(
+    token: string,
+    id: string,
+    signal?: AbortSignal,
+  ): Promise<void>;
 }
 
 /** Sérialise les filtres catalogue en query string (omet les valeurs vides). */
@@ -240,6 +256,75 @@ export function createApiClient({
         },
         signal,
       );
+    },
+
+    getAdminUsers(token, signal) {
+      return request(
+        '/admin/users',
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          schema: z.array(adminUserSchema),
+        },
+        signal,
+      );
+    },
+
+    async updateAdminUser(token, id, isAdmin, signal) {
+      let response: Response;
+      try {
+        response = await fetcher(`${normalizedBaseUrl}/admin/users/${id}`, {
+          method: 'PATCH',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ isAdmin }),
+          signal,
+        });
+      } catch (error) {
+        throw new ApiClientError('Unable to reach the API.', undefined, {
+          cause: error,
+        });
+      }
+      if (!response.ok) {
+        let message = `The API returned HTTP ${response.status}.`;
+        try {
+          const body = (await response.json()) as { message?: string };
+          if (body.message) message = String(body.message);
+        } catch {
+          // ignore parse error
+        }
+        throw new ApiClientError(message, response.status);
+      }
+    },
+
+    async deleteAdminUser(token, id, signal) {
+      let response: Response;
+      try {
+        response = await fetcher(`${normalizedBaseUrl}/admin/users/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          signal,
+        });
+      } catch (error) {
+        throw new ApiClientError('Unable to reach the API.', undefined, {
+          cause: error,
+        });
+      }
+      if (!response.ok) {
+        let message = `The API returned HTTP ${response.status}.`;
+        try {
+          const body = (await response.json()) as { message?: string };
+          if (body.message) message = String(body.message);
+        } catch {
+          // ignore parse error
+        }
+        throw new ApiClientError(message, response.status);
+      }
     },
   };
 }
