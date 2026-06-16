@@ -1,4 +1,4 @@
-import type { MichelinProduct } from '@michelin/contracts';
+import type { MichelinProduct, Retailer } from '@michelin/contracts';
 import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
@@ -13,9 +13,11 @@ import {
   productTags,
 } from '../services/product-presenter';
 import styles from './product-detail.module.css';
+import { WhereToBuy } from './where-to-buy';
 
 interface ProductDetailProps {
   product: MichelinProduct;
+  retailers: Retailer[];
 }
 
 interface SpecRow {
@@ -60,7 +62,7 @@ function SpecGroup({ title, rows }: { title: string; rows: SpecRow[] }) {
   );
 }
 
-export function ProductDetail({ product }: ProductDetailProps) {
+export function ProductDetail({ product, retailers }: ProductDetailProps) {
   const name = productName(product);
   const range = productRange(product);
   const cycleType = productCycleType(product);
@@ -160,11 +162,15 @@ export function ProductDetail({ product }: ProductDetailProps) {
           )}
 
           <div className={styles.cta}>
-            <ButtonLink href="#" variant="primary">
+            <ButtonLink href="#ou-acheter" variant="primary">
               Voir où l’acheter
             </ButtonLink>
           </div>
         </div>
+      </div>
+
+      <div id="ou-acheter">
+        <WhereToBuy retailers={retailers} />
       </div>
 
       <div className={styles.groups}>

@@ -31,6 +31,12 @@ export {
 } from './buyback/buyback.contract';
 
 export {
+  retailerListSchema,
+  retailerSchema,
+  type Retailer,
+} from './retailers/retailers.contract';
+
+export {
   PRODUCTS_PAGE_SIZE,
   michelinProductSchema,
   productFacetsSchema,
