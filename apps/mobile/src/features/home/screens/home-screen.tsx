@@ -7,12 +7,13 @@ import { AppButton } from '../../../components/app-button';
 import type { AppStackParamList } from '../../../navigation/types';
 import { colors, fontSize, fontWeight, radius, spacing } from '../../../theme';
 import { useAuth } from '../../auth/context/auth-context';
+import { UserMenu } from '../../auth/components/user-menu';
 import { StatusCard } from '../../status/components/status-card';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Home'>;
 
 export function HomeScreen({ navigation }: Props) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -25,7 +26,7 @@ export function HomeScreen({ navigation }: Props) {
               Bonjour, {user?.firstName ?? '—'} 👋
             </Text>
           </View>
-          <AppButton title="Déconnexion" onPress={logout} variant="outline" />
+          <UserMenu />
         </View>
 
         <Text style={styles.title}>Le même produit, partout.</Text>

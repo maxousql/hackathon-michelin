@@ -9,6 +9,7 @@ const AUTH_RESPONSE = {
     email: 'jane@example.com',
     firstName: 'Jane',
     lastName: 'Doe',
+    isAdmin: false,
   },
 };
 
