@@ -7,6 +7,7 @@ import {
   michelinProductSchema,
   productFacetsSchema,
   productListResponseSchema,
+  retailerListSchema,
   statusResponseSchema,
   type AuthResponse,
   type AuthUser,
@@ -19,8 +20,14 @@ import {
   type ProductFilters,
   type ProductListResponse,
   type RegisterRequest,
+  type Retailer,
   type StatusResponse,
 } from '@michelin/contracts';
+
+export interface RetailerFilters {
+  country?: string;
+  region?: string;
+}
 
 export interface ApiClientOptions {
   baseUrl: string;
@@ -38,6 +45,10 @@ export interface ApiClient {
   ): Promise<ProductListResponse>;
   getProductFacets(signal?: AbortSignal): Promise<ProductFacets>;
   getProduct(id: number, signal?: AbortSignal): Promise<MichelinProduct>;
+  getRetailers(
+    filters?: RetailerFilters,
+    signal?: AbortSignal,
+  ): Promise<Retailer[]>;
   getBuybackEstimate(
     token: string,
     input: BuybackInput,
@@ -201,6 +212,18 @@ export function createApiClient({
       return request(
         `/products/${id}`,
         { schema: michelinProductSchema },
+        signal,
+      );
+    },
+
+    getRetailers(filters, signal) {
+      const params = new URLSearchParams();
+      if (filters?.country) params.set('country', filters.country);
+      if (filters?.region) params.set('region', filters.region);
+      const query = params.toString();
+      return request(
+        `/retailers${query ? `?${query}` : ''}`,
+        { schema: retailerListSchema },
         signal,
       );
     },

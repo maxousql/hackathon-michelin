@@ -5,6 +5,7 @@ import { cache } from 'react';
 import { ProductDetail } from '@/features/products/components/product-detail';
 import { fetchProduct } from '@/features/products/services/products.api';
 import { productName } from '@/features/products/services/product-presenter';
+import { fetchRetailers } from '@/features/retailers/services/retailers.api';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,5 +41,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const product = await loadProduct(id);
   if (!product) notFound();
 
-  return <ProductDetail product={product} />;
+  const retailers = await fetchRetailers();
+
+  return <ProductDetail product={product} retailers={retailers} />;
 }
