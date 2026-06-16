@@ -23,7 +23,7 @@ export function StatusCard() {
       <View style={styles.copy}>
         <Text style={styles.label}>
           {isLoading
-            ? 'Vérification de l’API'
+            ? "Vérification de l'API"
             : isHealthy
               ? 'API opérationnelle'
               : 'API indisponible'}
@@ -55,16 +55,9 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing[1],
     borderRadius: radius.full,
   },
-  dotHealthy: {
-    backgroundColor: colors.stateSuccess,
-  },
-  dotUnavailable: {
-    backgroundColor: colors.stateError,
-  },
-  copy: {
-    flex: 1,
-    marginLeft: spacing[4],
-  },
+  dotHealthy: { backgroundColor: colors.stateSuccess },
+  dotUnavailable: { backgroundColor: colors.stateError },
+  copy: { flex: 1, marginLeft: spacing[4] },
   label: {
     marginBottom: spacing[1],
     fontSize: fontSize.bodyLarge,

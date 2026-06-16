@@ -1,0 +1,10 @@
+export type AuthStackParamList = {
+  Login: undefined;
+  Register: undefined;
+};
+
+export type AppStackParamList = {
+  Home: undefined;
+  Catalog: undefined;
+  ProductDetail: { id: number };
+};
