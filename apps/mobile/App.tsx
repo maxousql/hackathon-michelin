@@ -1,33 +1,70 @@
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import {
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
+import { CatalogScreen } from './src/features/products/components/catalog-screen';
+import { ProductDetailScreen } from './src/features/products/components/product-detail-screen';
 import { StatusCard } from './src/features/status/components/status-card';
+import { colors, fontSize, fontWeight, radius, spacing } from './src/theme';
+
+type Route =
+  | { name: 'home' }
+  | { name: 'catalog' }
+  | { name: 'detail'; id: number };
+
+function HomeScreen({ onOpenCatalog }: { onOpenCatalog: () => void }) {
+  return (
+    <ScrollView contentContainerStyle={styles.homeContent}>
+      <Text style={styles.eyebrow}>HACKATHON MICHELIN</Text>
+      <Text style={styles.title}>Le même produit, partout.</Text>
+      <Text style={styles.intro}>
+        Cette application Expo partage ses contrats et son client HTTP avec le
+        frontend Next.js.
+      </Text>
+
+      <StatusCard />
+
+      <Pressable
+        onPress={onOpenCatalog}
+        accessibilityRole="button"
+        style={styles.cta}
+      >
+        <Text style={styles.ctaText}>Explorer le catalogue</Text>
+      </Pressable>
+    </ScrollView>
+  );
+}
 
 export default function App() {
+  // Navigation minimale par état, sans librairie de routing.
+  const [route, setRoute] = useState<Route>({ name: 'home' });
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.eyebrow}>HACKATHON MICHELIN</Text>
-        <Text style={styles.title}>Le même produit, partout.</Text>
-        <Text style={styles.introduction}>
-          Cette application Expo partage ses contrats et son client HTTP avec le
-          frontend Next.js.
-        </Text>
 
-        <StatusCard />
+      <View style={styles.header}>
+        <Text style={styles.wordmark}>MICHELIN</Text>
+        <Text style={styles.product}>Ride ID</Text>
+      </View>
 
-        <View style={styles.feature}>
-          <Text style={styles.featureIndex}>01</Text>
-          <Text style={styles.featureTitle}>iOS et Android</Text>
-          <Text style={styles.featureCopy}>
-            Une base React Native commune, prête à être distribuée avec EAS.
-          </Text>
-        </View>
-      </ScrollView>
+      {route.name === 'home' ? (
+        <HomeScreen onOpenCatalog={() => setRoute({ name: 'catalog' })} />
+      ) : route.name === 'catalog' ? (
+        <CatalogScreen onSelect={(id) => setRoute({ name: 'detail', id })} />
+      ) : (
+        <ProductDetailScreen
+          id={route.id}
+          onBack={() => setRoute({ name: 'catalog' })}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -35,58 +72,61 @@ export default function App() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f2f0e8',
+    backgroundColor: colors.surfaceCanvas,
   },
-  content: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 48,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: spacing[2],
+    paddingHorizontal: spacing[6],
+    paddingVertical: spacing[4],
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderDefault,
+    backgroundColor: colors.surfaceDefault,
+  },
+  wordmark: {
+    fontSize: fontSize.h4,
+    fontWeight: fontWeight.black,
+    letterSpacing: 0.5,
+    color: colors.brandDarkBlue,
+  },
+  product: {
+    fontSize: fontSize.bodySmall,
+    fontWeight: fontWeight.bold,
+    color: colors.brandBlue,
+  },
+  homeContent: {
+    padding: spacing[6],
+    gap: spacing[6],
   },
   eyebrow: {
-    marginBottom: 16,
-    color: '#2854a1',
-    fontSize: 12,
-    fontWeight: '800',
+    fontSize: fontSize.caption,
+    fontWeight: fontWeight.black,
     letterSpacing: 2,
+    color: colors.brandBlue,
   },
   title: {
-    maxWidth: 330,
-    marginBottom: 20,
-    color: '#151713',
-    fontSize: 56,
-    fontWeight: '900',
-    letterSpacing: -3,
-    lineHeight: 55,
+    fontSize: fontSize.display,
+    fontWeight: fontWeight.black,
+    letterSpacing: -1,
+    color: colors.textPrimary,
   },
-  introduction: {
-    maxWidth: 340,
-    marginBottom: 36,
-    color: '#50544c',
-    fontSize: 18,
+  intro: {
+    fontSize: fontSize.bodyLarge,
     lineHeight: 28,
+    color: colors.textSecondary,
   },
-  feature: {
-    minHeight: 210,
-    marginTop: 16,
-    padding: 24,
-    borderRadius: 22,
-    backgroundColor: '#151713',
+  cta: {
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing[6],
+    borderRadius: radius.medium,
+    backgroundColor: colors.brandBlue,
   },
-  featureIndex: {
-    marginBottom: 56,
-    color: '#ffd200',
-    fontFamily: 'monospace',
-    fontSize: 14,
-  },
-  featureTitle: {
-    marginBottom: 10,
-    color: '#f7f5ed',
-    fontSize: 24,
-    fontWeight: '800',
-  },
-  featureCopy: {
-    color: '#b9bdb3',
-    fontSize: 16,
-    lineHeight: 24,
+  ctaText: {
+    fontSize: fontSize.body,
+    fontWeight: fontWeight.bold,
+    color: colors.textOnBrand,
   },
 });

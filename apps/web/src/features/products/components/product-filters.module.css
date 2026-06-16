@@ -1,0 +1,87 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-6);
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-large);
+  transition: opacity var(--motion-fast) var(--motion-easing);
+}
+
+.panel[data-pending] {
+  opacity: 0.6;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--type-h4);
+  font-weight: var(--weight-black);
+}
+
+.count {
+  font-size: var(--type-body-small);
+  color: var(--text-secondary);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  font-size: var(--type-label);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.input,
+.select {
+  min-height: 48px;
+  width: 100%;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-medium);
+  background: var(--surface-default);
+  color: var(--text-primary);
+  font-size: var(--type-body);
+}
+
+.input:hover,
+.select:hover {
+  border-color: var(--border-strong);
+}
+
+.input:focus,
+.select:focus {
+  border-color: var(--focus-ring);
+  outline: none;
+  box-shadow: 0 0 0 1px var(--focus-ring);
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--type-body-small);
+}
+
+.checkboxRow input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--brand-blue);
+}
+
+@media (max-width: 960px) {
+  .panel {
+    position: static;
+  }
+}

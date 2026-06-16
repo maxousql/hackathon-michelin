@@ -47,16 +47,14 @@ export class AuthService {
 
     // Trigger on_auth_user_created handles profile creation.
     // Upsert here as a fallback in case the trigger is not applied.
-    const { error: profileError } = await this.supabase
-      .from('profiles')
-      .upsert(
-        {
-          id: data.user.id,
-          first_name: dto.firstName,
-          last_name: dto.lastName,
-        },
-        { onConflict: 'id' },
-      );
+    const { error: profileError } = await this.supabase.from('profiles').upsert(
+      {
+        id: data.user.id,
+        first_name: dto.firstName,
+        last_name: dto.lastName,
+      },
+      { onConflict: 'id' },
+    );
     if (profileError) {
       console.error('Profile upsert failed (non-fatal):', profileError.message);
     }

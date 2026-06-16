@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 
+import { ButtonLink } from '@/components/ui/button';
 import { LogoutButton } from '@/features/auth/components/logout-button';
 import { StatusPanel } from '@/features/status/components/status-panel';
 import { StatusSkeleton } from '@/features/status/components/status-skeleton';
@@ -25,6 +26,11 @@ export default function HomePage() {
           Next.js et React Native consomment la même API NestJS à travers des
           contrats TypeScript partagés.
         </p>
+        <div className="hero-actions">
+          <ButtonLink href="/products" variant="secondary">
+            Explorer le catalogue
+          </ButtonLink>
+        </div>
       </section>
 
       <Suspense fallback={<StatusSkeleton />}>
