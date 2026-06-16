@@ -40,6 +40,7 @@
     "@michelin/config-eslint": "workspace:*",
     "@michelin/config-typescript": "workspace:*",
     "@testing-library/react-native": "^14.0.0",
+    "@types/jest": "^29.0.0",
     "@types/node": "^22.19.0",
     "@types/react": "~19.1.10",
     "babel-preset-expo": "~54.0.10",
