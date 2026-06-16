@@ -1,12 +1,18 @@
 import {
   authResponseSchema,
   authUserSchema,
+  buybackEstimateSchema,
+  buybackRequestListSchema,
+  buybackRequestSchema,
   michelinProductSchema,
   productFacetsSchema,
   productListResponseSchema,
   statusResponseSchema,
   type AuthResponse,
   type AuthUser,
+  type BuybackEstimate,
+  type BuybackInput,
+  type BuybackRequest,
   type LoginRequest,
   type MichelinProduct,
   type ProductFacets,
@@ -32,6 +38,20 @@ export interface ApiClient {
   ): Promise<ProductListResponse>;
   getProductFacets(signal?: AbortSignal): Promise<ProductFacets>;
   getProduct(id: number, signal?: AbortSignal): Promise<MichelinProduct>;
+  getBuybackEstimate(
+    token: string,
+    input: BuybackInput,
+    signal?: AbortSignal,
+  ): Promise<BuybackEstimate>;
+  createBuybackRequest(
+    token: string,
+    input: BuybackInput,
+    signal?: AbortSignal,
+  ): Promise<BuybackRequest>;
+  getMyBuybackRequests(
+    token: string,
+    signal?: AbortSignal,
+  ): Promise<BuybackRequest[]>;
 }
 
 /** Sérialise les filtres catalogue en query string (omet les valeurs vides). */
@@ -181,6 +201,43 @@ export function createApiClient({
       return request(
         `/products/${id}`,
         { schema: michelinProductSchema },
+        signal,
+      );
+    },
+
+    getBuybackEstimate(token, input, signal) {
+      return request(
+        '/buyback/estimate',
+        {
+          method: 'POST',
+          body: JSON.stringify(input),
+          headers: { Authorization: `Bearer ${token}` },
+          schema: buybackEstimateSchema,
+        },
+        signal,
+      );
+    },
+
+    createBuybackRequest(token, input, signal) {
+      return request(
+        '/buyback/requests',
+        {
+          method: 'POST',
+          body: JSON.stringify(input),
+          headers: { Authorization: `Bearer ${token}` },
+          schema: buybackRequestSchema,
+        },
+        signal,
+      );
+    },
+
+    getMyBuybackRequests(token, signal) {
+      return request(
+        '/buyback/requests/mine',
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          schema: buybackRequestListSchema,
+        },
         signal,
       );
     },

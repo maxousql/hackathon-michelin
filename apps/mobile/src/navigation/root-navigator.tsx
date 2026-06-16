@@ -5,6 +5,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useAuth } from '../features/auth/context/auth-context';
 import { LoginScreen } from '../features/auth/screens/login-screen';
 import { RegisterScreen } from '../features/auth/screens/register-screen';
+import { RepriseScreen } from '../features/buyback/screens/reprise-screen';
 import { HomeScreen } from '../features/home/screens/home-screen';
 import { LandingScreen } from '../features/landing/components/landing-screen';
 import { CatalogScreen } from '../features/products/components/catalog-screen';
@@ -56,6 +57,7 @@ function AppNavigator() {
         name="ProductDetail"
         component={ProductDetailScreenWrapper}
       />
+      <AppStack.Screen name="Reprise" component={RepriseScreen} />
     </AppStack.Navigator>
   );
 }
