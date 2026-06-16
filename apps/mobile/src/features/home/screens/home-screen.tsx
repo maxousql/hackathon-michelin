@@ -41,6 +41,12 @@ export function HomeScreen({ navigation }: Props) {
           onPress={() => navigation.navigate('Catalog')}
         />
 
+        <AppButton
+          title="Reprise MICHELIN"
+          variant="outline"
+          onPress={() => navigation.navigate('Reprise')}
+        />
+
         <View style={styles.feature}>
           <Text style={styles.featureIndex}>01</Text>
           <Text style={styles.featureTitle}>iOS et Android</Text>

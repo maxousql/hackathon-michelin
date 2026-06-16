@@ -29,6 +29,9 @@ export function Header() {
           <Link href="/products" className={styles.link}>
             Catalogue
           </Link>
+          <Link href="/reprise" className={styles.link}>
+            Reprise
+          </Link>
         </nav>
 
         <div className={styles.actions}>

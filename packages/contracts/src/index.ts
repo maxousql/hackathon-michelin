@@ -17,6 +17,20 @@ export {
 } from './auth/auth.contract';
 
 export {
+  buybackConditionSchema,
+  buybackEstimateSchema,
+  buybackInputSchema,
+  buybackRequestListSchema,
+  buybackRequestSchema,
+  buybackStatusSchema,
+  type BuybackCondition,
+  type BuybackEstimate,
+  type BuybackInput,
+  type BuybackRequest,
+  type BuybackStatus,
+} from './buyback/buyback.contract';
+
+export {
   PRODUCTS_PAGE_SIZE,
   michelinProductSchema,
   productFacetsSchema,
