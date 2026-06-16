@@ -1,0 +1,1814 @@
+/* ── Michelin Design Tokens ─────────────────────────────────────────────── */
+:root {
+  --mi-blue: #003189;
+  --mi-blue-dark: #00246b;
+  --mi-blue-light: #1a4aad;
+  --mi-blue-pale: #e8eef8;
+  --mi-blue-muted: rgb(0 49 137 / 8%);
+  --mi-yellow: #ffd200;
+  --mi-yellow-dark: #e6bc00;
+  --mi-yellow-pale: #fffbeb;
+  --mi-dark: #151713;
+  --mi-dark-80: rgb(21 23 19 / 80%);
+  --mi-dark-12: rgb(21 23 19 / 12%);
+  --mi-dark-6: rgb(21 23 19 / 6%);
+  --mi-gray: #50544c;
+  --mi-gray-light: #f5f4f0;
+  --mi-white: #ffffff;
+  --mi-green: #16a34a;
+  --mi-radius: 20px;
+  --mi-radius-sm: 12px;
+  --mi-shadow: 0 8px 40px rgb(0 49 137 / 8%);
+  --mi-shadow-lg: 0 24px 80px rgb(0 49 137 / 14%);
+  /* Step nav tokens */
+  --mi-step-done: var(--mi-blue);
+  --mi-step-active-bg: var(--mi-yellow);
+  --mi-step-active-text: var(--mi-dark);
+  --mi-step-pending: rgb(21 23 19 / 16%);
+}
+
+/* ── Page ──────────────────────────────────────────────────────────────────── */
+.ri-page {
+  min-height: 100vh;
+  background: #f5f5f7;
+}
+
+/* ── Hero ──────────────────────────────────────────────────────────────────── */
+.ri-hero {
+  background: var(--mi-blue);
+  padding: 72px 0 80px;
+  overflow: hidden;
+  position: relative;
+}
+
+.ri-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 80% at 90% -10%,
+      rgb(255 210 0 / 12%) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 40% 60% at -10% 110%,
+      rgb(255 255 255 / 6%) 0%,
+      transparent 60%
+    );
+  pointer-events: none;
+}
+
+.ri-container {
+  width: min(1080px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.ri-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 24px;
+  padding: 6px 14px 6px 8px;
+  border-radius: 999px;
+  border: 1px solid rgb(255 210 0 / 30%);
+  background: rgb(255 210 0 / 10%);
+  color: var(--mi-yellow);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.ri-hero-eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mi-yellow);
+  animation: ri-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ri-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
+}
+
+.ri-hero h1 {
+  margin: 0 0 20px;
+  max-width: 620px;
+  color: var(--mi-white);
+  font-size: clamp(2.6rem, 5.5vw, 4.2rem);
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+
+.ri-hero h1 em {
+  font-style: normal;
+  color: var(--mi-yellow);
+}
+
+.ri-hero-sub {
+  margin: 0;
+  max-width: 540px;
+  color: rgb(255 255 255 / 55%);
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+/* ── Content ───────────────────────────────────────────────────────────────── */
+.ri-content {
+  padding: 56px 0 96px;
+}
+
+/* ── Stepper Shell ─────────────────────────────────────────────────────────── */
+.ri-stepper-shell {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--mi-white);
+  border-radius: var(--mi-radius);
+  box-shadow: var(--mi-shadow-lg);
+  overflow: hidden;
+}
+
+/* ── Progress (kept for backward compat, not rendered) ─────────────────────── */
+.ri-progress-bar-wrap {
+  display: none;
+}
+.ri-progress-bar {
+  display: none;
+}
+.ri-progress-meta {
+  display: none;
+}
+.ri-progress-label {
+  display: none;
+}
+.ri-progress-dots {
+  display: none;
+}
+.ri-dot {
+  display: none;
+}
+.ri-dot.done {
+  display: none;
+}
+.ri-dot.active {
+  display: none;
+}
+
+/* ── Steps Nav (numbered pills + connectors) ────────────────────────────────── */
+.ri-steps-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 36px;
+  border-bottom: 1px solid var(--mi-dark-12);
+  background: var(--mi-white);
+}
+
+.ri-steps-nav-pills {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.ri-nav-restart-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1.5px solid var(--mi-dark-12);
+  border-radius: 999px;
+  background: transparent;
+  color: rgb(21 23 19 / 40%);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+}
+
+.ri-nav-restart-btn:hover {
+  background: var(--mi-gray-light);
+  border-color: var(--mi-dark-12);
+  color: var(--mi-dark);
+}
+
+.ri-steps-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--mi-step-pending);
+  margin: 0 10px;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 2px;
+}
+
+.ri-steps-connector.active {
+  background: var(--mi-blue);
+}
+
+.ri-step-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.ri-step-node-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  background: var(--mi-step-pending);
+  color: rgb(21 23 19 / 35%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ri-step-node.done .ri-step-node-num {
+  background: var(--mi-blue);
+  color: var(--mi-white);
+}
+
+.ri-step-node.current .ri-step-node-num {
+  background: var(--mi-yellow);
+  color: var(--mi-dark);
+  box-shadow: 0 0 0 4px rgb(255 210 0 / 22%);
+}
+
+.ri-step-node-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(21 23 19 / 30%);
+  transition: color 0.3s;
+  white-space: nowrap;
+}
+
+.ri-step-node.done .ri-step-node-label {
+  color: var(--mi-blue);
+}
+
+.ri-step-node.current .ri-step-node-label {
+  color: var(--mi-dark);
+}
+
+/* ── Step ──────────────────────────────────────────────────────────────────── */
+.ri-step {
+  padding: 48px 44px 40px;
+  animation: ri-step-in 0.32s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.ri-step[data-direction='back'] {
+  animation-name: ri-step-in-back;
+}
+
+@keyframes ri-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ri-step-in-back {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ri-step-question {
+  margin-bottom: 36px;
+}
+
+.ri-step-num {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--mi-yellow-dark);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.ri-step-question h2 {
+  margin: 0 0 10px;
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  font-weight: 900;
+  color: var(--mi-dark);
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.ri-step-question h2 span {
+  color: var(--mi-blue);
+}
+
+.ri-step-question p {
+  margin: 0;
+  font-size: 0.975rem;
+  color: var(--mi-gray);
+  line-height: 1.6;
+}
+
+/* ── Option Grid (kept for potential future use) ─────────────────────────── */
+.ri-option-grid {
+  display: flex;
+  flex-direction: column;
+}
+.ri-option-grid--2 {
+}
+.ri-option-grid--3 {
+}
+
+/* ── Option List (horizontal full-width items) ───────────────────────────── */
+.ri-option-list {
+  border-radius: 16px;
+  border: 2px solid var(--mi-dark-12);
+  overflow: hidden;
+}
+
+.ri-option-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 20px;
+  width: 100%;
+  background: var(--mi-white);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  border: none;
+  border-bottom: 1px solid var(--mi-dark-12);
+  border-left: 3px solid transparent;
+}
+
+.ri-option-card:last-child {
+  border-bottom: none;
+}
+
+.ri-option-card:hover {
+  background: var(--mi-blue-muted);
+  border-left-color: var(--mi-blue);
+  transform: translateX(2px);
+}
+
+.ri-option-card:active {
+  transform: scale(0.99);
+}
+
+.ri-option-card.selected {
+  background: var(--mi-blue);
+  border-left-color: var(--mi-yellow);
+}
+
+.ri-option-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: var(--mi-blue-pale);
+  color: var(--mi-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ri-option-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.ri-option-card.selected .ri-option-icon {
+  background: var(--mi-yellow);
+  color: var(--mi-blue);
+}
+
+.ri-option-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ri-option-label {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--mi-dark);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.ri-option-card.selected .ri-option-label {
+  color: var(--mi-white);
+}
+
+.ri-option-sub {
+  font-size: 0.82rem;
+  color: var(--mi-gray);
+  line-height: 1.45;
+}
+
+.ri-option-card.selected .ri-option-sub {
+  color: rgb(255 255 255 / 65%);
+}
+
+.ri-option-check {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--mi-blue-pale);
+  color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin-left: auto;
+}
+
+.ri-option-card:hover .ri-option-check {
+  opacity: 0.35;
+  transform: scale(0.85);
+  color: var(--mi-blue);
+}
+
+.ri-option-card.selected .ri-option-check {
+  background: var(--mi-yellow);
+  color: var(--mi-blue);
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── Step Fields ───────────────────────────────────────────────────────────── */
+.ri-step-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Big numeric inputs (étape 3) */
+.ri-big-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.ri-big-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ri-big-field label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--mi-dark);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.ri-unit {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--mi-gray);
+  letter-spacing: 0.06em;
+}
+
+.ri-big-input {
+  padding: 18px 20px;
+  border: 2px solid var(--mi-dark-12);
+  border-radius: var(--mi-radius-sm);
+  background: var(--mi-gray-light);
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--mi-dark);
+  letter-spacing: -0.04em;
+  outline: none;
+  transition: all 0.15s;
+  width: 100%;
+}
+
+.ri-big-input:focus {
+  border-color: var(--mi-blue);
+  background: var(--mi-white);
+  box-shadow: 0 0 0 4px var(--mi-blue-muted);
+}
+
+.ri-big-input::placeholder {
+  color: rgb(21 23 19 / 20%);
+  font-weight: 700;
+}
+
+/* GPX Section */
+.ri-gpx-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ri-gpx-optional {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--mi-dark);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ri-gpx-optional span {
+  color: var(--mi-gray);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.ri-gpx-drop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border: 2px dashed var(--mi-dark-12);
+  border-radius: var(--mi-radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ri-gpx-drop:hover,
+.ri-gpx-drop.dragging {
+  border-color: var(--mi-blue);
+  background: var(--mi-blue-muted);
+}
+
+.ri-gpx-drop.has-file {
+  border-style: solid;
+  border-color: var(--mi-green);
+  background: rgb(22 163 74 / 5%);
+}
+
+.ri-gpx-drop-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--mi-blue-pale);
+  color: var(--mi-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ri-gpx-drop-icon--ok {
+  background: rgb(22 163 74 / 12%);
+  color: var(--mi-green);
+}
+
+.ri-gpx-drop-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--mi-gray);
+}
+
+.ri-gpx-drop-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--mi-green);
+}
+
+/* Detail inputs (étape 4) */
+.ri-detail-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.ri-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ri-detail-field label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--mi-dark);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ri-unit-inline {
+  font-weight: 600;
+  color: var(--mi-gray);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.ri-detail-input {
+  padding: 14px 16px;
+  border: 2px solid var(--mi-dark-12);
+  border-radius: var(--mi-radius-sm);
+  background: var(--mi-gray-light);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--mi-dark);
+  outline: none;
+  transition: all 0.15s;
+  width: 100%;
+}
+
+.ri-detail-input:focus {
+  border-color: var(--mi-blue);
+  background: var(--mi-white);
+  box-shadow: 0 0 0 4px var(--mi-blue-muted);
+}
+
+.ri-detail-input[type='date'] {
+  appearance: none;
+}
+
+/* ── Footer Buttons ────────────────────────────────────────────────────────── */
+.ri-step-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 36px;
+  padding-top: 26px;
+  border-top: 1px solid var(--mi-dark-12);
+}
+
+.ri-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  color: rgb(21 23 19 / 40%);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--mi-radius-sm);
+  transition: all 0.12s;
+  letter-spacing: 0.01em;
+}
+
+.ri-back-btn:hover {
+  background: var(--mi-gray-light);
+  color: var(--mi-dark);
+}
+
+.ri-next-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: var(--mi-radius-sm);
+  background: var(--mi-yellow);
+  color: var(--mi-dark);
+  font-size: 0.95rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.01em;
+}
+
+.ri-next-btn:hover:not(:disabled) {
+  background: var(--mi-yellow-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgb(255 210 0 / 40%);
+}
+
+.ri-next-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.ri-next-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Loading Screen ────────────────────────────────────────────────────────── */
+.ri-loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 72px 40px;
+  gap: 20px;
+}
+
+.ri-loading-wheel {
+  width: 80px;
+  height: 80px;
+  animation: ri-spin 1.4s linear infinite;
+}
+
+@keyframes ri-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ri-wheel-arc {
+  transform-origin: center;
+  animation: ri-arc 1.4s ease-in-out infinite;
+}
+
+@keyframes ri-arc {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dashoffset: -55;
+  }
+  100% {
+    stroke-dashoffset: -110;
+  }
+}
+
+.ri-loading-label {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--mi-dark);
+  letter-spacing: -0.01em;
+}
+
+.ri-loading-sub {
+  font-size: 0.82rem;
+  color: var(--mi-gray);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Recommendation Card ───────────────────────────────────────────────────── */
+.ri-result-wrapper {
+  animation: ri-result-reveal 0.45s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes ri-result-reveal {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.ri-rec-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.ri-rec-header {
+  position: relative;
+  overflow: hidden;
+  background: var(--mi-blue);
+  padding: 40px 44px 36px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.ri-rec-bib-watermark {
+  position: absolute;
+  right: -60px;
+  top: -40px;
+  width: 340px;
+  height: 340px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
+}
+
+.ri-rec-header-left {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 440px;
+}
+
+.ri-rec-line-tag {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--mi-yellow);
+  opacity: 0.8;
+}
+
+.ri-rec-tire-name {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  color: var(--mi-white);
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+}
+
+.ri-rec-tire-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgb(255 255 255 / 48%);
+  line-height: 1.55;
+}
+
+.ri-rec-weather-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 10%);
+  border: 1px solid rgb(255 255 255 / 18%);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgb(255 255 255 / 75%);
+  width: fit-content;
+}
+
+.ri-rec-weather-badge svg {
+  color: var(--mi-yellow);
+  flex-shrink: 0;
+}
+
+.ri-rec-score-badge {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 18px 22px;
+  border-radius: var(--mi-radius-sm);
+  background: rgb(255 210 0 / 12%);
+  border: 1px solid rgb(255 210 0 / 24%);
+  min-width: 90px;
+}
+
+.ri-rec-score-num {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: var(--mi-yellow);
+  letter-spacing: -0.06em;
+  line-height: 1;
+}
+
+.ri-rec-score-pct {
+  font-size: 1.2rem;
+}
+
+.ri-rec-score-label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(255 210 0 / 50%);
+}
+
+/* ── Pressure hero ── */
+.ri-rec-pressure-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 32px 44px 24px;
+  border-bottom: 1px solid var(--mi-dark-12);
+}
+
+.ri-rec-pressure-hero-label {
+  margin: 0 0 24px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mi-gray);
+}
+
+.ri-rec-pressure-display {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  justify-content: center;
+}
+
+.ri-rec-pressure-col {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+}
+
+.ri-rec-pressure-num {
+  font-size: clamp(3.6rem, 7vw, 5rem);
+  font-weight: 900;
+  color: var(--mi-blue);
+  letter-spacing: -0.06em;
+  line-height: 1;
+}
+
+.ri-rec-pressure-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 4px;
+}
+
+.ri-rec-pressure-unit {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--mi-gray);
+  line-height: 1;
+}
+
+.ri-rec-pressure-axle {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mi-gray);
+}
+
+.ri-rec-pressure-vsep {
+  width: 1px;
+  height: 72px;
+  background: var(--mi-dark-12);
+  flex-shrink: 0;
+  margin: 0 8px;
+}
+
+.ri-rec-pressure-note {
+  margin: 20px 0 0;
+  font-size: 0.82rem;
+  color: var(--mi-gray);
+  line-height: 1.55;
+  text-align: center;
+  max-width: 480px;
+}
+
+/* ── Points forts ── */
+.ri-rec-highlights {
+  padding: 28px 44px;
+  border-bottom: 1px solid var(--mi-dark-12);
+}
+
+.ri-rec-highlights-label {
+  margin: 0 0 18px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mi-gray);
+}
+
+.ri-rec-highlights-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 32px;
+}
+
+.ri-rec-highlight-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.925rem;
+  font-weight: 600;
+  color: var(--mi-dark);
+  line-height: 1.3;
+}
+
+.ri-rec-highlight-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mi-yellow);
+  border: 2px solid var(--mi-blue);
+  flex-shrink: 0;
+}
+
+/* ── Conseil du Bibendum ── */
+.ri-rec-conseil {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 24px 32px;
+  background: var(--mi-yellow-pale);
+  border-left: 4px solid var(--mi-yellow);
+  border-bottom: 1px solid rgb(255 210 0 / 25%);
+}
+
+.ri-rec-conseil-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+}
+
+.ri-rec-conseil-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.ri-rec-conseil-content {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ri-rec-conseil-title {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #92400e;
+}
+
+.ri-rec-conseil-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.68;
+  color: var(--mi-dark-80);
+}
+
+/* ── CTA ── */
+.ri-rec-cta-wrap {
+  padding: 20px 28px 24px;
+}
+
+.ri-rec-cta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 17px 28px;
+  border-radius: var(--mi-radius-sm);
+  background: var(--mi-yellow);
+  color: var(--mi-dark);
+  font-size: 0.975rem;
+  font-weight: 900;
+  text-decoration: none;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.01em;
+}
+
+.ri-rec-cta:hover {
+  background: var(--mi-yellow-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgb(255 210 0 / 40%);
+}
+
+.ri-rec-cta:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.ri-rec-cta-price {
+  margin-left: auto;
+  background: rgb(0 0 0 / 10%);
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+/* Restart button */
+.ri-restart-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 40px 28px;
+  padding: 11px;
+  border: 1.5px solid var(--mi-dark-12);
+  border-radius: var(--mi-radius-sm);
+  background: transparent;
+  color: var(--mi-gray);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.ri-restart-btn:hover {
+  background: var(--mi-gray-light);
+  color: var(--mi-dark);
+}
+
+/* ── Error Screen ──────────────────────────────────────────────────────────── */
+.ri-error-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 40px;
+  text-align: center;
+}
+
+.ri-error-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgb(220 38 38 / 8%);
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ri-error-screen p {
+  margin: 0;
+  color: var(--mi-gray);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  max-width: 420px;
+}
+
+/* ── Bicycle Spinner ───────────────────────────────────────────────────────── */
+.ri-bike-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 40px 56px;
+  gap: 0;
+}
+
+.ri-bike-svg {
+  width: 240px;
+  height: auto;
+  overflow: visible;
+}
+
+@keyframes ri-spoke-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ri-spokes {
+  animation: ri-spoke-spin 0.55s linear infinite;
+}
+
+@keyframes ri-motion-drift {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 0.35;
+    transform: translateX(-5px);
+  }
+}
+
+.ri-motion-lines {
+  animation: ri-motion-drift 0.8s ease-in-out infinite;
+}
+
+.ri-bike-label {
+  margin: 24px 0 6px;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--mi-dark);
+  letter-spacing: -0.02em;
+}
+
+.ri-bike-sub {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mi-gray);
+}
+
+/* ── City Autocomplete ─────────────────────────────────────────────────────── */
+.ri-autocomplete-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.ri-autocomplete-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ri-autocomplete-pin {
+  position: absolute;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  color: var(--mi-blue);
+  flex-shrink: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ri-autocomplete-input {
+  width: 100%;
+  padding: 14px 44px 14px 42px;
+  border: 2px solid var(--mi-dark-12);
+  border-radius: var(--mi-radius-sm);
+  background: var(--mi-gray-light);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--mi-dark);
+  outline: none;
+  transition: all 0.15s;
+}
+
+.ri-autocomplete-input:focus {
+  border-color: var(--mi-blue);
+  background: var(--mi-white);
+  box-shadow: 0 0 0 4px var(--mi-blue-muted);
+}
+
+.ri-autocomplete-input::placeholder {
+  font-weight: 500;
+  color: rgb(21 23 19 / 35%);
+}
+
+.ri-autocomplete-spinner {
+  position: absolute;
+  right: 14px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--mi-blue-pale);
+  border-top-color: var(--mi-blue);
+  border-radius: 50%;
+  animation: ri-spin 0.7s linear infinite;
+}
+
+@keyframes ri-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ri-autocomplete-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  background: var(--mi-white);
+  border: 1.5px solid var(--mi-dark-12);
+  border-radius: var(--mi-radius-sm);
+  box-shadow: 0 12px 40px rgb(0 49 137 / 14%);
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.ri-autocomplete-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.ri-autocomplete-item--active,
+.ri-autocomplete-item:hover {
+  background: var(--mi-blue-muted);
+}
+
+.ri-autocomplete-item-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--mi-blue-light);
+  margin-top: 2px;
+}
+
+.ri-autocomplete-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ri-autocomplete-city {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--mi-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ri-autocomplete-country {
+  font-size: 0.78rem;
+  color: var(--mi-gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── GPX Preview (map + stats + elevation) ─────────────────────────────────── */
+.ri-gpx-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1.5px solid var(--mi-dark-12);
+  border-radius: var(--mi-radius-sm);
+  overflow: hidden;
+  animation: ri-step-in 0.3s ease both;
+}
+
+.ri-route-map {
+  height: 280px;
+  width: 100%;
+  background: var(--mi-blue-pale);
+  position: relative;
+}
+
+.ri-route-map--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: var(--mi-gray);
+}
+
+/* Leaflet attribution override */
+.ri-route-map .leaflet-control-attribution {
+  font-size: 9px !important;
+}
+
+/* Stats row below map */
+.ri-gpx-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 14px 20px;
+  background: var(--mi-white);
+  border-top: 1px solid var(--mi-dark-12);
+}
+
+.ri-gpx-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  flex: 1;
+  justify-content: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.ri-gpx-stat-val {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--mi-blue);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.ri-gpx-stat-unit {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--mi-gray);
+  align-self: flex-end;
+  margin-bottom: 2px;
+}
+
+.ri-gpx-stat-label {
+  width: 100%;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mi-gray);
+  text-align: center;
+  margin-top: 2px;
+}
+
+.ri-gpx-stat-sep {
+  width: 1px;
+  height: 36px;
+  background: var(--mi-dark-12);
+  flex-shrink: 0;
+}
+
+/* Gradient terrain bar */
+.ri-gradient-wrap {
+  padding: 14px 20px;
+  border-top: 1px solid var(--mi-dark-12);
+  background: var(--mi-white);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ri-gradient-title {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mi-gray);
+}
+
+.ri-gradient-bar {
+  display: flex;
+  height: 28px;
+  border-radius: 6px;
+  overflow: hidden;
+  gap: 1px;
+}
+
+.ri-gradient-seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  transition: opacity 0.15s;
+  min-width: 0;
+}
+
+.ri-gradient-seg:hover {
+  opacity: 0.85;
+}
+
+.ri-gradient-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.ri-gradient-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  color: var(--mi-gray);
+  font-weight: 600;
+}
+
+.ri-gradient-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Elevation profile */
+.ri-elev-wrap {
+  padding: 12px 20px 14px;
+  border-top: 1px solid var(--mi-dark-12);
+  background: var(--mi-white);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ri-elev-title {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mi-gray);
+}
+
+.ri-elevation-svg {
+  width: 100%;
+  height: 96px;
+  display: block;
+  font-family: inherit;
+}
+
+/* Auto-filled input indicator */
+.ri-gpx-autofilled {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--mi-green);
+  margin-left: 6px;
+  text-transform: none;
+}
+
+.ri-big-input--autofilled {
+  border-color: var(--mi-green) !important;
+  background: rgb(22 163 74 / 4%) !important;
+  color: var(--mi-blue) !important;
+}
+
+/* ── Step Footer Solo (back only) ──────────────────────────────────────────── */
+.ri-step-footer-solo {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--mi-dark-12);
+}
+
+/* ── Restart wrap ──────────────────────────────────────────────────────────── */
+.ri-restart-wrap {
+  padding: 0;
+}
+
+/* ── Strava Picker ─────────────────────────────────────────────────────────── */
+.ri-source-row {
+  margin-bottom: 0;
+}
+
+.ri-source-sep {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: var(--mi-gray);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.ri-source-sep::before,
+.ri-source-sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--mi-dark-12);
+}
+
+.ri-strava-connect-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 20px;
+  background: #fc4c02;
+  color: #fff;
+  border: none;
+  border-radius: var(--mi-radius-sm);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    transform 0.1s;
+}
+.ri-strava-connect-btn:hover {
+  background: #e04300;
+  transform: translateY(-1px);
+}
+.ri-strava-connect-btn:active {
+  transform: translateY(0);
+}
+
+.ri-strava-activities {
+  background: var(--mi-gray-light);
+  border-radius: var(--mi-radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--mi-dark-12);
+}
+
+.ri-strava-activities-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 0;
+  border-bottom: 1px solid var(--mi-dark-12);
+}
+
+.ri-strava-tabs {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+}
+
+.ri-strava-tab {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mi-gray);
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+.ri-strava-tab:hover {
+  color: var(--mi-dark);
+}
+.ri-strava-tab.active {
+  color: #fc4c02;
+  border-bottom-color: #fc4c02;
+}
+
+.ri-strava-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 16px;
+  padding: 0 4px;
+  background: var(--mi-dark-12);
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--mi-gray);
+}
+.ri-strava-tab.active .ri-strava-count {
+  background: rgba(252, 76, 2, 0.15);
+  color: #fc4c02;
+}
+
+.ri-strava-loading {
+  padding: 14px;
+  font-size: 13px;
+  color: var(--mi-gray);
+  text-align: center;
+}
+
+.ri-strava-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.ri-strava-activity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 11px 14px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--mi-dark-12);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+  gap: 12px;
+}
+.ri-strava-activity:last-child {
+  border-bottom: none;
+}
+.ri-strava-activity:hover {
+  background: rgba(252, 76, 2, 0.06);
+}
+.ri-strava-activity--selected {
+  background: var(--mi-blue-muted);
+}
+.ri-strava-activity--selected:hover {
+  background: var(--mi-blue-muted);
+}
+.ri-strava-activity:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.ri-strava-activity-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ri-strava-activity-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mi-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+.ri-strava-activity-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11.5px;
+  color: var(--mi-gray);
+}
+
+.ri-strava-badge {
+  background: #fc4c02;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+.ri-strava-activity-right {
+  flex-shrink: 0;
+  color: var(--mi-gray);
+  display: flex;
+  align-items: center;
+}
+
+.ri-strava-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--mi-dark-12);
+  border-top-color: #fc4c02;
+  border-radius: 50%;
+  animation: ri-spin 0.7s linear infinite;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────────── */
+@media (max-width: 680px) {
+  .ri-hero {
+    padding: 52px 0 60px;
+  }
+  .ri-step {
+    padding: 28px 20px 24px;
+  }
+  .ri-steps-nav {
+    padding: 14px 16px;
+    gap: 2px;
+  }
+  .ri-steps-connector {
+    margin: 0 4px;
+  }
+  .ri-step-node-label {
+    display: none;
+  }
+  .ri-result-header {
+    padding: 24px 20px;
+    flex-direction: column;
+  }
+  .ri-result-body {
+    padding: 20px 20px 24px;
+  }
+  .ri-restart-btn {
+    margin: 0 20px 20px;
+  }
+
+  .ri-option-grid--3 {
+  }
+  .ri-option-grid--2 {
+  }
+  .ri-big-field-row {
+    grid-template-columns: 1fr;
+  }
+  .ri-detail-row {
+    grid-template-columns: 1fr;
+  }
+  .ri-highlights {
+    grid-template-columns: 1fr;
+  }
+}

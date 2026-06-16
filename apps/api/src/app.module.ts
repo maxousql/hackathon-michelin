@@ -7,6 +7,7 @@ import { AuthModule } from './features/auth/auth.module';
 import { BuybackModule } from './features/buyback/buyback.module';
 import { ProductsModule } from './features/products/products.module';
 import { RetailersModule } from './features/retailers/retailers.module';
+import { RaceIntelligenceModule } from './features/race-intelligence/race-intelligence.module';
 import { StatusModule } from './features/status/status.module';
 
 @Module({
@@ -22,6 +23,7 @@ import { StatusModule } from './features/status/status.module';
     ProductsModule,
     RetailersModule,
     StatusModule,
+    RaceIntelligenceModule,
   ],
 })
 export class AppModule {}
