@@ -100,6 +100,7 @@ describe('authResponseSchema', () => {
       email: 'jane@example.com',
       firstName: 'Jane',
       lastName: 'Doe',
+      isAdmin: false,
     },
   };
 
