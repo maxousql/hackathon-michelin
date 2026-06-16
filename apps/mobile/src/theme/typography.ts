@@ -1,0 +1,36 @@
+export const typography = Object.freeze({
+  family: Object.freeze({
+    body: 'Noto Sans',
+    fallback: 'System',
+  }),
+  weight: Object.freeze({
+    regular: '400',
+    semibold: '600',
+    bold: '700',
+    black: '800',
+  }),
+  size: Object.freeze({
+    display: 40,
+    h1: 36,
+    h2: 30,
+    h3: 24,
+    h4: 20,
+    bodyLarge: 18,
+    body: 16,
+    bodySmall: 14,
+    label: 14,
+    caption: 12,
+  }),
+  lineHeight: Object.freeze({
+    display: 40,
+    h1: 38,
+    h2: 33,
+    h3: 29,
+    h4: 25,
+    bodyLarge: 27,
+    body: 24,
+    bodySmall: 20,
+    label: 17,
+    caption: 16,
+  }),
+});
