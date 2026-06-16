@@ -1,5 +1,9 @@
 # Architecture
 
+> La spécification cible détaillée se trouve dans
+> [`docs/specifications/03-architecture-cible.md`](specifications/03-architecture-cible.md).
+> Ce document reste une vue d'ensemble du socle existant.
+
 ## Vue générale
 
 Le dépôt est un monorepo pnpm piloté par Turborepo.

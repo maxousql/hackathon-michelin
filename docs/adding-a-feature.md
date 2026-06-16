@@ -1,5 +1,14 @@
 # Ajouter une feature
 
+Avant de commencer, identifier les exigences fonctionnelles et techniques
+concernées dans [`docs/specifications/README.md`](specifications/README.md).
+Pour une interface, appliquer
+[`docs/specifications/11-design-system-michelin.md`](specifications/11-design-system-michelin.md).
+Le prompt de lancement peut partir de
+[`docs/specifications/12-modele-prompt-ticket.md`](specifications/12-modele-prompt-ticket.md).
+Pour un ticket déjà planifié, copier son prompt depuis
+[`docs/specifications/prompts/README.md`](specifications/prompts/README.md).
+
 1. Définir les entrées et sorties partagées dans
    `packages/contracts/src/<feature>`.
 2. Exporter les nouvelles opérations depuis `packages/api-client`.
