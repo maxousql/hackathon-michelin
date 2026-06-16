@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 
+import { LogoutButton } from '@/features/auth/components/logout-button';
 import { StatusPanel } from '@/features/status/components/status-panel';
 import { StatusSkeleton } from '@/features/status/components/status-skeleton';
 
@@ -9,6 +10,15 @@ export default function HomePage() {
   return (
     <main className="page-shell">
       <section className="hero">
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            marginBottom: '32px',
+          }}
+        >
+          <LogoutButton />
+        </div>
         <p className="eyebrow">Hackathon Michelin</p>
         <h1>Un socle commun, du web au mobile.</h1>
         <p className="hero-copy">

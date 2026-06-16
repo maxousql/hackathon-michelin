@@ -15,7 +15,11 @@
     "lint": "turbo run lint",
     "prepare": "husky",
     "test": "turbo run test",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck",
+    "db:link": "supabase link",
+    "db:push": "supabase db push",
+    "db:diff": "supabase db diff",
+    "db:reset": "supabase db reset"
   },
   "devDependencies": {
     "@commitlint/cli": "21.0.2",
@@ -23,6 +27,7 @@
     "husky": "9.1.7",
     "lint-staged": "17.0.7",
     "prettier": "3.8.4",
+    "supabase": "^2.106.0",
     "turbo": "2.9.18",
     "typescript": "5.9.3"
   },

@@ -30,6 +30,9 @@ ios/
 .idea/
 .vscode/
 
+# Supabase CLI temp files
+supabase/.temp/
+
 # Logs
 *.log
 npm-debug.log*
