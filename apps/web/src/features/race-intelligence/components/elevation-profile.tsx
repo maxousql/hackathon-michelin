@@ -43,8 +43,9 @@ export function ElevationProfile({
 
   function handleMouseMove(e: React.MouseEvent<SVGSVGElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
-    const svgX = ((e.clientX - rect.left) / rect.width) * W;
-    const distKm = ((svgX - PAD.left) / innerW) * maxDist;
+    const svgX = clientXToSvgX(e.clientX, rect, W, H);
+    const plotX = clamp(svgX, PAD.left, PAD.left + innerW);
+    const distKm = ((plotX - PAD.left) / innerW) * maxDist;
 
     let closest = 0;
     let minDiff = Infinity;
@@ -219,4 +220,28 @@ export function ElevationProfile({
       )}
     </svg>
   );
+}
+
+function clientXToSvgX(
+  clientX: number,
+  rect: DOMRect,
+  viewBoxWidth: number,
+  viewBoxHeight: number,
+): number {
+  const scale = Math.min(
+    rect.width / viewBoxWidth,
+    rect.height / viewBoxHeight,
+  );
+
+  if (!Number.isFinite(scale) || scale <= 0) return 0;
+
+  const renderedWidth = viewBoxWidth * scale;
+  const offsetX = (rect.width - renderedWidth) / 2;
+  const localX = clientX - rect.left - offsetX;
+
+  return clamp(localX / scale, 0, viewBoxWidth);
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
 }

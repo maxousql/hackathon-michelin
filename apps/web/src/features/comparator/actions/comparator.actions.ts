@@ -23,6 +23,11 @@ export interface ComparatorProductSearchState {
   error: string | null;
 }
 
+export interface ComparatorTireSizeFilter {
+  diameter?: string;
+  width?: string;
+}
+
 function getClient() {
   return createApiClient({
     baseUrl: process.env.API_INTERNAL_URL ?? 'http://localhost:3001/api/v1',
@@ -44,16 +49,21 @@ export async function searchComparatorProductsAction(
   query: string,
   surface: SurfaceType | null,
   page: number,
+  tireSize: ComparatorTireSizeFilter = {},
 ): Promise<ComparatorProductSearchState> {
   const safePage = Number.isInteger(page) && page > 0 ? page : 1;
+  const diameter = tireSize.diameter?.trim();
+  const width = tireSize.width?.trim();
 
   try {
     const list = await fetchProducts({
       q: query.trim() || undefined,
       cycleType: surfaceToCycleType(surface),
+      diameter: diameter || undefined,
       page: safePage,
       productType: 'TYRE',
       sort: 'range',
+      width: width || undefined,
     });
     return {
       items: list.items,

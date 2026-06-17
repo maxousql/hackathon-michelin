@@ -7,6 +7,7 @@ import type { GpxPoint } from '../utils/gpx-parser';
 interface RouteMapProps {
   points: GpxPoint[];
   highlightLatLon?: [number, number] | null;
+  colorMode?: 'single' | 'terrain';
   variant?: 'default' | 'michelin';
 }
 
