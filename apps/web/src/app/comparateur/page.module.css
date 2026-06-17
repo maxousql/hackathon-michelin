@@ -1,0 +1,46 @@
+.page {
+  min-height: 100vh;
+  background: #f7f8fa;
+  color: #202124;
+}
+
+.workspace {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 48px 0 80px;
+}
+
+.header {
+  max-width: 760px;
+  margin-bottom: 28px;
+}
+
+.kicker {
+  margin: 0 0 8px;
+  color: #27509b;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.header h1 {
+  margin: 0;
+  color: #000c34;
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  line-height: 1.05;
+}
+
+.header p:last-child {
+  max-width: 680px;
+  margin: 16px 0 0;
+  color: #53565a;
+  font-size: 1.02rem;
+  line-height: 1.6;
+}
+
+@media (width <= 720px) {
+  .workspace {
+    width: min(100% - 20px, 1180px);
+    padding-top: 28px;
+  }
+}

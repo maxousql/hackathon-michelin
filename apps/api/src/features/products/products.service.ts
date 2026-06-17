@@ -26,6 +26,7 @@ const FACET_SCAN_LIMIT = 5000;
 // méthodes chaînables sans en réimporter le type interne.
 interface FilterableQuery {
   eq(column: string, value: string): FilterableQuery;
+  in(column: string, values: number[]): FilterableQuery;
   not(column: string, operator: string, value: null): FilterableQuery;
   or(filters: string): FilterableQuery;
 }
@@ -82,6 +83,25 @@ export class ProductsService {
     if (!data) return null;
 
     return data as unknown as MichelinProduct;
+  }
+
+  async getByIds(ids: number[]): Promise<MichelinProduct[]> {
+    const uniqueIds = [...new Set(ids)];
+    if (uniqueIds.length === 0) return [];
+
+    const { data, error } = await this.supabase
+      .from(PRODUCTS_TABLE)
+      .select('*')
+      .in('id', uniqueIds);
+
+    if (error) {
+      throw new Error(`Lecture des produits impossible : ${error.message}`);
+    }
+
+    const products = (data ?? []) as unknown as MichelinProduct[];
+    return uniqueIds
+      .map((id) => products.find((product) => product.id === id))
+      .filter((product): product is MichelinProduct => product !== undefined);
   }
 
   async facets(): Promise<ProductFacets> {
