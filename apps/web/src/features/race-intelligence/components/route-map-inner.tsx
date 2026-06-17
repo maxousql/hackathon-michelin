@@ -10,11 +10,17 @@ import type { GpxPoint } from '../utils/gpx-parser';
 interface RouteMapInnerProps {
   points: GpxPoint[];
   highlightLatLon?: [number, number] | null;
+  variant?: 'default' | 'michelin';
 }
 
-export function RouteMapInner({ points, highlightLatLon }: RouteMapInnerProps) {
+export function RouteMapInner({
+  points,
+  highlightLatLon,
+  variant = 'default',
+}: RouteMapInnerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
+  const routeCasingRef = useRef<Polyline | null>(null);
   const polylineRef = useRef<Polyline | null>(null);
   const startMarkerRef = useRef<Marker | null>(null);
   const endMarkerRef = useRef<Marker | null>(null);
@@ -43,16 +49,29 @@ export function RouteMapInner({ points, highlightLatLon }: RouteMapInnerProps) {
 
       const map = L.map(containerRef.current, {
         scrollWheelZoom: false,
-        zoomControl: true,
+        zoomControl: variant !== 'michelin',
         attributionControl: true,
+        preferCanvas: true,
       });
       mapRef.current = map;
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 18,
-      }).addTo(map);
+      if (variant === 'michelin') {
+        L.tileLayer(
+          'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+          {
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            maxZoom: 19,
+          },
+        ).addTo(map);
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+      } else {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          maxZoom: 18,
+        }).addTo(map);
+      }
 
       drawRoute(L, map, points);
       mapReadyRef.current = true;
@@ -63,8 +82,13 @@ export function RouteMapInner({ points, highlightLatLon }: RouteMapInnerProps) {
       mapReadyRef.current = false;
       highlightMarkerRef.current?.remove();
       highlightMarkerRef.current = null;
+      routeCasingRef.current?.remove();
+      routeCasingRef.current = null;
+      polylineRef.current?.remove();
       polylineRef.current = null;
+      startMarkerRef.current?.remove();
       startMarkerRef.current = null;
+      endMarkerRef.current?.remove();
       endMarkerRef.current = null;
       mapRef.current?.remove();
       mapRef.current = null;
@@ -79,9 +103,14 @@ export function RouteMapInner({ points, highlightLatLon }: RouteMapInnerProps) {
     import('leaflet').then((mod) => {
       if (!mapRef.current) return;
       const L = mod.default;
+      routeCasingRef.current?.remove();
+      routeCasingRef.current = null;
       polylineRef.current?.remove();
+      polylineRef.current = null;
       startMarkerRef.current?.remove();
+      startMarkerRef.current = null;
       endMarkerRef.current?.remove();
+      endMarkerRef.current = null;
       highlightMarkerRef.current?.remove();
       highlightMarkerRef.current = null;
       drawRoute(L, mapRef.current, points);
@@ -99,37 +128,61 @@ export function RouteMapInner({ points, highlightLatLon }: RouteMapInnerProps) {
     import('leaflet').then((mod) => {
       if (!mapRef.current || !highlightLatLon) return;
       const L = mod.default;
+      const isMichelin = variant === 'michelin';
       highlightMarkerRef.current = L.circleMarker(highlightLatLon, {
-        radius: 7,
-        color: '#003189',
-        fillColor: '#FFD200',
+        radius: isMichelin ? 8 : 7,
+        color: isMichelin ? '#ffd200' : '#003189',
+        fillColor: isMichelin ? '#003189' : '#FFD200',
         fillOpacity: 1,
-        weight: 2.5,
+        weight: isMichelin ? 3 : 2.5,
       }).addTo(mapRef.current);
     });
-  }, [highlightLatLon]);
+  }, [highlightLatLon, variant]);
 
-  return <div ref={containerRef} className="ri-route-map" />;
+  return (
+    <div
+      ref={containerRef}
+      className={`ri-route-map ri-route-map--${variant}`}
+    />
+  );
 
   function drawRoute(L: typeof LeafletNS, map: Map, pts: GpxPoint[]) {
     const latlngs = pts.map((p) => [p.lat, p.lon] as [number, number]);
+    const isMichelin = variant === 'michelin';
+
+    if (isMichelin) {
+      routeCasingRef.current = L.polyline(latlngs, {
+        color: '#00205b',
+        lineCap: 'round',
+        lineJoin: 'round',
+        opacity: 0.92,
+        weight: 9,
+      }).addTo(map);
+    }
+
     polylineRef.current = L.polyline(latlngs, {
-      color: '#003189',
-      weight: 4,
-      opacity: 0.9,
+      color: isMichelin ? '#ffd200' : '#003189',
+      lineCap: 'round',
+      lineJoin: 'round',
+      opacity: isMichelin ? 1 : 0.9,
+      weight: isMichelin ? 5 : 4,
     }).addTo(map);
 
     const startIcon = L.divIcon({
-      html: '<div style="width:12px;height:12px;background:#FFD200;border:2.5px solid #003189;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',
+      html: isMichelin
+        ? '<div style="display:grid;place-items:center;width:28px;height:28px;background:#ffd200;border:3px solid #00205b;border-radius:50%;box-shadow:0 10px 24px rgba(0,32,91,.28);color:#00205b;font-size:11px;font-weight:900">D</div>'
+        : '<div style="width:12px;height:12px;background:#FFD200;border:2.5px solid #003189;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',
       className: '',
-      iconSize: [12, 12],
-      iconAnchor: [6, 6],
+      iconSize: isMichelin ? [28, 28] : [12, 12],
+      iconAnchor: isMichelin ? [14, 14] : [6, 6],
     });
     const endIcon = L.divIcon({
-      html: '<div style="width:12px;height:12px;background:#003189;border:2.5px solid #FFD200;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',
+      html: isMichelin
+        ? '<div style="display:grid;place-items:center;width:28px;height:28px;background:#00205b;border:3px solid #ffd200;border-radius:50%;box-shadow:0 10px 24px rgba(0,32,91,.28);color:#ffffff;font-size:11px;font-weight:900">A</div>'
+        : '<div style="width:12px;height:12px;background:#003189;border:2.5px solid #FFD200;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',
       className: '',
-      iconSize: [12, 12],
-      iconAnchor: [6, 6],
+      iconSize: isMichelin ? [28, 28] : [12, 12],
+      iconAnchor: isMichelin ? [14, 14] : [6, 6],
     });
 
     const first = pts[0];
@@ -143,6 +196,8 @@ export function RouteMapInner({ points, highlightLatLon }: RouteMapInnerProps) {
         icon: endIcon,
       }).addTo(map);
 
-    map.fitBounds(polylineRef.current.getBounds(), { padding: [24, 24] });
+    map.fitBounds(polylineRef.current.getBounds(), {
+      padding: isMichelin ? [36, 36] : [24, 24],
+    });
   }
 }

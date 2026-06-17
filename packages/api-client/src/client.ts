@@ -12,6 +12,7 @@ import {
   productListResponseSchema,
   retailerListSchema,
   statusResponseSchema,
+  tireComparisonResponseSchema,
   type AdminUser,
   type AuthResponse,
   type AuthUser,
@@ -26,6 +27,8 @@ import {
   type RegisterRequest,
   type Retailer,
   type StatusResponse,
+  type TireComparisonRequest,
+  type TireComparisonResponse,
 } from '@michelin/contracts';
 
 export interface RetailerFilters {
@@ -49,6 +52,10 @@ export interface ApiClient {
   ): Promise<ProductListResponse>;
   getProductFacets(signal?: AbortSignal): Promise<ProductFacets>;
   getProduct(id: number, signal?: AbortSignal): Promise<MichelinProduct>;
+  compareTires(
+    input: TireComparisonRequest,
+    signal?: AbortSignal,
+  ): Promise<TireComparisonResponse>;
   getRetailers(
     filters?: RetailerFilters,
     signal?: AbortSignal,
@@ -228,6 +235,18 @@ export function createApiClient({
       return request(
         `/products/${id}`,
         { schema: michelinProductSchema },
+        signal,
+      );
+    },
+
+    compareTires(input, signal) {
+      return request(
+        '/comparator/benchmark',
+        {
+          method: 'POST',
+          body: JSON.stringify(input),
+          schema: tireComparisonResponseSchema,
+        },
         signal,
       );
     },

@@ -5,8 +5,8 @@ import { type NextRequest, NextResponse } from 'next/server';
 const AUTH_PATHS = ['/login', '/register'];
 
 // Pages accessibles sans être connecté (et sans redirection si on l'est).
-// Le catalogue produits est public.
-const OPEN_PATHS = ['/products'];
+// Le catalogue produits et le comparateur sont publics.
+const OPEN_PATHS = ['/products', '/comparateur'];
 
 // Pages qui nécessitent uniquement d'être connecté (le check admin est fait
 // dans le layout côté serveur).

@@ -68,3 +68,22 @@ export {
   type PressureRecommendation,
   type RaceAnalyzeResponse,
 } from './race-intelligence/race-intelligence.contract';
+
+export {
+  routeSourceSchema,
+  routeGradientStatsSchema,
+  comparatorRouteStatsSchema,
+  tireComparisonRequestSchema,
+  tireComparisonScoreSchema,
+  tireComparisonProductSchema,
+  tireBenchmarkResultSchema,
+  tireComparisonResponseSchema,
+  type RouteSource,
+  type RouteGradientStats,
+  type ComparatorRouteStats,
+  type TireComparisonRequest,
+  type TireComparisonScore,
+  type TireComparisonProduct,
+  type TireBenchmarkResult,
+  type TireComparisonResponse,
+} from './comparator/comparator.contract';

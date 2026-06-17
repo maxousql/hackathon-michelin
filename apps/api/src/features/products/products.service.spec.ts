@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => {
   for (const method of [
     'select',
     'eq',
+    'in',
     'not',
     'or',
     'order',
@@ -69,12 +70,14 @@ describe('ProductsService', () => {
       await service.list({
         ...baseFilters,
         cycleType: 'MTB',
+        productType: 'TYRE',
         sealing: 'TUBELESS READY',
         ebike: true,
         q: 'power',
       });
 
       expect(mocks.builder.eq).toHaveBeenCalledWith('cycle_type', 'MTB');
+      expect(mocks.builder.eq).toHaveBeenCalledWith('product_type', 'TYRE');
       expect(mocks.builder.eq).toHaveBeenCalledWith(
         'sealing',
         'TUBELESS READY',
@@ -136,6 +139,48 @@ describe('ProductsService', () => {
 
       await expect(service.getById(5)).rejects.toThrow(
         'Lecture du produit impossible',
+      );
+    });
+  });
+
+  describe('getByIds()', () => {
+    it('returns products in the requested order', async () => {
+      mocks.state.result = {
+        data: [
+          { id: 8, brand: 'MICHELIN' },
+          { id: 3, brand: 'MICHELIN' },
+        ],
+        error: null,
+        count: null,
+      };
+
+      const result = await service.getByIds([3, 8]);
+
+      expect(result.map((product) => product.id)).toEqual([3, 8]);
+      expect(mocks.builder.in).toHaveBeenCalledWith('id', [3, 8]);
+    });
+
+    it('deduplicates ids before querying Supabase', async () => {
+      mocks.state.result = {
+        data: [{ id: 3, brand: 'MICHELIN' }],
+        error: null,
+        count: null,
+      };
+
+      await service.getByIds([3, 3]);
+
+      expect(mocks.builder.in).toHaveBeenCalledWith('id', [3]);
+    });
+
+    it('throws when Supabase returns an error', async () => {
+      mocks.state.result = {
+        data: null,
+        error: { message: 'boom' },
+        count: null,
+      };
+
+      await expect(service.getByIds([3, 8])).rejects.toThrow(
+        'Lecture des produits impossible',
       );
     });
   });
