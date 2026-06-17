@@ -1,4 +1,5 @@
 import type { MichelinProduct, Retailer } from '@michelin/contracts';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +8,7 @@ import { ButtonLink } from '@/components/ui/button';
 import {
   isEbike,
   productCycleType,
+  productImageSrc,
   productName,
   productRange,
   productSize,
@@ -68,6 +70,7 @@ export function ProductDetail({ product, retailers }: ProductDetailProps) {
   const cycleType = productCycleType(product);
   const size = productSize(product);
   const tags = productTags(product);
+  const imageSrc = productImageSrc(product);
 
   const dimensions: SpecRow[] = [
     { label: 'Diamètre', value: clean(product.web_diameter) },
@@ -139,9 +142,13 @@ export function ProductDetail({ product, retailers }: ProductDetailProps) {
 
       <div className={styles.top}>
         <div className={styles.media} aria-hidden="true">
-          <span className={styles.mediaInitial}>
-            {(range ?? name).charAt(0).toUpperCase()}
-          </span>
+          <Image
+            className={styles.mediaImage}
+            src={imageSrc}
+            alt=""
+            fill
+            sizes="(min-width: 960px) 40vw, 100vw"
+          />
         </div>
 
         <div className={styles.summary}>
