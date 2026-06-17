@@ -1,6 +1,7 @@
 'use client';
 
 import type {
+  ProductFacets,
   ProductListItem,
   RouteSource,
   SurfaceType,
@@ -19,6 +20,7 @@ import {
   productSize,
   productTags,
 } from '@/features/products/services/product-presenter';
+import { ElevationProfile } from '@/features/race-intelligence/components/elevation-profile';
 import { RouteMap } from '@/features/race-intelligence/components/route-map';
 import { StravaPicker } from '@/features/race-intelligence/components/strava-picker';
 import type { GpxStats } from '@/features/race-intelligence/utils/gpx-parser';
@@ -31,6 +33,7 @@ import {
 import styles from './comparator-form.module.css';
 
 interface ComparatorFormProps {
+  initialFacets: ProductFacets;
   initialProducts: ProductListItem[];
   initialTotal: number;
 }
@@ -41,10 +44,14 @@ interface RouteSelection {
   stats: GpxStats;
 }
 
-const SURFACE_OPTIONS: Array<{ label: string; value: SurfaceType }> = [
-  { label: 'Route', value: 'road' },
-  { label: 'Gravel', value: 'gravel' },
-  { label: 'VTT', value: 'mtb' },
+const SURFACE_OPTIONS: Array<{
+  description: string;
+  label: string;
+  value: SurfaceType;
+}> = [
+  { description: 'Asphalte rapide', label: 'Route', value: 'road' },
+  { description: 'Mixte roulant', label: 'Gravel', value: 'gravel' },
+  { description: 'Terrain technique', label: 'VTT', value: 'mtb' },
 ];
 
 const SURFACE_LABEL: Record<SurfaceType, string> = {
@@ -62,6 +69,23 @@ const SCORE_LABELS: Array<{
   { key: 'grip', label: 'Grip' },
   { key: 'punctureProtection', label: 'Protection' },
   { key: 'durability', label: 'Durabilité' },
+];
+
+const GRADIENT_LABELS = [
+  { key: 'flat' as const, label: 'Plat', color: '#cbd5e1', text: '#334155' },
+  {
+    key: 'rolling' as const,
+    label: 'Vallonné',
+    color: '#16a34a',
+    text: '#fff',
+  },
+  {
+    key: 'hilly' as const,
+    label: 'Montagneux',
+    color: '#ffd200',
+    text: '#003189',
+  },
+  { key: 'steep' as const, label: 'Raide', color: '#f97316', text: '#fff' },
 ];
 
 const CATALOG_PAGE_SIZE = 8;
@@ -91,6 +115,29 @@ function scoreColors(score: number): { bar: string; text: string } {
   if (tone === 'medium') return { bar: '#fce500', text: '#8a6500' };
   if (tone === 'low') return { bar: '#f59e0b', text: '#a14f00' };
   return { bar: '#b3261e', text: '#b3261e' };
+}
+
+function cleanSizeValue(value: string | null | undefined): string {
+  return value?.trim() ?? '';
+}
+
+function productMatchesTireSize(
+  product: ProductListItem,
+  tireDiameter: string,
+  tireWidth: string,
+): boolean {
+  const diameter = tireDiameter.trim();
+  const width = tireWidth.trim();
+
+  if (diameter && cleanSizeValue(product.web_diameter) !== diameter) {
+    return false;
+  }
+
+  if (width && cleanSizeValue(product.web_width) !== width) {
+    return false;
+  }
+
+  return true;
 }
 
 function ProductOption({
@@ -151,43 +198,107 @@ function ProductOption({
 
 function RouteStatsPanel({ route }: { route: RouteSelection }) {
   const stats = route.stats;
-  const gradientEntries = [
-    ['Plat', stats.gradientStats.flat],
-    ['Vallonné', stats.gradientStats.rolling],
-    ['Montagneux', stats.gradientStats.hilly],
-    ['Raide', stats.gradientStats.steep],
-  ] as const;
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const hoveredLatLon = useMemo<[number, number] | null>(() => {
+    if (hoveredIdx === null) return null;
+
+    const profilePoint = stats.profile[hoveredIdx];
+    if (!profilePoint) return null;
+
+    let closest = stats.points[0];
+    let minDiff = Infinity;
+
+    for (const point of stats.points) {
+      const diff = Math.abs(point.distKm - profilePoint.distKm);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = point;
+      }
+    }
+
+    return closest ? [closest.lat, closest.lon] : null;
+  }, [hoveredIdx, stats.points, stats.profile]);
 
   return (
     <div className={styles.routeStats}>
-      <div>
-        <p className={styles.routeName}>{route.fileName}</p>
-        <p className={styles.routeSource}>{sourceLabel(route.source)}</p>
+      <div className={styles.routeMeta}>
+        <div>
+          <p className={styles.routeName}>{route.fileName}</p>
+          <p className={styles.routeSource}>{sourceLabel(route.source)}</p>
+        </div>
+        <span>Trace analysée</span>
       </div>
+
+      <div className={styles.routeMapPreview}>
+        <RouteMap
+          points={stats.points}
+          highlightLatLon={hoveredLatLon}
+          variant="michelin"
+          colorMode="terrain"
+        />
+      </div>
+
       <div className={styles.routeMetrics}>
         <span>
           <strong>{formatNumber(stats.distanceKm)}</strong>
           km
+          <em>Distance</em>
         </span>
         <span>
-          <strong>{Math.round(stats.elevationGainM)}</strong>m D+
+          <strong>{Math.round(stats.elevationGainM)}</strong>m
+          <em>Dénivelé +</em>
         </span>
         <span>
           <strong>{stats.points.length}</strong>
           pts
+          <em>Points GPS</em>
         </span>
       </div>
-      <div className={styles.gradientBar} aria-label="Profil de pente">
-        {gradientEntries.map(([label, value]) => (
-          <span
-            key={label}
-            style={{ width: `${value}%` }}
-            title={`${label} : ${value}%`}
-          />
-        ))}
+
+      <div className={styles.terrainProfile}>
+        <p className={styles.sectionTitle}>Profil de terrain</p>
+        <div className={styles.terrainBar} aria-label="Profil de terrain">
+          {GRADIENT_LABELS.map(({ key, label, color, text }) => {
+            const pct = stats.gradientStats[key];
+            if (pct === 0) return null;
+
+            return (
+              <span
+                key={key}
+                style={{
+                  backgroundColor: color,
+                  color: text,
+                  width: `${pct}%`,
+                }}
+                title={`${label} : ${pct}%`}
+              >
+                {pct >= 12 ? `${pct}%` : ''}
+              </span>
+            );
+          })}
+        </div>
+        <div className={styles.terrainLegend}>
+          {GRADIENT_LABELS.map(({ key, label, color }) => (
+            <span key={key} className={styles.terrainLegendItem}>
+              <i
+                className={styles.terrainLegendDot}
+                style={{ backgroundColor: color }}
+                aria-hidden="true"
+              />
+              {label}
+              <strong>{stats.gradientStats[key]}%</strong>
+            </span>
+          ))}
+        </div>
       </div>
-      <div className={styles.routeMapPreview}>
-        <RouteMap points={stats.points} variant="michelin" />
+
+      <div className={styles.elevationPanel}>
+        <p className={styles.sectionTitle}>Profil d&apos;élévation</p>
+        <ElevationProfile
+          profile={stats.profile}
+          hoveredIdx={hoveredIdx}
+          onHover={setHoveredIdx}
+        />
       </div>
     </div>
   );
@@ -389,6 +500,7 @@ function ResultPanel({ result }: { result: TireComparisonResponse }) {
 }
 
 export function ComparatorForm({
+  initialFacets,
   initialProducts,
   initialTotal,
 }: ComparatorFormProps) {
@@ -397,6 +509,8 @@ export function ComparatorForm({
   const [route, setRoute] = useState<RouteSelection | null>(null);
   const [routeError, setRouteError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [tireDiameter, setTireDiameter] = useState('');
+  const [tireWidth, setTireWidth] = useState('');
   const [products, setProducts] = useState(initialProducts);
   const [productTotal, setProductTotal] = useState(initialTotal);
   const [productPage, setProductPage] = useState(1);
@@ -419,6 +533,10 @@ export function ComparatorForm({
           search,
           surface,
           apiPage,
+          {
+            diameter: tireDiameter,
+            width: tireWidth,
+          },
         );
         setProducts(response.items);
         setProductTotal(response.total);
@@ -427,7 +545,7 @@ export function ComparatorForm({
     }, 300);
 
     return () => clearTimeout(handle);
-  }, [search, surface, productPage]);
+  }, [search, surface, productPage, tireDiameter, tireWidth]);
 
   const selectedIds = useMemo(
     () => new Set(selected.map((product) => product.id)),
@@ -443,6 +561,35 @@ export function ComparatorForm({
     productOffset,
     productOffset + CATALOG_PAGE_SIZE,
   );
+  const hasTireSizeFilter = tireDiameter !== '' || tireWidth !== '';
+  const productCountIsPlural = productTotal !== 1;
+
+  function applyTireSize(nextDiameter: string, nextWidth: string) {
+    setTireDiameter(nextDiameter);
+    setTireWidth(nextWidth);
+    setProductPage(1);
+    setResult(null);
+    setCompareError(null);
+    setSelected((current) => {
+      const next = current.filter((product) =>
+        productMatchesTireSize(product, nextDiameter, nextWidth),
+      );
+
+      return next.length === current.length ? current : next;
+    });
+  }
+
+  function updateTireDiameter(value: string) {
+    applyTireSize(value, tireWidth);
+  }
+
+  function updateTireWidth(value: string) {
+    applyTireSize(tireDiameter, value);
+  }
+
+  function resetTireSize() {
+    applyTireSize('', '');
+  }
 
   function applyRoute(nextRoute: RouteSelection, nextSurface?: SurfaceType) {
     setRoute(nextRoute);
@@ -523,7 +670,7 @@ export function ComparatorForm({
         </div>
 
         <div className={styles.surfaceSwitch} aria-label="Surface du parcours">
-          {SURFACE_OPTIONS.map((option) => (
+          {SURFACE_OPTIONS.map((option, index) => (
             <button
               key={option.value}
               type="button"
@@ -533,7 +680,13 @@ export function ComparatorForm({
                 setProductPage(1);
               }}
             >
-              {option.label}
+              <span className={styles.surfaceIndex}>
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <span className={styles.surfaceLabel}>{option.label}</span>
+              <span className={styles.surfaceDescription}>
+                {option.description}
+              </span>
             </button>
           ))}
         </div>
@@ -586,6 +739,54 @@ export function ComparatorForm({
           <span className={styles.selectionCount}>{selected.length}/3</span>
         </div>
 
+        <div className={styles.tireSizePanel}>
+          <div className={styles.tireSizeHeader}>
+            <div>
+              <p>Taille du pneu</p>
+              <span>Filtrage exact sur la dimension de votre vélo.</span>
+            </div>
+            {hasTireSizeFilter && (
+              <button type="button" onClick={resetTireSize}>
+                Réinitialiser
+              </button>
+            )}
+          </div>
+
+          <div className={styles.tireSizeGrid}>
+            <label htmlFor="comparator-diameter">
+              <span>Diamètre</span>
+              <select
+                id="comparator-diameter"
+                value={tireDiameter}
+                onChange={(event) => updateTireDiameter(event.target.value)}
+              >
+                <option value="">Tous</option>
+                {initialFacets.diameter.map((diameter) => (
+                  <option key={diameter} value={diameter}>
+                    {diameter}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label htmlFor="comparator-width">
+              <span>Largeur</span>
+              <select
+                id="comparator-width"
+                value={tireWidth}
+                onChange={(event) => updateTireWidth(event.target.value)}
+              >
+                <option value="">Toutes</option>
+                {initialFacets.width.map((width) => (
+                  <option key={width} value={width}>
+                    {width}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </div>
+
         <label className={styles.searchField} htmlFor="comparator-search">
           <span>Recherche catalogue</span>
           <input
@@ -622,8 +823,11 @@ export function ComparatorForm({
 
         <div className={styles.catalogMeta}>
           <span>
-            {productTotal} pneu{productTotal > 1 ? 's' : ''} · page{' '}
-            {productPage}/{productPageCount}
+            {productTotal} pneu{productCountIsPlural ? 's' : ''}
+            {hasTireSizeFilter
+              ? ` compatible${productCountIsPlural ? 's' : ''}`
+              : ''}{' '}
+            · page {productPage}/{productPageCount}
           </span>
         </div>
 

@@ -2,7 +2,13 @@
 
 import 'leaflet/dist/leaflet.css';
 import type * as LeafletNS from 'leaflet';
-import type { CircleMarker, Map, Marker, Polyline } from 'leaflet';
+import type {
+  CircleMarker,
+  LatLngExpression,
+  Map,
+  Marker,
+  Polyline,
+} from 'leaflet';
 import { useEffect, useRef } from 'react';
 
 import type { GpxPoint } from '../utils/gpx-parser';
@@ -10,18 +16,20 @@ import type { GpxPoint } from '../utils/gpx-parser';
 interface RouteMapInnerProps {
   points: GpxPoint[];
   highlightLatLon?: [number, number] | null;
+  colorMode?: 'single' | 'terrain';
   variant?: 'default' | 'michelin';
 }
 
 export function RouteMapInner({
+  colorMode = 'single',
   points,
   highlightLatLon,
   variant = 'default',
 }: RouteMapInnerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
-  const routeCasingRef = useRef<Polyline | null>(null);
-  const polylineRef = useRef<Polyline | null>(null);
+  const routeCasingRefs = useRef<Polyline[]>([]);
+  const routeLineRefs = useRef<Polyline[]>([]);
   const startMarkerRef = useRef<Marker | null>(null);
   const endMarkerRef = useRef<Marker | null>(null);
   const highlightMarkerRef = useRef<CircleMarker | null>(null);
@@ -82,10 +90,7 @@ export function RouteMapInner({
       mapReadyRef.current = false;
       highlightMarkerRef.current?.remove();
       highlightMarkerRef.current = null;
-      routeCasingRef.current?.remove();
-      routeCasingRef.current = null;
-      polylineRef.current?.remove();
-      polylineRef.current = null;
+      clearRouteLayers();
       startMarkerRef.current?.remove();
       startMarkerRef.current = null;
       endMarkerRef.current?.remove();
@@ -103,10 +108,7 @@ export function RouteMapInner({
     import('leaflet').then((mod) => {
       if (!mapRef.current) return;
       const L = mod.default;
-      routeCasingRef.current?.remove();
-      routeCasingRef.current = null;
-      polylineRef.current?.remove();
-      polylineRef.current = null;
+      clearRouteLayers();
       startMarkerRef.current?.remove();
       startMarkerRef.current = null;
       endMarkerRef.current?.remove();
@@ -116,7 +118,7 @@ export function RouteMapInner({
       drawRoute(L, mapRef.current, points);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [points]);
+  }, [colorMode, points, variant]);
 
   // ── Highlight marker (hover sync avec le profil d'élévation) ────────────
   useEffect(() => {
@@ -147,26 +149,40 @@ export function RouteMapInner({
   );
 
   function drawRoute(L: typeof LeafletNS, map: Map, pts: GpxPoint[]) {
-    const latlngs = pts.map((p) => [p.lat, p.lon] as [number, number]);
+    const latlngs: LatLngExpression[] = pts.map((p) => [p.lat, p.lon]);
     const isMichelin = variant === 'michelin';
+    const usesTerrainColors = colorMode === 'terrain';
+    const routeSegments = usesTerrainColors
+      ? terrainSegments(pts)
+      : [{ color: null, pts }];
 
-    if (isMichelin) {
-      routeCasingRef.current = L.polyline(latlngs, {
-        color: '#00205b',
-        lineCap: 'round',
-        lineJoin: 'round',
-        opacity: 0.92,
-        weight: 9,
-      }).addTo(map);
+    for (const segment of routeSegments) {
+      const segmentLatLngs = segment.pts.map(
+        (p) => [p.lat, p.lon] as LatLngExpression,
+      );
+
+      if (isMichelin && !usesTerrainColors) {
+        routeCasingRefs.current.push(
+          L.polyline(segmentLatLngs, {
+            color: '#00205b',
+            lineCap: 'round',
+            lineJoin: 'round',
+            opacity: 0.92,
+            weight: 9,
+          }).addTo(map),
+        );
+      }
+
+      routeLineRefs.current.push(
+        L.polyline(segmentLatLngs, {
+          color: segment.color ?? (isMichelin ? '#ffd200' : '#003189'),
+          lineCap: 'round',
+          lineJoin: 'round',
+          opacity: isMichelin ? 1 : 0.9,
+          weight: usesTerrainColors ? 6 : isMichelin ? 5 : 4,
+        }).addTo(map),
+      );
     }
-
-    polylineRef.current = L.polyline(latlngs, {
-      color: isMichelin ? '#ffd200' : '#003189',
-      lineCap: 'round',
-      lineJoin: 'round',
-      opacity: isMichelin ? 1 : 0.9,
-      weight: isMichelin ? 5 : 4,
-    }).addTo(map);
 
     const startIcon = L.divIcon({
       html: isMichelin
@@ -196,8 +212,49 @@ export function RouteMapInner({
         icon: endIcon,
       }).addTo(map);
 
-    map.fitBounds(polylineRef.current.getBounds(), {
+    map.fitBounds(L.latLngBounds(latlngs), {
       padding: isMichelin ? [36, 36] : [24, 24],
     });
   }
+
+  function clearRouteLayers() {
+    for (const layer of routeCasingRefs.current) layer.remove();
+    for (const layer of routeLineRefs.current) layer.remove();
+    routeCasingRefs.current = [];
+    routeLineRefs.current = [];
+  }
+}
+
+function terrainSegments(points: GpxPoint[]): Array<{
+  color: string;
+  pts: GpxPoint[];
+}> {
+  if (points.length < 2) return [];
+
+  const segments: Array<{ color: string; pts: GpxPoint[] }> = [];
+
+  for (let index = 1; index < points.length; index += 1) {
+    const previous = points[index - 1]!;
+    const current = points[index]!;
+    const color = terrainColor(previous, current);
+    const last = segments[segments.length - 1];
+
+    if (last && last.color === color) {
+      last.pts.push(current);
+    } else {
+      segments.push({ color, pts: [previous, current] });
+    }
+  }
+
+  return segments;
+}
+
+function terrainColor(previous: GpxPoint, current: GpxPoint): string {
+  const distanceM = Math.max((current.distKm - previous.distKm) * 1000, 1);
+  const grade = Math.abs(((current.ele - previous.ele) / distanceM) * 100);
+
+  if (grade < 3) return '#cbd5e1';
+  if (grade < 6) return '#16a34a';
+  if (grade < 12) return '#ffd200';
+  return '#f97316';
 }
