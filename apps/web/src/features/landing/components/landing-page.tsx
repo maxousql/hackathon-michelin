@@ -1,7 +1,5 @@
 import Image from 'next/image';
 
-import { UserMenu } from '@/features/auth/components/user-menu';
-
 import {
   AnimatedBadge,
   BicycleCategoryCard,
@@ -188,53 +186,9 @@ const assuranceItems = [
   'Achat ou montage simple à déclencher',
 ];
 
-export function LandingPage({ isAdmin = false }: { isAdmin?: boolean }) {
-  const year = new Date().getFullYear();
-
+export function LandingPage() {
   return (
     <>
-      <header className="site-header">
-        <div className="site-header-inner">
-          <a className="brand-mark" href="#top" aria-label="Michelin Race">
-            <Image
-              alt="Michelin Race"
-              className="brand-logo"
-              height={96}
-              priority
-              src="/logo-michelin-race.png"
-              width={240}
-            />
-          </a>
-
-          <nav className="desktop-nav" aria-label="Navigation principale">
-            <a href="#recherche">Recherche d’un pneu</a>
-            <a href="#categories">Tous les pneus vélo</a>
-            <a href="#produits">Dernières innovations</a>
-            <a href="#actu">Actualités vélo</a>
-          </nav>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <a className="header-finder" href="#recherche">
-              <span className="header-finder-copy">Trouver le bon pneu</span>
-              <span className="header-finder-arrow" aria-hidden="true">
-                →
-              </span>
-            </a>
-            <UserMenu isAdmin={isAdmin} />
-          </div>
-
-          <details className="mobile-menu">
-            <summary>Menu</summary>
-            <div className="mobile-menu-panel">
-              <a href="#recherche">Recherche d’un pneu</a>
-              <a href="#categories">Tous les pneus vélo</a>
-              <a href="#produits">Dernières innovations</a>
-              <a href="#actu">Actualités vélo</a>
-            </div>
-          </details>
-        </div>
-      </header>
-
       <main id="top">
         <GradientBackground className="hero-shell">
           <section className="hero-section" aria-labelledby="hero-title">
@@ -511,15 +465,6 @@ export function LandingPage({ isAdmin = false }: { isAdmin?: boolean }) {
           </Container>
         </Section>
       </main>
-
-      <footer className="site-footer">
-        <p>© {year} Michelin Race</p>
-        <nav aria-label="Liens légaux">
-          <a href="#top">Confidentialité</a>
-          <a href="#top">Mentions légales</a>
-          <a href="#top">Accessibilité</a>
-        </nav>
-      </footer>
     </>
   );
 }

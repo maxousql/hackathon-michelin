@@ -1,4 +1,11 @@
 import type { ProductListItem } from '@michelin/contracts';
+import type { StaticImageData } from 'next/image';
+
+import roueCityImage from '../../../../public/roue/roue-city1.webp';
+import roueMtbImage from '../../../../public/roue/roue-mtb1.webp';
+import roueMtbAltImage from '../../../../public/roue/roue-mtb2.webp';
+import roueRoadImage from '../../../../public/roue/roue-road1.webp';
+import roueRoadAltImage from '../../../../public/roue/roue-road2.webp';
 
 /**
  * Helpers de présentation : transforment une ligne brute du catalogue en
@@ -76,4 +83,16 @@ export function productTags(p: ProductListItem): string[] {
   if (isEbike(p)) tags.push('E-bike');
 
   return tags.slice(0, 3);
+}
+
+/** Image produit par catégorie vélo, alternée quand plusieurs visuels existent. */
+export function productImageSrc(p: ProductListItem): StaticImageData {
+  const cycleType = productCycleType(p)?.toLowerCase() ?? '';
+
+  if (cycleType.includes('city')) return roueCityImage;
+  if (cycleType.includes('mtb')) {
+    return p.id % 2 === 0 ? roueMtbAltImage : roueMtbImage;
+  }
+
+  return p.id % 2 === 0 ? roueRoadAltImage : roueRoadImage;
 }

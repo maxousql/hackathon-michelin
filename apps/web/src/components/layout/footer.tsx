@@ -1,13 +1,24 @@
+import Image from 'next/image';
+import Link from 'next/link';
+
 import styles from './footer.module.css';
 
-// Liens institutionnels requis (§11.12). Les cibles réelles seront branchées
-// quand les pages correspondantes existeront.
-const LINKS = [
+const PRODUCT_LINKS = [
+  { label: 'Catalogue pneus', href: '/products' },
+  { label: 'Comparateur', href: '/comparateur' },
+  { label: 'Race Intelligence', href: '/race-intelligence' },
+  { label: 'Reprise Michelin', href: '/reprise' },
+];
+
+const ACCOUNT_LINKS = [
+  { label: 'Connexion', href: '/login' },
+  { label: 'Inscription', href: '/register' },
+];
+
+const LEGAL_LINKS = [
   { label: 'Confidentialité', href: '#' },
   { label: 'Mentions légales', href: '#' },
-  { label: 'Cookies', href: '#' },
   { label: 'Accessibilité', href: '#' },
-  { label: 'Plan du site', href: '#' },
 ];
 
 export function Footer() {
@@ -16,16 +27,59 @@ export function Footer() {
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
-        <p className={styles.copyright}>
-          © {year} Compagnie Générale des Établissements Michelin
-        </p>
-        <nav className={styles.links} aria-label="Liens institutionnels">
-          {LINKS.map((link) => (
-            <a key={link.label} href={link.href} className={styles.link}>
-              {link.label}
-            </a>
-          ))}
+        <div className={styles.brandPanel}>
+          <Link
+            href="/"
+            className={styles.brand}
+            aria-label="Michelin Race, accueil"
+          >
+            <Image
+              alt="Michelin Race"
+              className={styles.logo}
+              height={96}
+              src="/logo-michelin-race.png"
+              width={240}
+            />
+          </Link>
+          <p className={styles.lede}>
+            Trouvez, comparez et entretenez vos pneus MICHELIN vélo avec une
+            lecture terrain claire, du choix produit à la seconde vie.
+          </p>
+        </div>
+
+        <nav className={styles.nav} aria-label="Navigation du pied de page">
+          <div className={styles.column}>
+            <h2 className={styles.title}>Explorer</h2>
+            {PRODUCT_LINKS.map((link) => (
+              <Link key={link.href} href={link.href} className={styles.link}>
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className={styles.column}>
+            <h2 className={styles.title}>Compte</h2>
+            {ACCOUNT_LINKS.map((link) => (
+              <Link key={link.href} href={link.href} className={styles.link}>
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className={styles.column}>
+            <h2 className={styles.title}>Michelin</h2>
+            {LEGAL_LINKS.map((link) => (
+              <a key={link.label} href={link.href} className={styles.link}>
+                {link.label}
+              </a>
+            ))}
+          </div>
         </nav>
+      </div>
+
+      <div className={styles.bottom}>
+        <p>© {year} Compagnie Générale des Établissements Michelin</p>
+        <p>Design Michelin Race Intelligence</p>
       </div>
     </footer>
   );

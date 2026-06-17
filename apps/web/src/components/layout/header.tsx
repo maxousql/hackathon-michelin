@@ -1,44 +1,115 @@
+import Image from 'next/image';
 import Link from 'next/link';
-
-import { ButtonLink } from '@/components/ui/button';
+import type { ReactNode } from 'react';
 
 import styles from './header.module.css';
 
-/**
- * En-tête de l'application (§11.12). Le logo officiel MICHELIN n'étant pas
- * encore disponible, on utilise un emplacement textuel clairement identifié —
- * il est interdit de redessiner le logo.
- */
-export function Header() {
+interface HeaderLink {
+  href: string;
+  label: string;
+}
+
+interface HeaderProps {
+  ariaLabel?: string;
+  actions?: ReactNode;
+  cta?: HeaderLink;
+  homeHref?: string;
+  navigation?: HeaderLink[];
+}
+
+const DEFAULT_NAVIGATION: HeaderLink[] = [
+  { href: '/', label: 'Accueil' },
+  { href: '/products', label: 'Catalogue' },
+  { href: '/comparateur', label: 'Comparateur' },
+  { href: '/reprise', label: 'Reprise' },
+];
+
+const DEFAULT_CTA: HeaderLink = {
+  href: '/race-intelligence',
+  label: 'Lancer Race Intelligence',
+};
+
+interface SmartLinkProps extends HeaderLink {
+  'aria-label'?: string;
+  children?: ReactNode;
+  className?: string;
+}
+
+function SmartLink({
+  'aria-label': ariaLabel,
+  children,
+  className,
+  href,
+  label,
+}: SmartLinkProps) {
+  const content = children ?? label;
+
+  if (href.startsWith('#')) {
+    return (
+      <a aria-label={ariaLabel} className={className} href={href}>
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link aria-label={ariaLabel} className={className} href={href}>
+      {content}
+    </Link>
+  );
+}
+
+export function Header({
+  ariaLabel = 'Navigation principale',
+  actions,
+  cta = DEFAULT_CTA,
+  homeHref = '/',
+  navigation = DEFAULT_NAVIGATION,
+}: HeaderProps) {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        <Link
-          href="/"
+        <SmartLink
+          href={homeHref}
+          label="Michelin Race"
           className={styles.brand}
-          aria-label="MICHELIN Ride ID, accueil"
+          aria-label="Michelin Race, accueil"
         >
-          <span className={styles.wordmark}>MICHELIN</span>
-          <span className={styles.product}>Ride ID</span>
-        </Link>
+          <Image
+            alt="Michelin Race"
+            className={styles.logo}
+            height={96}
+            priority
+            src="/logo-michelin-race.png"
+            width={240}
+          />
+        </SmartLink>
 
-        <nav className={styles.nav} aria-label="Navigation principale">
-          <Link href="/" className={styles.link}>
-            Accueil
-          </Link>
-          <Link href="/products" className={styles.link}>
-            Catalogue
-          </Link>
-          <Link href="/reprise" className={styles.link}>
-            Reprise
-          </Link>
+        <nav className={styles.nav} aria-label={ariaLabel}>
+          {navigation.map((item) => (
+            <SmartLink key={item.href} className={styles.link} {...item} />
+          ))}
         </nav>
 
         <div className={styles.actions}>
-          <ButtonLink href="/products" variant="secondary" size="small">
-            Trouver mes pneus
-          </ButtonLink>
+          <SmartLink className={styles.finder} {...cta}>
+            <span className={styles.finderCopy}>{cta.label}</span>
+            <span className={styles.finderArrow} aria-hidden="true">
+              →
+            </span>
+          </SmartLink>
+          {actions}
         </div>
+
+        <details className={styles.mobileMenu}>
+          <summary>Menu</summary>
+          <div className={styles.mobilePanel}>
+            {navigation.map((item) => (
+              <SmartLink key={item.href} {...item} />
+            ))}
+            <SmartLink className={styles.mobileCta} {...cta} />
+          </div>
+        </details>
       </div>
     </header>
   );

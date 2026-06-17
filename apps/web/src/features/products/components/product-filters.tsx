@@ -5,9 +5,24 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { Field, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from '@/components/ui/native-select';
 
-import { FILTER_LABELS, FILTER_ORDER } from '../services/filter-config';
+import {
+  FILTER_LABELS,
+  FILTER_ORDER,
+  type FilterKey,
+} from '../services/filter-config';
 import styles from './product-filters.module.css';
+
+const INLINE_FILTER_KEYS: FilterKey[] = ['diameter', 'width'];
+const STACKED_FILTER_KEYS = FILTER_ORDER.filter(
+  (key) => !INLINE_FILTER_KEYS.includes(key),
+);
 
 interface ProductFiltersProps {
   facets: ProductFacets;
@@ -63,6 +78,37 @@ export function ProductFilters({ facets, total }: ProductFiltersProps) {
 
   const ebikeChecked = searchParams.get('ebike') === '1';
   const sortValue = searchParams.get('sort') ?? 'range';
+  const hasInlineFilters = INLINE_FILTER_KEYS.some(
+    (key) => (facets[key]?.length ?? 0) > 0,
+  );
+
+  function renderFilterControl(key: FilterKey, compact = false) {
+    const options = facets[key];
+    if (!options || options.length === 0) return null;
+    const value = searchParams.get(key) ?? '';
+    const controlClassName = compact
+      ? `${styles.control} ${styles.compactControl}`
+      : styles.control;
+
+    return (
+      <Field className={styles.group} key={key}>
+        <FieldLabel htmlFor={`filter-${key}`}>{FILTER_LABELS[key]}</FieldLabel>
+        <NativeSelect
+          id={`filter-${key}`}
+          className={controlClassName}
+          value={value}
+          onChange={(event) => setParam(key, event.target.value)}
+        >
+          <NativeSelectOption value="">Tous</NativeSelectOption>
+          {options.map((option) => (
+            <NativeSelectOption key={option} value={option}>
+              {option}
+            </NativeSelectOption>
+          ))}
+        </NativeSelect>
+      </Field>
+    );
+  }
 
   return (
     <aside
@@ -77,47 +123,27 @@ export function ProductFilters({ facets, total }: ProductFiltersProps) {
         </span>
       </div>
 
-      <div className={styles.group}>
-        <label className={styles.label} htmlFor="filter-q">
-          Recherche
-        </label>
-        <input
+      <Field className={styles.group}>
+        <FieldLabel htmlFor="filter-q">Recherche</FieldLabel>
+        <Input
           id="filter-q"
           type="search"
-          className={styles.input}
+          className={styles.control}
           placeholder="Nom, gamme…"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-      </div>
+      </Field>
 
-      {FILTER_ORDER.map((key) => {
-        const options = facets[key];
-        if (!options || options.length === 0) return null;
-        const value = searchParams.get(key) ?? '';
-        return (
-          <div className={styles.group} key={key}>
-            <label className={styles.label} htmlFor={`filter-${key}`}>
-              {FILTER_LABELS[key]}
-            </label>
-            <select
-              id={`filter-${key}`}
-              className={styles.select}
-              value={value}
-              onChange={(event) => setParam(key, event.target.value)}
-            >
-              <option value="">Tous</option>
-              {options.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-        );
-      })}
+      {STACKED_FILTER_KEYS.map((key) => renderFilterControl(key))}
 
-      <div className={styles.checkboxRow}>
+      {hasInlineFilters && (
+        <div className={styles.inlineGroup}>
+          {INLINE_FILTER_KEYS.map((key) => renderFilterControl(key, true))}
+        </div>
+      )}
+
+      <Field className={styles.checkboxRow}>
         <input
           id="filter-ebike"
           type="checkbox"
@@ -126,16 +152,16 @@ export function ProductFilters({ facets, total }: ProductFiltersProps) {
             setParam('ebike', event.target.checked ? '1' : '')
           }
         />
-        <label htmlFor="filter-ebike">Compatible vélo électrique</label>
-      </div>
+        <FieldLabel htmlFor="filter-ebike">
+          Compatible vélo électrique
+        </FieldLabel>
+      </Field>
 
-      <div className={styles.group}>
-        <label className={styles.label} htmlFor="filter-sort">
-          Trier par
-        </label>
-        <select
+      <Field className={styles.group}>
+        <FieldLabel htmlFor="filter-sort">Trier par</FieldLabel>
+        <NativeSelect
           id="filter-sort"
-          className={styles.select}
+          className={styles.control}
           value={sortValue}
           onChange={(event) =>
             setParam(
@@ -144,12 +170,17 @@ export function ProductFilters({ facets, total }: ProductFiltersProps) {
             )
           }
         >
-          <option value="range">Gamme</option>
-          <option value="diameter">Diamètre</option>
-        </select>
-      </div>
+          <NativeSelectOption value="range">Gamme</NativeSelectOption>
+          <NativeSelectOption value="diameter">Diamètre</NativeSelectOption>
+        </NativeSelect>
+      </Field>
 
-      <Button variant="ghost" onClick={reset} disabled={isPending}>
+      <Button
+        className={styles.reset}
+        variant="ghost"
+        onClick={reset}
+        disabled={isPending}
+      >
         Réinitialiser
       </Button>
     </aside>
