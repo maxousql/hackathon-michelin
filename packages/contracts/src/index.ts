@@ -51,3 +51,20 @@ export {
   type ProductListItem,
   type ProductListResponse,
 } from './products/products.contract';
+
+export {
+  surfaceTypeSchema,
+  disciplineSchema,
+  weatherConditionSchema,
+  raceAnalyzeRequestSchema,
+  tireRecommendationSchema,
+  pressureRecommendationSchema,
+  raceAnalyzeResponseSchema,
+  type SurfaceType,
+  type Discipline,
+  type WeatherCondition,
+  type RaceAnalyzeRequest,
+  type TireRecommendation,
+  type PressureRecommendation,
+  type RaceAnalyzeResponse,
+} from './race-intelligence/race-intelligence.contract';
