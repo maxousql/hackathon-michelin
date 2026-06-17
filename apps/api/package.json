@@ -34,7 +34,7 @@
     "@michelin/contracts": "workspace:*",
     "@nestjs/cli": "^11.0.16",
     "@nestjs/testing": "11.1.27",
-    "@types/node": "^22.19.0",
+    "@types/node": "^25.9.3",
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^6.0.3",
     "eslint": "^9.39.1",
