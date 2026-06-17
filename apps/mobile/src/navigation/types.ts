@@ -3,11 +3,16 @@ export type AuthStackParamList = {
   Register: undefined;
 };
 
-export type AppStackParamList = {
-  Landing: undefined;
+export type CatalogStackParamList = {
+  CatalogMain: undefined;
+  ProductDetail: { id: number };
+};
+
+export type AppTabParamList = {
   Home: undefined;
   Catalog: undefined;
-  ProductDetail: { id: number };
+  Race: undefined;
   Reprise: undefined;
-  AdminUsers: undefined;
+  Admin: undefined;
+  Profile: undefined;
 };

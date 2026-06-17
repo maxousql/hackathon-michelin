@@ -1,15 +1,15 @@
-import type { NavigationProp } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import type { AppStackParamList } from '../../../navigation/types';
+import type { AppTabParamList } from '../../../navigation/types';
 import { colors, radius, shadows, spacing } from '../../../theme';
 import { useAuth } from '../context/auth-context';
 
 export function UserMenu() {
   const { user, logout } = useAuth();
-  const navigation = useNavigation<NavigationProp<AppStackParamList>>();
+  const navigation = useNavigation<BottomTabNavigationProp<AppTabParamList>>();
   const [visible, setVisible] = useState(false);
 
   const initials =
@@ -66,7 +66,7 @@ export function UserMenu() {
                 ]}
                 onPress={() => {
                   setVisible(false);
-                  navigation.navigate('AdminUsers');
+                  navigation.navigate('Admin');
                 }}
               >
                 <Text style={styles.menuItemIcon}>⚙</Text>

@@ -1,4 +1,5 @@
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -7,6 +8,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import logo from '../../../../assets/logo-michelin-race.png';
 
 import { colors, radius, spacing } from '../../../theme';
 
@@ -30,7 +33,9 @@ export function AuthScreenShell({ title, subtitle, children }: Props) {
         >
           {/* Branded header */}
           <View style={styles.hero}>
-            <Text style={styles.eyebrow}>MICHELIN RACE</Text>
+            <View style={styles.logoBadge}>
+              <Image source={logo} style={styles.logo} resizeMode="contain" />
+            </View>
             <Text style={styles.heroTitle}>{title}</Text>
             <Text style={styles.heroSubtitle}>{subtitle}</Text>
           </View>
@@ -44,7 +49,7 @@ export function AuthScreenShell({ title, subtitle, children }: Props) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.brandMidnight },
+  safe: { flex: 1, backgroundColor: colors.surfaceDefault },
   flex: { flex: 1 },
   scroll: { flexGrow: 1 },
 
@@ -54,12 +59,16 @@ const styles = StyleSheet.create({
     paddingBottom: spacing[8],
     backgroundColor: colors.brandMidnight,
   },
-  eyebrow: {
-    marginBottom: spacing[3],
-    color: colors.brandYellow,
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 2.5,
+  logoBadge: {
+    alignSelf: 'center',
+    backgroundColor: colors.surfaceDefault,
+    borderRadius: radius.xlarge,
+    padding: spacing[4],
+    marginBottom: spacing[6],
+  },
+  logo: {
+    width: 140,
+    height: 140,
   },
   heroTitle: {
     marginBottom: spacing[2],

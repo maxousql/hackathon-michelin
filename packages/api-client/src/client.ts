@@ -10,6 +10,8 @@ import {
   michelinProductSchema,
   productFacetsSchema,
   productListResponseSchema,
+  raceAnalyzeRequestSchema,
+  raceAnalyzeResponseSchema,
   retailerListSchema,
   statusResponseSchema,
   tireComparisonResponseSchema,
@@ -24,6 +26,8 @@ import {
   type ProductFacets,
   type ProductFilters,
   type ProductListResponse,
+  type RaceAnalyzeRequest,
+  type RaceAnalyzeResponse,
   type RegisterRequest,
   type Retailer,
   type StatusResponse,
@@ -86,6 +90,10 @@ export interface ApiClient {
     id: string,
     signal?: AbortSignal,
   ): Promise<void>;
+  analyzeRace(
+    data: RaceAnalyzeRequest,
+    signal?: AbortSignal,
+  ): Promise<RaceAnalyzeResponse>;
 }
 
 /** Sérialise les filtres catalogue en query string (omet les valeurs vides). */
@@ -339,6 +347,18 @@ export function createApiClient({
         }
         throw new ApiClientError(message, response.status);
       }
+    },
+
+    analyzeRace(data, signal) {
+      return request(
+        '/race-intelligence/analyze',
+        {
+          method: 'POST',
+          body: JSON.stringify(raceAnalyzeRequestSchema.parse(data)),
+          schema: raceAnalyzeResponseSchema,
+        },
+        signal,
+      );
     },
 
     async deleteAdminUser(token, id, signal) {

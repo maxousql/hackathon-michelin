@@ -1,18 +1,13 @@
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AppButton } from '../../../components/app-button';
-import type { AppStackParamList } from '../../../navigation/types';
+import logo from '../../../../assets/logo-michelin-race.png';
 import { colors, fontSize, fontWeight, radius, spacing } from '../../../theme';
 import { useAuth } from '../../auth/context/auth-context';
-import { UserMenu } from '../../auth/components/user-menu';
 import { StatusCard } from '../../status/components/status-card';
 
-type Props = NativeStackScreenProps<AppStackParamList, 'Home'>;
-
-export function HomeScreen({ navigation }: Props) {
+export function HomeScreen() {
   const { user } = useAuth();
 
   return (
@@ -20,13 +15,10 @@ export function HomeScreen({ navigation }: Props) {
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <View>
-            <Text style={styles.eyebrow}>HACKATHON MICHELIN</Text>
-            <Text style={styles.welcome}>
-              Bonjour, {user?.firstName ?? '—'} 👋
-            </Text>
-          </View>
-          <UserMenu />
+          <Image source={logo} style={styles.logo} resizeMode="contain" />
+          <Text style={styles.welcome}>
+            Bonjour, {user?.firstName ?? '—'} 👋
+          </Text>
         </View>
 
         <Text style={styles.title}>Le même produit, partout.</Text>
@@ -36,17 +28,6 @@ export function HomeScreen({ navigation }: Props) {
         </Text>
 
         <StatusCard />
-
-        <AppButton
-          title="Explorer le catalogue"
-          onPress={() => navigation.navigate('Catalog')}
-        />
-
-        <AppButton
-          title="Reprise MICHELIN"
-          variant="outline"
-          onPress={() => navigation.navigate('Reprise')}
-        />
 
         <View style={styles.feature}>
           <Text style={styles.featureIndex}>01</Text>
@@ -64,22 +45,17 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.surfaceCanvas },
   content: {
     paddingHorizontal: spacing[6],
-    paddingVertical: spacing[8],
+    paddingTop: spacing[8],
+    paddingBottom: 100,
     gap: spacing[6],
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  header: { gap: spacing[2] },
+  logo: {
+    width: 120,
+    height: 120,
+    alignSelf: 'center',
   },
-  eyebrow: {
-    marginBottom: 4,
-    color: colors.brandBlue,
-    fontSize: fontSize.caption,
-    fontWeight: fontWeight.black,
-    letterSpacing: 2,
-  },
-  welcome: { color: colors.textPrimary, fontSize: 16, fontWeight: '600' },
+  welcome: { color: colors.textSecondary, fontSize: 15, fontWeight: '600' },
   title: {
     maxWidth: 330,
     color: colors.textPrimary,

@@ -7,6 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, fontSize, fontWeight, radius, spacing } from '../../../theme';
 import { useProduct } from '../hooks/use-product';
@@ -159,32 +160,35 @@ export function ProductDetailScreen({ id, onBack }: ProductDetailScreenProps) {
   const { data, error, isLoading, notFound } = useProduct(id);
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
-      <Pressable
-        onPress={onBack}
-        accessibilityRole="button"
-        style={styles.back}
-      >
-        <Text style={styles.backText}>← Retour au catalogue</Text>
-      </Pressable>
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <Pressable
+          onPress={onBack}
+          accessibilityRole="button"
+          style={styles.back}
+        >
+          <Text style={styles.backText}>← Retour au catalogue</Text>
+        </Pressable>
 
-      {isLoading ? (
-        <ActivityIndicator color={colors.brandBlue} style={styles.loader} />
-      ) : notFound ? (
-        <Text style={styles.message}>Ce pneu est introuvable.</Text>
-      ) : error ? (
-        <Text style={styles.message}>Produit indisponible. {error}</Text>
-      ) : data ? (
-        <ProductBody product={data} />
-      ) : null}
-    </ScrollView>
+        {isLoading ? (
+          <ActivityIndicator color={colors.brandBlue} style={styles.loader} />
+        ) : notFound ? (
+          <Text style={styles.message}>Ce pneu est introuvable.</Text>
+        ) : error ? (
+          <Text style={styles.message}>Produit indisponible. {error}</Text>
+        ) : data ? (
+          <ProductBody product={data} />
+        ) : null}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.surfaceCanvas },
   content: {
     padding: spacing[6],
-    paddingBottom: spacing[16],
+    paddingBottom: 130,
   },
   back: {
     marginBottom: spacing[6],

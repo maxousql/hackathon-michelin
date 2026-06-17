@@ -1,4 +1,3 @@
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type {
   BuybackCondition,
   BuybackRequest,
@@ -10,7 +9,6 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppButton } from '../../../components/app-button';
 import { AppTextInput } from '../../../components/app-text-input';
 import { ScreenWrapper } from '../../../components/screen-wrapper';
-import type { AppStackParamList } from '../../../navigation/types';
 import { colors, fontSize, fontWeight, radius, spacing } from '../../../theme';
 import { useAuth } from '../../auth/context/auth-context';
 import { Chip } from '../../products/components/chip';
@@ -25,11 +23,9 @@ import {
   formatEuros,
 } from '../labels';
 
-type Props = NativeStackScreenProps<AppStackParamList, 'Reprise'>;
-
 type Feedback = { type: 'error' | 'success'; text: string };
 
-export function RepriseScreen({ navigation }: Props) {
+export function RepriseScreen() {
   const { token } = useAuth();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<ProductListItem[]>([]);
@@ -226,14 +222,6 @@ export function RepriseScreen({ navigation }: Props) {
           </View>
         ))
       )}
-
-      <View style={styles.back}>
-        <AppButton
-          title="Retour"
-          variant="outline"
-          onPress={() => navigation.goBack()}
-        />
-      </View>
     </ScreenWrapper>
   );
 }
@@ -347,5 +335,4 @@ const styles = StyleSheet.create({
     fontWeight: fontWeight.black,
   },
   requestStatus: { color: colors.textSecondary, fontSize: fontSize.caption },
-  back: { marginTop: spacing[8] },
 });

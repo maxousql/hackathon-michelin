@@ -1,6 +1,11 @@
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
+import Toast from 'react-native-toast-message';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import logo from '../../assets/logo-michelin-race.png';
 
 import { useAuth } from '../features/auth/context/auth-context';
 import { LoginScreen } from '../features/auth/screens/login-screen';
@@ -8,14 +13,21 @@ import { RegisterScreen } from '../features/auth/screens/register-screen';
 import { AdminUsersScreen } from '../features/admin/screens/admin-users-screen';
 import { RepriseScreen } from '../features/buyback/screens/reprise-screen';
 import { HomeScreen } from '../features/home/screens/home-screen';
-import { LandingScreen } from '../features/landing/components/landing-screen';
+import { ProfileScreen } from '../features/profile/screens/profile-screen';
+import { RaceIntelligenceScreen } from '../features/race-intelligence/screens/race-intelligence-screen';
 import { CatalogScreen } from '../features/products/components/catalog-screen';
 import { ProductDetailScreen } from '../features/products/components/product-detail-screen';
 import { colors } from '../theme';
-import type { AppStackParamList, AuthStackParamList } from './types';
+import { FloatingTabBar } from './floating-tab-bar';
+import type {
+  AppTabParamList,
+  AuthStackParamList,
+  CatalogStackParamList,
+} from './types';
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
-const AppStack = createNativeStackNavigator<AppStackParamList>();
+const Tab = createBottomTabNavigator<AppTabParamList>();
+const CatalogStack = createNativeStackNavigator<CatalogStackParamList>();
 
 function AuthNavigator() {
   return (
@@ -26,9 +38,9 @@ function AuthNavigator() {
   );
 }
 
-function CatalogScreenWrapper({
+function CatalogMain({
   navigation,
-}: NativeStackScreenProps<AppStackParamList, 'Catalog'>) {
+}: NativeStackScreenProps<CatalogStackParamList, 'CatalogMain'>) {
   return (
     <CatalogScreen
       onSelect={(id) => navigation.navigate('ProductDetail', { id })}
@@ -36,10 +48,10 @@ function CatalogScreenWrapper({
   );
 }
 
-function ProductDetailScreenWrapper({
+function ProductDetailWrapper({
   route,
   navigation,
-}: NativeStackScreenProps<AppStackParamList, 'ProductDetail'>) {
+}: NativeStackScreenProps<CatalogStackParamList, 'ProductDetail'>) {
   return (
     <ProductDetailScreen
       id={route.params.id}
@@ -48,34 +60,63 @@ function ProductDetailScreenWrapper({
   );
 }
 
+function CatalogNavigator() {
+  return (
+    <CatalogStack.Navigator screenOptions={{ headerShown: false }}>
+      <CatalogStack.Screen name="CatalogMain" component={CatalogMain} />
+      <CatalogStack.Screen
+        name="ProductDetail"
+        component={ProductDetailWrapper}
+      />
+    </CatalogStack.Navigator>
+  );
+}
+
 function AppNavigator() {
   return (
-    <AppStack.Navigator screenOptions={{ headerShown: false }}>
-      <AppStack.Screen name="Landing" component={LandingScreen} />
-      <AppStack.Screen name="Home" component={HomeScreen} />
-      <AppStack.Screen name="Catalog" component={CatalogScreenWrapper} />
-      <AppStack.Screen
-        name="ProductDetail"
-        component={ProductDetailScreenWrapper}
-      />
-      <AppStack.Screen name="Reprise" component={RepriseScreen} />
-      <AppStack.Screen name="AdminUsers" component={AdminUsersScreen} />
-    </AppStack.Navigator>
+    <Tab.Navigator
+      tabBar={(props) => <FloatingTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Catalog" component={CatalogNavigator} />
+      <Tab.Screen name="Race" component={RaceIntelligenceScreen} />
+      <Tab.Screen name="Reprise" component={RepriseScreen} />
+      <Tab.Screen name="Admin" component={AdminUsersScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+    </Tab.Navigator>
   );
 }
 
 export function RootNavigator() {
   const { token, isLoading } = useAuth();
+  const insets = useSafeAreaInsets();
 
   if (isLoading) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color={colors.brandBlue} />
+        <View style={styles.loadingBadge}>
+          <Image
+            source={logo}
+            style={styles.loadingLogo}
+            resizeMode="contain"
+          />
+        </View>
+        <ActivityIndicator
+          size="small"
+          color="rgba(255,255,255,0.5)"
+          style={styles.loadingSpinner}
+        />
       </View>
     );
   }
 
-  return token ? <AppNavigator /> : <AuthNavigator />;
+  return (
+    <>
+      {token ? <AppNavigator /> : <AuthNavigator />}
+      <Toast topOffset={insets.top + 8} />
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -83,6 +124,18 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.surfaceCanvas,
+    backgroundColor: colors.brandMidnight,
+  },
+  loadingBadge: {
+    backgroundColor: colors.surfaceDefault,
+    borderRadius: 32,
+    padding: 20,
+  },
+  loadingLogo: {
+    width: 200,
+    height: 200,
+  },
+  loadingSpinner: {
+    marginTop: 32,
   },
 });
