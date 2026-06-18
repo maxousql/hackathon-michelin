@@ -1,10 +1,13 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
 import type {
+  CreateSavedRaceRequest,
   Discipline,
   RaceAnalyzeRequest,
+  RaceAnalyzeResponse,
   SurfaceType,
 } from '@michelin/contracts';
 
@@ -946,7 +949,13 @@ const INITIAL_FORM: FormData = {
   surface: null,
 };
 
-export function RaceForm() {
+interface SaveState {
+  status: 'idle' | 'saving' | 'saved' | 'error';
+  raceName: string;
+}
+
+export function RaceForm({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [form, setForm] = useState<FormData>(INITIAL_FORM);
@@ -955,6 +964,10 @@ export function RaceForm() {
     error: null,
   });
   const [isPending, startTransition] = useTransition();
+  const [saveState, setSaveState] = useState<SaveState>({
+    status: 'idle',
+    raceName: '',
+  });
 
   useEffect(() => {
     try {
@@ -1028,7 +1041,37 @@ export function RaceForm() {
         new Promise<void>((resolve) => setTimeout(resolve, 3000)),
       ]);
       setResult(res);
+      setSaveState({ status: 'idle', raceName: allData.locationName });
     });
+  }
+
+  async function handleSaveRace(result: RaceAnalyzeResponse) {
+    if (saveState.status === 'saving' || saveState.status === 'saved') return;
+    setSaveState((s) => ({ ...s, status: 'saving' }));
+    const payload: CreateSavedRaceRequest = {
+      raceName: saveState.raceName || form.locationName || 'Ma course',
+      raceDate: form.raceDate,
+      locationName: form.locationName,
+      surface: form.surface ?? '',
+      discipline: form.discipline ?? '',
+      distanceKm: Number(form.distanceKm),
+      elevationGainM: Number(form.elevationGainM),
+      riderWeightKg: Number(form.riderWeightKg),
+      result,
+    };
+    try {
+      const res = await fetch('/api/saved-races', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      setSaveState((s) => ({
+        ...s,
+        status: res.ok ? 'saved' : 'error',
+      }));
+    } catch {
+      setSaveState((s) => ({ ...s, status: 'error' }));
+    }
   }
 
   const baseProps = {
@@ -1082,11 +1125,81 @@ export function RaceForm() {
     }
 
     if (result.data) {
+      const raceResult = result.data;
       return (
         <div className="ri-stepper-shell">
           <div className="ri-result-wrapper">
-            <RecommendationCard result={result.data} />
+            <RecommendationCard result={raceResult} />
           </div>
+
+          <div className="ri-save-wrap">
+            {saveState.status === 'saved' ? (
+              <div className="ri-save-success">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Course sauvegardée dans votre profil
+              </div>
+            ) : (
+              <div className="ri-save-form">
+                <input
+                  className="ri-save-input"
+                  type="text"
+                  placeholder="Nom de la course"
+                  value={saveState.raceName}
+                  onChange={(e) =>
+                    setSaveState((s) => ({ ...s, raceName: e.target.value }))
+                  }
+                  maxLength={100}
+                />
+                <button
+                  type="button"
+                  className="ri-save-btn"
+                  disabled={saveState.status === 'saving'}
+                  onClick={() => void handleSaveRace(raceResult)}
+                >
+                  {saveState.status === 'saving' ? (
+                    'Sauvegarde…'
+                  ) : (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                        <polyline points="17 21 17 13 7 13 7 21" />
+                        <polyline points="7 3 7 8 15 8" />
+                      </svg>
+                      Sauvegarder dans mon profil
+                    </>
+                  )}
+                </button>
+                {saveState.status === 'error' && (
+                  <p className="ri-save-error">
+                    Erreur lors de la sauvegarde. Réessaie.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
           <div className="ri-restart-wrap">
             <button type="button" className="ri-restart-btn" onClick={restart}>
               <svg
@@ -1207,11 +1320,19 @@ export function RaceForm() {
         <StepDetails
           {...baseProps}
           onAnalyze={(detailValues) => {
-            // Build the complete request from current form + fresh step values
-            const allData: FormData = {
-              ...form,
-              ...detailValues,
-            };
+            const allData: FormData = { ...form, ...detailValues };
+            if (!isLoggedIn) {
+              try {
+                localStorage.setItem(
+                  'ri_stepper',
+                  JSON.stringify({ step: 3, form: allData }),
+                );
+              } catch {
+                /* storage unavailable */
+              }
+              router.push('/login?redirect=/race-intelligence');
+              return;
+            }
             updateForm(detailValues);
             setDirection('forward');
             setStep(TOTAL_STEPS);

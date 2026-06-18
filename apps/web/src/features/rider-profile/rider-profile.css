@@ -614,3 +614,85 @@
   border-color: var(--text-secondary);
   color: var(--text-primary);
 }
+
+/* ── Saved races ────────────────────────────────────────────────────────────── */
+.rp-races-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rp-race-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-large);
+  padding: 16px 20px;
+  transition: border-color var(--motion-fast) var(--motion-easing);
+}
+
+.rp-race-card:hover {
+  border-color: var(--brand-yellow);
+}
+
+.rp-race-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  flex: 1;
+}
+
+.rp-race-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 200, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-yellow);
+}
+
+.rp-race-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.rp-race-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rp-race-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+
+.rp-race-sep {
+  opacity: 0.4;
+}
+
+.rp-race-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.rp-race-tire {
+  text-align: right;
+}

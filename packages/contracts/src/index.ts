@@ -80,6 +80,14 @@ export {
 } from './race-intelligence/race-intelligence.contract';
 
 export {
+  savedRaceSchema,
+  savedRaceListSchema,
+  createSavedRaceRequestSchema,
+  type SavedRace,
+  type CreateSavedRaceRequest,
+} from './saved-races/saved-races.contract';
+
+export {
   challengeEntrySchema,
   challengeSchema,
   challengeListSchema,
