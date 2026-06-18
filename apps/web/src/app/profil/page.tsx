@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { RiderProfile } from '@/features/rider-profile/components/rider-profile';
+import { getCurrentUser } from '@/features/auth/services/current-user';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Mon Profil — Michelin Race' };
@@ -24,8 +25,9 @@ interface StravaProfileCookie {
 export default async function ProfilPage() {
   const cookieStore = await cookies();
   const stravaAt = cookieStore.get('strava_at')?.value;
+  const user = await getCurrentUser();
 
-  if (!stravaAt) redirect('/login');
+  if (!stravaAt && !user) redirect('/login');
 
   const profileRaw = cookieStore.get('strava_profile')?.value;
   let initialProfile: StravaProfileCookie | null = null;
@@ -40,5 +42,11 @@ export default async function ProfilPage() {
     }
   }
 
-  return <RiderProfile initialProfile={initialProfile} />;
+  return (
+    <RiderProfile
+      initialProfile={initialProfile}
+      authUser={user}
+      stravaConnected={!!stravaAt}
+    />
+  );
 }

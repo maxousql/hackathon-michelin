@@ -1,4 +1,14 @@
 export {
+  bikeTypeSchema,
+  bikeSchema,
+  bikeListSchema,
+  createBikeRequestSchema,
+  type Bike,
+  type BikeType,
+  type CreateBikeRequest,
+} from './bikes/bikes.contract';
+
+export {
   serviceStatusSchema,
   statusResponseSchema,
   type ServiceStatus,

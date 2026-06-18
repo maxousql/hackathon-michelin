@@ -4,6 +4,8 @@ import {
   adminUserSchema,
   authResponseSchema,
   authUserSchema,
+  bikeListSchema,
+  bikeSchema,
   buybackEstimateSchema,
   challengeListSchema,
   buybackRequestListSchema,
@@ -17,10 +19,12 @@ import {
   type AdminUser,
   type AuthResponse,
   type AuthUser,
+  type Bike,
   type BuybackEstimate,
   type BuybackInput,
   type BuybackRequest,
   type Challenge,
+  type CreateBikeRequest,
   type LoginRequest,
   type MichelinProduct,
   type ProductFacets,
@@ -77,6 +81,13 @@ export interface ApiClient {
     token: string,
     signal?: AbortSignal,
   ): Promise<BuybackRequest[]>;
+  getBikes(token: string, signal?: AbortSignal): Promise<Bike[]>;
+  createBike(
+    token: string,
+    data: CreateBikeRequest,
+    signal?: AbortSignal,
+  ): Promise<Bike>;
+  deleteBike(token: string, id: string, signal?: AbortSignal): Promise<void>;
   getAdminUsers(token: string, signal?: AbortSignal): Promise<AdminUser[]>;
   updateAdminUser(
     token: string,
@@ -305,6 +316,58 @@ export function createApiClient({
         },
         signal,
       );
+    },
+
+    getBikes(token, signal) {
+      return request(
+        '/bikes',
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          schema: bikeListSchema,
+        },
+        signal,
+      );
+    },
+
+    createBike(token, data, signal) {
+      return request(
+        '/bikes',
+        {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: { Authorization: `Bearer ${token}` },
+          schema: bikeSchema,
+        },
+        signal,
+      );
+    },
+
+    async deleteBike(token, id, signal) {
+      let response: Response;
+      try {
+        response = await fetcher(`${normalizedBaseUrl}/bikes/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          signal,
+        });
+      } catch (error) {
+        throw new ApiClientError('Unable to reach the API.', undefined, {
+          cause: error,
+        });
+      }
+      if (!response.ok) {
+        let message = `The API returned HTTP ${response.status}.`;
+        try {
+          const body = (await response.json()) as { message?: string };
+          if (body.message) message = String(body.message);
+        } catch {
+          /* ignore */
+        }
+        throw new ApiClientError(message, response.status);
+      }
     },
 
     getAdminUsers(token, signal) {

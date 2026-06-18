@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { validateEnvironment } from './config/environment';
 import { AdminModule } from './features/admin/admin.module';
 import { AuthModule } from './features/auth/auth.module';
+import { BikesModule } from './features/bikes/bikes.module';
 import { BuybackModule } from './features/buyback/buyback.module';
 import { ChallengeModule } from './features/challenge/challenge.module';
 import { ComparatorModule } from './features/comparator/comparator.module';
@@ -21,6 +22,7 @@ import { StatusModule } from './features/status/status.module';
     }),
     AdminModule,
     AuthModule,
+    BikesModule,
     BuybackModule,
     ChallengeModule,
     ComparatorModule,
