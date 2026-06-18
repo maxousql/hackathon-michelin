@@ -70,6 +70,14 @@ export {
 } from './race-intelligence/race-intelligence.contract';
 
 export {
+  challengeEntrySchema,
+  challengeSchema,
+  challengeListSchema,
+  type ChallengeEntry,
+  type Challenge,
+} from './challenge/challenge.contract';
+
+export {
   routeSourceSchema,
   routeGradientStatsSchema,
   comparatorRouteStatsSchema,
