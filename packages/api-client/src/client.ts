@@ -5,6 +5,7 @@ import {
   authResponseSchema,
   authUserSchema,
   buybackEstimateSchema,
+  challengeListSchema,
   buybackRequestListSchema,
   buybackRequestSchema,
   michelinProductSchema,
@@ -19,6 +20,7 @@ import {
   type BuybackEstimate,
   type BuybackInput,
   type BuybackRequest,
+  type Challenge,
   type LoginRequest,
   type MichelinProduct,
   type ProductFacets,
@@ -60,6 +62,7 @@ export interface ApiClient {
     filters?: RetailerFilters,
     signal?: AbortSignal,
   ): Promise<Retailer[]>;
+  getChallenges(signal?: AbortSignal): Promise<Challenge[]>;
   getBuybackEstimate(
     token: string,
     input: BuybackInput,
@@ -261,6 +264,10 @@ export function createApiClient({
         { schema: retailerListSchema },
         signal,
       );
+    },
+
+    getChallenges(signal) {
+      return request('/challenges', { schema: challengeListSchema }, signal);
     },
 
     getBuybackEstimate(token, input, signal) {

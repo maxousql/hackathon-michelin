@@ -1,0 +1,85 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--type-body-size);
+}
+
+.table thead th {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 2px solid var(--border-subtle, rgb(0 0 0 / 8%));
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.table tbody td {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle, rgb(0 0 0 / 6%));
+  vertical-align: middle;
+}
+
+.table tbody tr[data-winner] {
+  background: rgb(252 229 0 / 12%);
+}
+
+.rankCol {
+  width: 3rem;
+  text-align: center;
+}
+
+.timeCol,
+.gapCol {
+  width: 6rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.timeCol {
+  font-weight: 800;
+}
+
+.gapCol {
+  color: var(--text-secondary);
+}
+
+.rank {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--surface-canvas, rgb(0 0 0 / 4%));
+  font-weight: 900;
+}
+
+tr[data-winner] .rank {
+  background: var(--brand-yellow);
+  color: var(--text-on-yellow);
+}
+
+.athlete {
+  display: block;
+  font-weight: 700;
+}
+
+.club {
+  display: block;
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+}
+
+.winnerBadge {
+  display: inline-flex;
+  margin-block-start: var(--space-2);
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-6);
+  color: var(--text-secondary);
+  text-align: center;
+}
