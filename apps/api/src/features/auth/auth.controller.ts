@@ -12,6 +12,7 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { AuthResponseDto, AuthUserDto } from './dto/auth-response.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { StravaAuthDto } from './dto/strava-auth.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @ApiTags('auth')
@@ -31,6 +32,13 @@ export class AuthController {
   @ApiOkResponse({ type: AuthResponseDto })
   login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
     return this.authService.login(dto);
+  }
+
+  @Post('strava')
+  @ApiOperation({ summary: 'Login or register via Strava OAuth token' })
+  @ApiOkResponse({ type: AuthResponseDto })
+  stravaAuth(@Body() dto: StravaAuthDto): Promise<AuthResponseDto> {
+    return this.authService.stravaAuth(dto.stravaToken);
   }
 
   @Get('me')
