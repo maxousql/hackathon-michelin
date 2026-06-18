@@ -1,3 +1,5 @@
+import { cookies } from 'next/headers';
+
 import { Header } from '@/components/layout/header';
 import { UserMenu } from '@/features/auth/components/user-menu';
 import { getCurrentUser } from '@/features/auth/services/current-user';
@@ -17,17 +19,31 @@ const AUTH_NAVIGATION = [
 
 export async function AppHeader() {
   const user = await getCurrentUser();
-  const navigation = user
-    ? [...MAIN_NAVIGATION]
-    : [...MAIN_NAVIGATION, ...AUTH_NAVIGATION];
+  const cookieStore = await cookies();
+  const stravaConnected = !!cookieStore.get('strava_at')?.value;
+
+  const navigation = [...MAIN_NAVIGATION];
+
+  if (stravaConnected) {
+    navigation.push({ href: '/profil', label: 'Mon Profil' });
+  }
+
+  if (!user && !stravaConnected) {
+    navigation.push(...AUTH_NAVIGATION);
+  }
 
   if (user?.isAdmin) {
     navigation.push({ href: '/admin/users', label: 'Back Office' });
   }
 
+  const actions =
+    !stravaConnected && user ? (
+      <UserMenu isAdmin={user.isAdmin} stravaConnected={false} />
+    ) : undefined;
+
   return (
     <Header
-      actions={user ? <UserMenu isAdmin={user.isAdmin} /> : undefined}
+      actions={actions}
       cta={{ href: '/race-intelligence', label: 'Lancer Race Intelligence' }}
       navigation={navigation}
     />
