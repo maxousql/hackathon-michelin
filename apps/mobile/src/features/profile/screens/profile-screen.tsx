@@ -6,14 +6,19 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import type { Bike, SavedRace } from '@michelin/contracts';
 import type { AppTabParamList } from '../../../navigation/types';
 import {
   colors,
@@ -26,6 +31,8 @@ import {
 import { apiBaseUrl } from '../../../config/api';
 import { useAuth } from '../../auth/context/auth-context';
 import { AuthGate } from '../../../components/auth-gate';
+import { toast } from '../../../utils/toast';
+import { profileClient } from '../api';
 
 type ProfileNav = BottomTabNavigationProp<AppTabParamList, 'Profile'>;
 
@@ -194,47 +201,28 @@ function StravaSection({ stravaToken }: { stravaToken: string }) {
     <View style={stravaStyles.card}>
       {/* Header */}
       <View style={stravaStyles.header}>
-        <View style={stravaStyles.headerTop}>
-          {athlete.profile_medium ? (
-            <Image
-              source={{ uri: athlete.profile_medium }}
-              style={stravaStyles.photo}
-              accessibilityLabel={`${athlete.firstname} ${athlete.lastname}`}
-            />
-          ) : (
-            <View style={stravaStyles.photoPlaceholder}>
-              <Ionicons
-                name="person-outline"
-                size={22}
-                color={colors.textSecondary}
-              />
-            </View>
-          )}
-          <View style={{ flex: 1 }}>
-            <View style={stravaStyles.titleRow}>
-              <View
-                style={[stravaStyles.stravaDot, { backgroundColor: '#FC4C02' }]}
-              />
-              <Text style={stravaStyles.title}>Strava</Text>
-            </View>
-            <Text style={stravaStyles.athleteName}>
-              {athlete.firstname} {athlete.lastname}
-            </Text>
-            {athlete.city ? (
-              <View style={stravaStyles.locationRow}>
-                <Ionicons
-                  name="location-outline"
-                  size={12}
-                  color={colors.textSecondary}
-                />
-                <Text style={stravaStyles.location}>
-                  {athlete.city}
-                  {athlete.country ? `, ${athlete.country}` : ''}
-                </Text>
-              </View>
-            ) : null}
-          </View>
+        <View style={stravaStyles.titleRow}>
+          <View
+            style={[stravaStyles.stravaDot, { backgroundColor: '#FC4C02' }]}
+          />
+          <Text style={stravaStyles.title}>Strava</Text>
         </View>
+        <Text style={stravaStyles.athleteName}>
+          {athlete.firstname} {athlete.lastname}
+        </Text>
+        {athlete.city ? (
+          <View style={stravaStyles.locationRow}>
+            <Ionicons
+              name="location-outline"
+              size={12}
+              color={colors.textSecondary}
+            />
+            <Text style={stravaStyles.location}>
+              {athlete.city}
+              {athlete.country ? `, ${athlete.country}` : ''}
+            </Text>
+          </View>
+        ) : null}
       </View>
 
       {/* Stats row */}
@@ -304,16 +292,6 @@ const stravaStyles = StyleSheet.create({
     ...shadows.low,
   },
   header: { gap: spacing[2] },
-  headerTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
-  photo: { width: 52, height: 52, borderRadius: 26 },
-  photoPlaceholder: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: colors.surfaceCanvas,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -375,6 +353,770 @@ const stravaStyles = StyleSheet.create({
   bikeDist: { color: colors.textSecondary, fontSize: fontSize.caption },
 });
 
+// ─── Tire recommendation helper ──────────────────────────────────────────────
+
+function getTireRec(
+  type: string,
+  distanceKm: number,
+): { name: string; sub: string } {
+  if (type === 'mtb')
+    return {
+      name: 'Michelin Wild Enduro',
+      sub: 'Accroche maximale · Terrain technique',
+    };
+  if (type === 'gravel')
+    return {
+      name: 'Michelin Power Gravel',
+      sub: 'Polyvalence · Confort sur mixte',
+    };
+  if (distanceKm > 10000)
+    return {
+      name: 'Michelin Pro4 Endurance V2',
+      sub: 'Longévité maximale · Anti-crevaison',
+    };
+  return {
+    name: 'Michelin Power Cup 2',
+    sub: 'Performance · Adhérence en compétition',
+  };
+}
+
+const BIKE_TYPE_LABELS: Record<string, string> = {
+  road: 'Route',
+  mtb: 'VTT',
+  gravel: 'Gravel',
+};
+
+const BIKE_TYPES = [
+  {
+    value: 'road' as const,
+    label: 'Route',
+    icon: 'navigate-outline' as const,
+    desc: 'Asphalte & bitume',
+  },
+  {
+    value: 'gravel' as const,
+    label: 'Gravel',
+    icon: 'earth-outline' as const,
+    desc: 'Mixte & chemins',
+  },
+  {
+    value: 'mtb' as const,
+    label: 'VTT',
+    icon: 'leaf-outline' as const,
+    desc: 'Terrain & sentiers',
+  },
+];
+
+// ─── Manual bikes section ────────────────────────────────────────────────────
+
+function ManualBikesSection() {
+  const { token } = useAuth();
+  const [bikes, setBikes] = useState<Bike[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
+  const [modalStep, setModalStep] = useState<1 | 2>(1);
+  const [addName, setAddName] = useState('');
+  const [addType, setAddType] = useState<'road' | 'mtb' | 'gravel'>('road');
+  const [addKm, setAddKm] = useState('');
+  const [addPrimary, setAddPrimary] = useState(false);
+  const [adding, setAdding] = useState(false);
+
+  useEffect(() => {
+    if (!token) return;
+    let active = true;
+    profileClient
+      .getBikes(token)
+      .then((data) => {
+        if (active) setBikes(data);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [token]);
+
+  function openAdd() {
+    setAddName('');
+    setAddType('road');
+    setAddKm('');
+    setAddPrimary(false);
+    setModalStep(1);
+    setShowAdd(true);
+  }
+
+  async function handleAdd() {
+    if (!token || !addName.trim() || adding) return;
+    setAdding(true);
+    try {
+      const created = await profileClient.createBike(token, {
+        name: addName.trim(),
+        type: addType,
+        distanceKm: parseInt(addKm, 10) || 0,
+        isPrimary: addPrimary,
+      });
+      setBikes((prev) =>
+        addPrimary
+          ? [created, ...prev.map((b) => ({ ...b, isPrimary: false }))]
+          : [...prev, created],
+      );
+      setShowAdd(false);
+      toast.success(`${addName.trim()} ajouté !`, 'Vélo enregistré');
+    } catch {
+      toast.error("Impossible d'ajouter ce vélo.");
+    } finally {
+      setAdding(false);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    if (!token) return;
+    await profileClient.deleteBike(token, id).catch(() => {});
+    setBikes((prev) => prev.filter((b) => b.id !== id));
+  }
+
+  if (loading) return null;
+
+  return (
+    <View style={bikeStyles.section}>
+      <View style={bikeStyles.header}>
+        <Text style={bikeStyles.title}>Mes vélos</Text>
+        <Pressable onPress={openAdd} style={bikeStyles.addBtn}>
+          <Ionicons name="add" size={16} color={colors.brandBlue} />
+          <Text style={bikeStyles.addBtnText}>Ajouter</Text>
+        </Pressable>
+      </View>
+
+      {bikes.length === 0 ? (
+        <Text style={bikeStyles.empty}>
+          Aucun vélo enregistré. Ajoute ton premier vélo !
+        </Text>
+      ) : (
+        bikes.map((bike) => {
+          const rec = getTireRec(bike.type, bike.distanceKm);
+          return (
+            <View
+              key={bike.id}
+              style={[
+                bikeStyles.card,
+                bike.isPrimary && bikeStyles.cardPrimary,
+              ]}
+            >
+              <Ionicons
+                name="bicycle-outline"
+                size={22}
+                color={bike.isPrimary ? colors.brandBlue : colors.textSecondary}
+              />
+              <View style={{ flex: 1 }}>
+                <View style={bikeStyles.nameRow}>
+                  <Text style={bikeStyles.bikeName}>{bike.name}</Text>
+                  {bike.isPrimary && (
+                    <View style={bikeStyles.primaryBadge}>
+                      <Text style={bikeStyles.primaryBadgeText}>Principal</Text>
+                    </View>
+                  )}
+                  <View style={bikeStyles.typeBadge}>
+                    <Text style={bikeStyles.typeBadgeText}>
+                      {BIKE_TYPE_LABELS[bike.type] ?? bike.type}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={bikeStyles.bikeDist}>
+                  {bike.distanceKm.toLocaleString('fr-FR')} km parcourus
+                </Text>
+                <Text style={bikeStyles.recName}>{rec.name}</Text>
+                <Text style={bikeStyles.recSub}>{rec.sub}</Text>
+              </View>
+              <Pressable onPress={() => void handleDelete(bike.id)} hitSlop={8}>
+                <Ionicons
+                  name="trash-outline"
+                  size={18}
+                  color={colors.textSecondary}
+                />
+              </Pressable>
+            </View>
+          );
+        })
+      )}
+
+      <Modal
+        visible={showAdd}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={() => setShowAdd(false)}
+      >
+        <SafeAreaView style={bikeModalStyles.safe}>
+          {/* Step header */}
+          <View style={bikeModalStyles.stepHeader}>
+            <Pressable
+              onPress={
+                modalStep === 1
+                  ? () => setShowAdd(false)
+                  : () => setModalStep(1)
+              }
+              style={bikeModalStyles.backBtn}
+              hitSlop={8}
+            >
+              <Ionicons
+                name={modalStep === 1 ? 'close' : 'arrow-back'}
+                size={22}
+                color={colors.textPrimary}
+              />
+            </Pressable>
+            <View style={bikeModalStyles.progressBar}>
+              {[0, 1].map((i) => (
+                <View
+                  key={i}
+                  style={[
+                    bikeModalStyles.progressDot,
+                    i < modalStep && bikeModalStyles.progressDotActive,
+                  ]}
+                />
+              ))}
+            </View>
+            <Text style={bikeModalStyles.stepCount}>{modalStep}/2</Text>
+          </View>
+
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          >
+            <ScrollView
+              contentContainerStyle={bikeModalStyles.content}
+              keyboardShouldPersistTaps="handled"
+            >
+              {modalStep === 1 ? (
+                <View style={bikeModalStyles.stepBody}>
+                  <Text style={bikeModalStyles.eyebrow}>ÉTAPE 1</Text>
+                  <Text style={bikeModalStyles.stepTitle}>
+                    Quel est ton vélo ?
+                  </Text>
+                  <View style={bikeModalStyles.choiceGrid}>
+                    {BIKE_TYPES.map((bt) => (
+                      <Pressable
+                        key={bt.value}
+                        style={[
+                          bikeModalStyles.choiceCard,
+                          addType === bt.value &&
+                            bikeModalStyles.choiceCardActive,
+                        ]}
+                        onPress={() => {
+                          setAddType(bt.value);
+                          setModalStep(2);
+                        }}
+                      >
+                        <Ionicons
+                          name={bt.icon}
+                          size={28}
+                          color={
+                            addType === bt.value
+                              ? colors.brandBlue
+                              : colors.textSecondary
+                          }
+                        />
+                        <Text
+                          style={[
+                            bikeModalStyles.choiceLabel,
+                            addType === bt.value &&
+                              bikeModalStyles.choiceLabelActive,
+                          ]}
+                          adjustsFontSizeToFit
+                          numberOfLines={1}
+                        >
+                          {bt.label}
+                        </Text>
+                        <Text style={bikeModalStyles.choiceDesc}>
+                          {bt.desc}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              ) : (
+                <View style={bikeModalStyles.stepBody}>
+                  <Text style={bikeModalStyles.eyebrow}>ÉTAPE 2</Text>
+                  <Text style={bikeModalStyles.stepTitle}>Les détails</Text>
+
+                  <View style={bikeModalStyles.field}>
+                    <Text style={bikeModalStyles.fieldLabel}>Nom du vélo</Text>
+                    <View style={bikeModalStyles.inputRow}>
+                      <Ionicons
+                        name="bicycle-outline"
+                        size={18}
+                        color={colors.textSecondary}
+                        style={bikeModalStyles.inputIcon}
+                      />
+                      <TextInput
+                        style={bikeModalStyles.inputWithIcon}
+                        value={addName}
+                        onChangeText={setAddName}
+                        placeholder="ex. Trek Domane SL6"
+                        placeholderTextColor={colors.borderStrong}
+                        autoFocus
+                        returnKeyType="next"
+                        maxLength={100}
+                      />
+                    </View>
+                  </View>
+
+                  <View style={bikeModalStyles.field}>
+                    <Text style={bikeModalStyles.fieldLabel}>
+                      Kilométrage actuel
+                    </Text>
+                    <View style={bikeModalStyles.inputRow}>
+                      <Ionicons
+                        name="speedometer-outline"
+                        size={18}
+                        color={colors.textSecondary}
+                        style={bikeModalStyles.inputIcon}
+                      />
+                      <TextInput
+                        style={bikeModalStyles.inputWithIcon}
+                        value={addKm}
+                        onChangeText={setAddKm}
+                        placeholder="0"
+                        placeholderTextColor={colors.borderStrong}
+                        keyboardType="number-pad"
+                        returnKeyType="done"
+                      />
+                      <Text style={bikeModalStyles.inputUnit}>km</Text>
+                    </View>
+                  </View>
+
+                  <Pressable
+                    style={bikeModalStyles.primaryToggle}
+                    onPress={() => setAddPrimary((p) => !p)}
+                  >
+                    <View
+                      style={[
+                        bikeModalStyles.checkbox,
+                        addPrimary && bikeModalStyles.checkboxActive,
+                      ]}
+                    >
+                      {addPrimary && (
+                        <Ionicons name="checkmark" size={12} color="#fff" />
+                      )}
+                    </View>
+                    <Text style={bikeModalStyles.toggleText}>
+                      Définir comme vélo principal
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    style={[
+                      bikeModalStyles.nextBtn,
+                      (!addName.trim() || adding) &&
+                        bikeModalStyles.nextBtnDisabled,
+                    ]}
+                    onPress={() => void handleAdd()}
+                    disabled={!addName.trim() || adding}
+                  >
+                    <Text style={bikeModalStyles.nextBtnText}>
+                      {adding ? 'Ajout…' : 'Ajouter mon vélo'}
+                    </Text>
+                    {!adding && (
+                      <Ionicons
+                        name="arrow-forward"
+                        size={20}
+                        color={colors.textOnBrand}
+                      />
+                    )}
+                  </Pressable>
+                </View>
+              )}
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      </Modal>
+    </View>
+  );
+}
+
+const bikeStyles = StyleSheet.create({
+  section: {
+    borderRadius: radius.xlarge,
+    backgroundColor: colors.surfaceDefault,
+    padding: spacing[4],
+    gap: spacing[3],
+    ...shadows.low,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  title: {
+    color: colors.textSecondary,
+    fontSize: fontSize.caption,
+    fontWeight: fontWeight.black,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  addBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[1],
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.brandBlue,
+  },
+  addBtnText: {
+    color: colors.brandBlue,
+    fontSize: fontSize.caption,
+    fontWeight: fontWeight.bold,
+  },
+  empty: {
+    color: colors.textSecondary,
+    fontSize: fontSize.bodySmall,
+    textAlign: 'center',
+    paddingVertical: spacing[4],
+  },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing[3],
+    padding: spacing[3],
+    borderRadius: radius.large,
+    borderWidth: 1,
+    borderColor: colors.borderDefault,
+    backgroundColor: colors.surfaceCanvas,
+  },
+  cardPrimary: {
+    borderColor: colors.brandBlue,
+    backgroundColor: 'rgba(39,80,155,0.05)',
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[1],
+    flexWrap: 'wrap',
+  },
+  bikeName: {
+    color: colors.textPrimary,
+    fontSize: fontSize.bodySmall,
+    fontWeight: fontWeight.black,
+  },
+  primaryBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: radius.full,
+    backgroundColor: colors.brandBlue,
+  },
+  primaryBadgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: fontWeight.bold,
+  },
+  typeBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: radius.full,
+    backgroundColor: colors.surfaceDefault,
+    borderWidth: 1,
+    borderColor: colors.borderDefault,
+  },
+  typeBadgeText: {
+    color: colors.textSecondary,
+    fontSize: 10,
+    fontWeight: fontWeight.bold,
+  },
+  bikeDist: {
+    color: colors.textSecondary,
+    fontSize: fontSize.caption,
+    marginTop: 2,
+  },
+  recName: {
+    color: colors.brandBlue,
+    fontSize: fontSize.caption,
+    fontWeight: fontWeight.bold,
+    marginTop: spacing[1],
+  },
+  recSub: {
+    color: colors.textSecondary,
+    fontSize: 10,
+  },
+});
+
+const bikeModalStyles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.surfaceDefault },
+  stepHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing[4],
+    paddingTop: spacing[2],
+    paddingBottom: spacing[4],
+    gap: spacing[3],
+  },
+  backBtn: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  progressBar: { flex: 1, flexDirection: 'row', gap: spacing[2] },
+  progressDot: {
+    flex: 1,
+    height: 4,
+    borderRadius: radius.full,
+    backgroundColor: colors.borderDefault,
+  },
+  progressDotActive: { backgroundColor: colors.brandBlue },
+  stepCount: {
+    fontSize: fontSize.caption,
+    fontWeight: fontWeight.bold,
+    color: colors.textSecondary,
+    minWidth: 28,
+    textAlign: 'right',
+  },
+  content: {
+    paddingHorizontal: spacing[6],
+    paddingBottom: 48,
+  },
+  stepBody: { gap: spacing[6] },
+  eyebrow: {
+    fontSize: fontSize.caption,
+    fontWeight: fontWeight.black,
+    letterSpacing: 2,
+    color: colors.brandBlue,
+  },
+  stepTitle: {
+    fontSize: fontSize.h2,
+    fontWeight: fontWeight.black,
+    color: colors.textPrimary,
+    letterSpacing: -0.5,
+  },
+  choiceGrid: { flexDirection: 'row', gap: spacing[3] },
+  choiceCard: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: spacing[6],
+    paddingHorizontal: spacing[2],
+    borderRadius: radius.xlarge,
+    borderWidth: 1.5,
+    borderColor: colors.borderDefault,
+    backgroundColor: colors.surfaceCanvas,
+    gap: spacing[2],
+    ...shadows.low,
+  },
+  choiceCardActive: {
+    borderColor: colors.brandBlue,
+    backgroundColor: 'rgba(39,80,155,0.06)',
+  },
+  choiceLabel: {
+    fontSize: fontSize.bodySmall,
+    fontWeight: fontWeight.bold,
+    color: colors.textPrimary,
+    textAlign: 'center',
+  },
+  choiceLabelActive: { color: colors.brandBlue },
+  choiceDesc: {
+    fontSize: 10,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  field: { gap: spacing[2] },
+  fieldLabel: {
+    fontSize: fontSize.bodySmall,
+    fontWeight: fontWeight.bold,
+    color: colors.textPrimary,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: colors.borderDefault,
+    borderRadius: radius.medium,
+    backgroundColor: colors.surfaceCanvas,
+    paddingHorizontal: spacing[3],
+    minHeight: 52,
+  },
+  inputIcon: { marginRight: spacing[2] },
+  inputWithIcon: {
+    flex: 1,
+    fontSize: fontSize.body,
+    color: colors.textPrimary,
+    paddingVertical: spacing[3],
+  },
+  inputUnit: {
+    fontSize: fontSize.bodySmall,
+    fontWeight: fontWeight.bold,
+    color: colors.textSecondary,
+  },
+  primaryToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: colors.borderDefault,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxActive: {
+    backgroundColor: colors.brandBlue,
+    borderColor: colors.brandBlue,
+  },
+  toggleText: {
+    color: colors.textPrimary,
+    fontSize: fontSize.bodySmall,
+  },
+  nextBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing[2],
+    paddingVertical: spacing[4],
+    borderRadius: radius.large,
+    backgroundColor: colors.brandBlue,
+    marginTop: spacing[2],
+  },
+  nextBtnDisabled: { opacity: 0.4 },
+  nextBtnText: {
+    fontSize: fontSize.body,
+    fontWeight: fontWeight.bold,
+    color: colors.textOnBrand,
+  },
+});
+
+// ─── Saved races section ──────────────────────────────────────────────────────
+
+function SavedRacesSection() {
+  const { token } = useAuth();
+  const [races, setRaces] = useState<SavedRace[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!token) return;
+    let active = true;
+    profileClient
+      .getSavedRaces(token)
+      .then((data) => {
+        if (active) setRaces(data);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [token]);
+
+  async function handleDelete(id: string) {
+    if (!token) return;
+    await profileClient.deleteSavedRace(token, id).catch(() => {});
+    setRaces((prev) => prev.filter((r) => r.id !== id));
+  }
+
+  if (loading || races.length === 0) return null;
+
+  return (
+    <View style={raceStyles.section}>
+      <Text style={raceStyles.title}>Mes prochaines courses</Text>
+      {races.map((race) => (
+        <View key={race.id} style={raceStyles.card}>
+          <View style={raceStyles.cardLeft}>
+            <Ionicons
+              name="flag-outline"
+              size={20}
+              color={colors.brandBlue}
+              style={{ marginTop: 2 }}
+            />
+            <View style={{ flex: 1 }}>
+              <Text style={raceStyles.raceName}>{race.raceName}</Text>
+              <Text style={raceStyles.raceMeta}>
+                {new Date(race.raceDate).toLocaleDateString('fr-FR', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+                {'  ·  '}
+                {race.locationName}
+              </Text>
+              <Text style={raceStyles.raceMeta}>
+                {race.distanceKm} km · ↑ {race.elevationGainM} m
+              </Text>
+              <Text style={raceStyles.tireName}>{race.result.tire.name}</Text>
+              <Text style={raceStyles.pressure}>
+                {race.result.pressure.frontBar} / {race.result.pressure.rearBar}{' '}
+                bar
+              </Text>
+            </View>
+          </View>
+          <Pressable onPress={() => void handleDelete(race.id)} hitSlop={8}>
+            <Ionicons
+              name="trash-outline"
+              size={18}
+              color={colors.textSecondary}
+            />
+          </Pressable>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+const raceStyles = StyleSheet.create({
+  section: {
+    borderRadius: radius.xlarge,
+    backgroundColor: colors.surfaceDefault,
+    padding: spacing[4],
+    gap: spacing[3],
+    ...shadows.low,
+  },
+  title: {
+    color: colors.textSecondary,
+    fontSize: fontSize.caption,
+    fontWeight: fontWeight.black,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing[2],
+    padding: spacing[3],
+    borderRadius: radius.large,
+    borderWidth: 1,
+    borderColor: colors.borderDefault,
+    backgroundColor: colors.surfaceCanvas,
+  },
+  cardLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: spacing[3],
+    alignItems: 'flex-start',
+  },
+  raceName: {
+    color: colors.textPrimary,
+    fontSize: fontSize.bodySmall,
+    fontWeight: fontWeight.black,
+  },
+  raceMeta: {
+    color: colors.textSecondary,
+    fontSize: fontSize.caption,
+    marginTop: 2,
+  },
+  tireName: {
+    color: colors.brandBlue,
+    fontSize: fontSize.caption,
+    fontWeight: fontWeight.bold,
+    marginTop: spacing[1],
+  },
+  pressure: {
+    color: colors.textSecondary,
+    fontSize: fontSize.caption,
+  },
+});
+
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export function ProfileScreen() {
@@ -409,10 +1151,10 @@ export function ProfileScreen() {
               <Text style={styles.avatarText}>{initials}</Text>
             </View>
           )}
+          <Text style={styles.eyebrow}>Profil cycliste</Text>
           <Text style={styles.name}>
             {user?.firstName} {user?.lastName}
           </Text>
-          <Text style={styles.email}>{user?.email}</Text>
           {user?.isAdmin ? (
             <View style={styles.adminBadge}>
               <Text style={styles.adminBadgeText}>Administrateur</Text>
@@ -422,6 +1164,12 @@ export function ProfileScreen() {
 
         {/* Strava */}
         {stravaToken ? <StravaSection stravaToken={stravaToken} /> : null}
+
+        {/* Vélos manuels */}
+        <ManualBikesSection />
+
+        {/* Courses sauvegardées */}
+        <SavedRacesSection />
 
         {/* Actions */}
         <View style={styles.section}>
@@ -515,12 +1263,18 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: fontWeight.black,
   },
+  eyebrow: {
+    color: colors.brandBlue,
+    fontSize: fontSize.caption,
+    fontWeight: fontWeight.black,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+  },
   name: {
     color: colors.textPrimary,
     fontSize: fontSize.h3,
     fontWeight: fontWeight.black,
   },
-  email: { color: colors.textSecondary, fontSize: fontSize.body },
   adminBadge: {
     marginTop: spacing[2],
     paddingHorizontal: spacing[4],
