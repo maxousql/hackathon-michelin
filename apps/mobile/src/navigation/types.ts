@@ -1,13 +1,25 @@
+export type RootStackParamList = {
+  Tabs: undefined;
+  Auth: undefined;
+};
+
 export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
 };
 
-export type AppStackParamList = {
-  Landing: undefined;
+export type CatalogStackParamList = {
+  CatalogMain: undefined;
+  ProductDetail: { id: number };
+};
+
+export type AppTabParamList = {
   Home: undefined;
   Catalog: undefined;
-  ProductDetail: { id: number };
+  Race: undefined;
+  Challenge: undefined;
+  Comparateur: undefined;
   Reprise: undefined;
-  AdminUsers: undefined;
+  Admin: undefined;
+  Profile: undefined;
 };

@@ -1,6 +1,5 @@
 import { createApiClient } from '@michelin/api-client';
 import type { AdminUser } from '@michelin/contracts';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import {
@@ -15,15 +14,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { apiBaseUrl } from '../../../config/api';
-import type { AppStackParamList } from '../../../navigation/types';
 import { colors, fontSize, fontWeight, radius, spacing } from '../../../theme';
 import { useAuth } from '../../auth/context/auth-context';
-
-type Props = NativeStackScreenProps<AppStackParamList, 'AdminUsers'>;
+import { toast } from '../../../utils/toast';
 
 const adminClient = createApiClient({ baseUrl: apiBaseUrl });
 
-export function AdminUsersScreen({ navigation }: Props) {
+export function AdminUsersScreen() {
   const { token } = useAuth();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +64,7 @@ export function AdminUsersScreen({ navigation }: Props) {
         ),
       );
     } catch {
-      Alert.alert('Erreur', 'Impossible de modifier les droits.');
+      toast.error('Impossible de modifier les droits.');
     } finally {
       setActionPending(null);
     }
@@ -89,7 +86,7 @@ export function AdminUsersScreen({ navigation }: Props) {
               await adminClient.deleteAdminUser(token, user.id);
               setUsers((prev) => prev.filter((u) => u.id !== user.id));
             } catch {
-              Alert.alert('Erreur', "Impossible de supprimer l'utilisateur.");
+              toast.error("Impossible de supprimer l'utilisateur.");
             } finally {
               setActionPending(null);
             }
@@ -107,18 +104,8 @@ export function AdminUsersScreen({ navigation }: Props) {
       <StatusBar style="dark" />
 
       <View style={styles.header}>
-        <Pressable
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-          accessibilityRole="button"
-          accessibilityLabel="Retour"
-        >
-          <Text style={styles.backIcon}>←</Text>
-        </Pressable>
-        <View>
-          <Text style={styles.eyebrow}>BACK OFFICE</Text>
-          <Text style={styles.headerTitle}>Utilisateurs</Text>
-        </View>
+        <Text style={styles.eyebrow}>BACK OFFICE</Text>
+        <Text style={styles.headerTitle}>Utilisateurs</Text>
       </View>
 
       {loading ? (
@@ -205,9 +192,6 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.surfaceCanvas },
 
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[4],
     paddingHorizontal: spacing[6],
     paddingTop: spacing[4],
     paddingBottom: spacing[4],
@@ -215,15 +199,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.borderDefault,
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceCanvas,
-  },
-  backIcon: { fontSize: 20, color: colors.textPrimary },
   eyebrow: {
     color: colors.brandBlue,
     fontSize: 10,
@@ -252,7 +227,7 @@ const styles = StyleSheet.create({
   },
   retryText: { color: colors.textOnBrand, fontWeight: '700' },
 
-  list: { padding: spacing[4], gap: spacing[3] },
+  list: { padding: spacing[4], paddingBottom: 100, gap: spacing[3] },
   separator: { height: 0 },
 
   card: {

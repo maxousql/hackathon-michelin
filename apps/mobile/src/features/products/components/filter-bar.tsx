@@ -15,7 +15,6 @@ interface FilterBarProps {
 export function FilterBar({ facets, filters, onChange }: FilterBarProps) {
   const [search, setSearch] = useState(filters.q ?? '');
 
-  // Tout changement de filtre repart à la première page.
   function toggleFacet(key: ChipFilterKey, value: string) {
     const next = filters[key] === value ? undefined : value;
     onChange({ ...filters, [key]: next, page: 1 });
@@ -40,46 +39,51 @@ export function FilterBar({ facets, filters, onChange }: FilterBarProps) {
         if (options.length === 0) return null;
         return (
           <View key={key} style={styles.group}>
-            <Text style={styles.label}>{label}</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.row}
-            >
-              {options.map((option) => (
-                <Chip
-                  key={option}
-                  label={option}
-                  selected={filters[key] === option}
-                  onPress={() => toggleFacet(key, option)}
-                />
-              ))}
-            </ScrollView>
+            <Text style={styles.groupLabel}>{label}</Text>
+            {/*
+             * Le wrapper avec marginHorizontal négatif fait déborder le
+             * ScrollView hors du padding du FlatList parent, puis le
+             * contentContainerStyle re-indente les chips.
+             */}
+            <View style={styles.scrollWrapper}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.row}
+              >
+                {options.map((option) => (
+                  <Chip
+                    key={option}
+                    label={option}
+                    selected={filters[key] === option}
+                    onPress={() => toggleFacet(key, option)}
+                  />
+                ))}
+              </ScrollView>
+            </View>
           </View>
         );
       })}
 
-      <View style={styles.group}>
-        <Chip
-          label="Compatible vélo électrique"
-          selected={Boolean(filters.ebike)}
-          onPress={() =>
-            onChange({
-              ...filters,
-              ebike: filters.ebike ? undefined : true,
-              page: 1,
-            })
-          }
-        />
-      </View>
+      <Chip
+        label="Compatible vélo électrique"
+        selected={Boolean(filters.ebike)}
+        onPress={() =>
+          onChange({
+            ...filters,
+            ebike: filters.ebike ? undefined : true,
+            page: 1,
+          })
+        }
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    gap: spacing[4],
-    marginBottom: spacing[6],
+    gap: spacing[3],
+    marginBottom: spacing[4],
   },
   search: {
     minHeight: 48,
@@ -94,12 +98,16 @@ const styles = StyleSheet.create({
   group: {
     gap: spacing[2],
   },
-  label: {
+  groupLabel: {
     fontSize: fontSize.bodySmall,
     fontWeight: fontWeight.bold,
-    color: colors.textPrimary,
+    color: colors.textSecondary,
+  },
+  scrollWrapper: {
+    marginHorizontal: -spacing[6],
   },
   row: {
-    paddingVertical: spacing[1],
+    paddingHorizontal: spacing[6],
+    gap: spacing[2],
   },
 });

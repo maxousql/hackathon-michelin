@@ -7,12 +7,14 @@ import {
   bikeListSchema,
   bikeSchema,
   buybackEstimateSchema,
-  challengeListSchema,
   buybackRequestListSchema,
   buybackRequestSchema,
+  challengeListSchema,
   michelinProductSchema,
   productFacetsSchema,
   productListResponseSchema,
+  raceAnalyzeRequestSchema,
+  raceAnalyzeResponseSchema,
   retailerListSchema,
   statusResponseSchema,
   tireComparisonResponseSchema,
@@ -30,6 +32,8 @@ import {
   type ProductFacets,
   type ProductFilters,
   type ProductListResponse,
+  type RaceAnalyzeRequest,
+  type RaceAnalyzeResponse,
   type RegisterRequest,
   type Retailer,
   type StatusResponse,
@@ -51,6 +55,10 @@ export interface ApiClient {
   getStatus(signal?: AbortSignal): Promise<StatusResponse>;
   register(data: RegisterRequest, signal?: AbortSignal): Promise<AuthResponse>;
   login(data: LoginRequest, signal?: AbortSignal): Promise<AuthResponse>;
+  loginWithStrava(
+    stravaToken: string,
+    signal?: AbortSignal,
+  ): Promise<AuthResponse>;
   getMe(token: string, signal?: AbortSignal): Promise<AuthUser>;
   getProducts(
     filters: ProductFilters,
@@ -100,6 +108,10 @@ export interface ApiClient {
     id: string,
     signal?: AbortSignal,
   ): Promise<void>;
+  analyzeRace(
+    data: RaceAnalyzeRequest,
+    signal?: AbortSignal,
+  ): Promise<RaceAnalyzeResponse>;
 }
 
 /** Sérialise les filtres catalogue en query string (omet les valeurs vides). */
@@ -212,6 +224,18 @@ export function createApiClient({
         {
           method: 'POST',
           body: JSON.stringify(data),
+          schema: authResponseSchema,
+        },
+        signal,
+      );
+    },
+
+    loginWithStrava(stravaToken, signal) {
+      return request(
+        '/auth/strava',
+        {
+          method: 'POST',
+          body: JSON.stringify({ stravaToken }),
           schema: authResponseSchema,
         },
         signal,
@@ -409,6 +433,18 @@ export function createApiClient({
         }
         throw new ApiClientError(message, response.status);
       }
+    },
+
+    analyzeRace(data, signal) {
+      return request(
+        '/race-intelligence/analyze',
+        {
+          method: 'POST',
+          body: JSON.stringify(raceAnalyzeRequestSchema.parse(data)),
+          schema: raceAnalyzeResponseSchema,
+        },
+        signal,
+      );
     },
 
     async deleteAdminUser(token, id, signal) {

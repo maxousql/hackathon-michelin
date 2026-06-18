@@ -7,6 +7,8 @@ const environmentSchema = z.object({
     .enum(['development', 'test', 'production'])
     .default('development'),
   OPENWEATHER_API_KEY: z.string().optional(),
+  STRAVA_CLIENT_ID: z.string().optional(),
+  STRAVA_CLIENT_SECRET: z.string().optional(),
   PORT: z.coerce.number().int().positive().default(3001),
   SUPABASE_JWT_SECRET: z.string().min(1),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),

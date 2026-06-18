@@ -24,12 +24,15 @@ export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code');
   const error = req.nextUrl.searchParams.get('error');
   const mode = req.nextUrl.searchParams.get('state') ?? 'race';
-  const callbackUrl =
-    process.env.STRAVA_CALLBACK_URL ??
-    'http://localhost:3000/api/strava/callback';
-  const origin = new URL(callbackUrl).origin;
+  const isMobile = mode === 'mobile';
+  const origin = new URL(req.url).origin;
 
   if (error || !code) {
+    if (isMobile) {
+      return NextResponse.redirect(
+        'michelin-race://strava-callback?error=denied',
+      );
+    }
     if (mode === 'login') {
       return NextResponse.redirect(`${origin}/login?error=strava`);
     }
@@ -50,6 +53,11 @@ export async function GET(req: NextRequest) {
   });
 
   if (!res.ok) {
+    if (isMobile) {
+      return NextResponse.redirect(
+        'michelin-race://strava-callback?error=token_failed',
+      );
+    }
     if (mode === 'login') {
       return NextResponse.redirect(`${origin}/login?error=strava`);
     }
@@ -113,6 +121,12 @@ export async function GET(req: NextRequest) {
     }
 
     return response;
+  }
+
+  if (isMobile) {
+    return NextResponse.redirect(
+      `michelin-race://strava-callback?token=${data.access_token}`,
+    );
   }
 
   const cookie = `strava_at=${data.access_token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${data.expires_in}`;

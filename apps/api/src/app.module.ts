@@ -12,6 +12,7 @@ import { ProductsModule } from './features/products/products.module';
 import { RetailersModule } from './features/retailers/retailers.module';
 import { RaceIntelligenceModule } from './features/race-intelligence/race-intelligence.module';
 import { SavedRacesModule } from './features/saved-races/saved-races.module';
+import { StravaModule } from './features/strava/strava.module';
 import { StatusModule } from './features/status/status.module';
 
 @Module({
@@ -32,6 +33,7 @@ import { StatusModule } from './features/status/status.module';
     StatusModule,
     RaceIntelligenceModule,
     SavedRacesModule,
+    StravaModule,
   ],
 })
 export class AppModule {}

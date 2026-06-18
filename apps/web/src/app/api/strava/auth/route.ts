@@ -6,7 +6,11 @@ export function GET(req: NextRequest) {
     process.env.STRAVA_CALLBACK_URL ??
     'http://localhost:3000/api/strava/callback';
 
-  const mode = req.nextUrl.searchParams.get('mode') ?? 'race';
+  // ?mobile=1 → state=mobile pour que le callback redirige vers l'app
+  const mobile = req.nextUrl.searchParams.get('mobile') === '1';
+  const mode = mobile
+    ? 'mobile'
+    : (req.nextUrl.searchParams.get('mode') ?? 'race');
 
   const scope =
     mode === 'login' ? 'read,profile:read_all,activity:read' : 'activity:read';

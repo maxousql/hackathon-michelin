@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 
 import { colors, radius, shadows, spacing, typography } from '../../../theme';
-import { UserMenu } from '../../auth/components/user-menu';
 import heroImage from '../assets/michelin-race-hero.jpg';
 
 const performanceCards = [
@@ -295,8 +294,6 @@ export function LandingScreen() {
             <Text style={styles.brandBadgeText}>MICHELIN</Text>
           </View>
           <Text style={styles.brandProduct}>Race</Text>
-          <View style={styles.headerSpacer} />
-          <UserMenu />
         </View>
 
         <ImageBackground
