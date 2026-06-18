@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { MyRequests } from '@/features/buyback/components/my-requests';
 import { RepriseForm } from '@/features/buyback/components/reprise-form';
 import { fetchMyBuybackRequests } from '@/features/buyback/services/buyback.api';
+import { getCurrentUser } from '@/features/auth/services/current-user';
 
 import styles from './page.module.css';
 
@@ -34,7 +35,11 @@ const assuranceItems = [
 ];
 
 export default async function ReprisePage() {
-  const requests = await fetchMyBuybackRequests();
+  const [requests, user] = await Promise.all([
+    fetchMyBuybackRequests(),
+    getCurrentUser(),
+  ]);
+  const isLoggedIn = !!user;
 
   return (
     <div className={styles.page}>
@@ -106,7 +111,7 @@ export default async function ReprisePage() {
         </div>
 
         <div className={styles.estimateLayout}>
-          <RepriseForm />
+          <RepriseForm isLoggedIn={isLoggedIn} />
 
           <aside className={styles.assurancePanel} aria-label="Étapes reprise">
             <div>
@@ -140,7 +145,7 @@ export default async function ReprisePage() {
             Mes demandes
           </h2>
         </div>
-        <MyRequests requests={requests} />
+        <MyRequests requests={requests} isLoggedIn={isLoggedIn} />
       </section>
     </div>
   );

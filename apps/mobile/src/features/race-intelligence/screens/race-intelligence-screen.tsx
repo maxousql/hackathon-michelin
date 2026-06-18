@@ -173,7 +173,7 @@ function CityAutocomplete({
   const [query, setQuery] = useState(value);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const justPicked = useRef(false);
+  const justPicked = useRef(!!value);
 
   useEffect(() => {
     if (justPicked.current) {
@@ -309,6 +309,7 @@ function RaceDatePicker({
         style={[styles.inputRow, styles.dateBtn]}
         onPress={() => {
           Keyboard.dismiss();
+          if (!value) onChange(today);
           setOpen((o) => !o);
         }}
         accessibilityRole="button"
@@ -585,6 +586,38 @@ export function RaceIntelligenceScreen() {
       update('elevationGainM', String(stats.elevationGainM));
       setRoutePoints(stats.points);
       setRouteBounds(stats.bounds);
+
+      const firstPoint = stats.points[0];
+      if (firstPoint) {
+        try {
+          const revUrl =
+            `https://nominatim.openstreetmap.org/reverse` +
+            `?lat=${firstPoint.latitude}&lon=${firstPoint.longitude}` +
+            `&format=json&addressdetails=1&accept-language=fr`;
+          const revRes = await fetch(revUrl, {
+            headers: { 'User-Agent': 'MichelinRaceApp/1.0' },
+          });
+          if (revRes.ok) {
+            const geoData = (await revRes.json()) as NominatimResult;
+            const a = geoData.address;
+            const place =
+              a?.city ??
+              a?.town ??
+              a?.village ??
+              a?.municipality ??
+              a?.hamlet ??
+              a?.suburb ??
+              geoData.name ??
+              geoData.display_name.split(',')[0]?.trim() ??
+              geoData.display_name;
+            const cityName = a?.country ? `${place}, ${a.country}` : place;
+            if (cityName) update('locationName', cityName);
+          }
+        } catch {
+          // geocoding optionnel, on ignore les erreurs
+        }
+      }
+
       toast.success(
         `${stats.distanceKm} km · ↑ ${stats.elevationGainM} m`,
         'Parcours importé',

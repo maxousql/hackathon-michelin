@@ -3,7 +3,7 @@
 import type { BuybackCondition, ProductListItem } from '@michelin/contracts';
 import { useActionState, useEffect, useState, useTransition } from 'react';
 
-import { Button } from '@/components/ui/button';
+import { Button, ButtonLink } from '@/components/ui/button';
 import {
   productName,
   productSize,
@@ -23,7 +23,7 @@ import {
 } from '../labels';
 import styles from './reprise-form.module.css';
 
-export function RepriseForm() {
+export function RepriseForm({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<ProductListItem[]>([]);
   const [selected, setSelected] = useState<ProductListItem | null>(null);
@@ -186,9 +186,15 @@ export function RepriseForm() {
             </p>
           ) : null}
 
-          <Button type="submit" variant="primary" disabled={pending}>
-            {pending ? 'Envoi…' : 'Demander la reprise'}
-          </Button>
+          {isLoggedIn ? (
+            <Button type="submit" variant="primary" disabled={pending}>
+              {pending ? 'Envoi…' : 'Demander la reprise'}
+            </Button>
+          ) : (
+            <ButtonLink href="/login" variant="primary">
+              Se connecter pour enregistrer
+            </ButtonLink>
+          )}
         </form>
       ) : null}
     </section>

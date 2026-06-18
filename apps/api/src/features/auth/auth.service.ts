@@ -110,6 +110,89 @@ export class AuthService {
     };
   }
 
+  async stravaAuth(stravaToken: string): Promise<AuthResponseDto> {
+    const stravaRes = await fetch('https://www.strava.com/api/v3/athlete', {
+      headers: { Authorization: `Bearer ${stravaToken}` },
+    });
+
+    if (!stravaRes.ok) {
+      throw new UnauthorizedException('Invalid Strava token.');
+    }
+
+    const athlete = (await stravaRes.json()) as {
+      id: number;
+      firstname: string;
+      lastname: string;
+    };
+
+    const email = `strava_${athlete.id}@michelin-race.app`;
+    const password = `michelin-strava-${athlete.id}-2026`;
+    const firstName = athlete.firstname;
+    const lastName = athlete.lastname;
+
+    // Try to sign in as existing user first
+    const signIn = await this.supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signIn.data.session) {
+      const profile = await this.fetchOrCreateProfile(signIn.data.user.id, {
+        firstName,
+        lastName,
+      });
+      return {
+        accessToken: signIn.data.session.access_token,
+        user: {
+          id: signIn.data.user.id,
+          email,
+          firstName: profile.first_name,
+          lastName: profile.last_name,
+          isAdmin: profile.is_admin,
+        } satisfies AuthUserDto,
+      };
+    }
+
+    // First time: create the Supabase user
+    const { data, error } = await this.supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { firstName, lastName },
+    });
+
+    if (error) throw new InternalServerErrorException(error.message);
+
+    await this.supabase
+      .from('profiles')
+      .upsert(
+        { id: data.user.id, first_name: firstName, last_name: lastName },
+        { onConflict: 'id' },
+      );
+
+    const loginResult = await this.supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (loginResult.error || !loginResult.data.session) {
+      throw new InternalServerErrorException(
+        'Strava auth succeeded but sign-in failed.',
+      );
+    }
+
+    return {
+      accessToken: loginResult.data.session.access_token,
+      user: {
+        id: data.user.id,
+        email,
+        firstName,
+        lastName,
+        isAdmin: false,
+      } satisfies AuthUserDto,
+    };
+  }
+
   async getUserProfile(
     id: string,
     email: string,

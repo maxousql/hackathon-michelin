@@ -1474,6 +1474,48 @@ h3 {
   text-decoration: underline;
 }
 
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-block: 1.5rem;
+  color: var(--text-secondary);
+  font-size: var(--type-body-small-size);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-default);
+}
+
+.btn-strava {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-height: 48px;
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  border: 1.5px solid #fc4c02;
+  border-radius: var(--radius-medium);
+  background: transparent;
+  color: #fc4c02;
+  font-size: var(--type-body-size);
+  font-weight: var(--weight-bold);
+  text-decoration: none;
+  transition:
+    background var(--motion-fast) var(--motion-easing),
+    color var(--motion-fast) var(--motion-easing);
+}
+
+.btn-strava:hover {
+  background: #fc4c02;
+  color: #fff;
+}
+
 .btn-logout {
   min-height: 44px;
   padding: var(--space-2) var(--space-6);
