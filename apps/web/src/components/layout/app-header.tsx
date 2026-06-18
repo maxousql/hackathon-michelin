@@ -6,6 +6,7 @@ const MAIN_NAVIGATION = [
   { href: '/', label: 'Accueil' },
   { href: '/products', label: 'Catalogue' },
   { href: '/comparateur', label: 'Comparateur' },
+  { href: '/challenge', label: 'Challenge' },
   { href: '/reprise', label: 'Reprise' },
 ];
 
