@@ -1,6 +1,9 @@
-import type { MichelinProduct } from '@michelin/contracts';
+import type { MichelinProduct, Retailer } from '@michelin/contracts';
+import { Ionicons } from '@expo/vector-icons';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -10,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, fontSize, fontWeight, radius, spacing } from '../../../theme';
+import { apiBaseUrl } from '../../../config/api';
 import { useProduct } from '../hooks/use-product';
 import {
   isEbike,
@@ -60,6 +64,51 @@ function SpecGroup({ title, rows }: { title: string; rows: SpecRow[] }) {
           <Text style={styles.specLabel}>{row.label}</Text>
           <Text style={styles.specValue}>{row.value}</Text>
         </View>
+      ))}
+    </View>
+  );
+}
+
+function RetailersSection() {
+  const [retailers, setRetailers] = useState<Retailer[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${apiBaseUrl}/retailers?country=FR`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: Retailer[]) => setRetailers(data))
+      .catch(() => setRetailers([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading)
+    return (
+      <ActivityIndicator
+        size="small"
+        color={colors.brandBlue}
+        style={{ marginTop: spacing[4] }}
+      />
+    );
+  if (retailers.length === 0) return null;
+
+  return (
+    <View style={styles.group}>
+      <Text style={styles.groupTitle}>Où acheter</Text>
+      {retailers.map((r) => (
+        <Pressable
+          key={r.id}
+          style={styles.retailerRow}
+          onPress={() => void Linking.openURL(r.website)}
+          accessibilityRole="link"
+        >
+          <View style={{ flex: 1 }}>
+            <Text style={styles.retailerName}>{r.name}</Text>
+            {r.region ? (
+              <Text style={styles.retailerRegion}>{r.region}</Text>
+            ) : null}
+          </View>
+          <Ionicons name="open-outline" size={16} color={colors.brandBlue} />
+        </Pressable>
       ))}
     </View>
   );
@@ -152,6 +201,7 @@ function ProductBody({ product }: { product: MichelinProduct }) {
       <SpecGroup title="Pression" rows={pressures} />
       <SpecGroup title="Construction et technologies" rows={construction} />
       <SpecGroup title="Références et conditionnement" rows={references} />
+      <RetailersSection />
     </View>
   );
 }
@@ -258,6 +308,24 @@ const styles = StyleSheet.create({
     fontSize: fontSize.h4,
     fontWeight: fontWeight.black,
     color: colors.textPrimary,
+  },
+  retailerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
+    paddingVertical: spacing[3],
+    borderTopWidth: 1,
+    borderTopColor: colors.borderDefault,
+  },
+  retailerName: {
+    fontSize: fontSize.bodySmall,
+    fontWeight: fontWeight.bold,
+    color: colors.textPrimary,
+  },
+  retailerRegion: {
+    fontSize: fontSize.caption,
+    color: colors.textSecondary,
+    marginTop: 2,
   },
   specRow: {
     flexDirection: 'row',

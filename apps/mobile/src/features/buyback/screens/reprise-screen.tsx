@@ -8,6 +8,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AppButton } from '../../../components/app-button';
 import { AppTextInput } from '../../../components/app-text-input';
+import { AuthGate } from '../../../components/auth-gate';
 import { ScreenWrapper } from '../../../components/screen-wrapper';
 import { colors, fontSize, fontWeight, radius, spacing } from '../../../theme';
 import { useAuth } from '../../auth/context/auth-context';
@@ -97,6 +98,11 @@ export function RepriseScreen() {
       setSubmitting(false);
     }
   }
+
+  if (!token)
+    return (
+      <AuthGate label="Connectez-vous pour estimer la valeur de reprise de vos pneus." />
+    );
 
   return (
     <ScreenWrapper>
@@ -227,6 +233,7 @@ export function RepriseScreen() {
 }
 
 const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.surfaceCanvas },
   flex: { flex: 1 },
   eyebrow: {
     color: colors.brandBlue,

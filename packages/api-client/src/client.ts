@@ -5,7 +5,6 @@ import {
   authResponseSchema,
   authUserSchema,
   buybackEstimateSchema,
-  challengeListSchema,
   buybackRequestListSchema,
   buybackRequestSchema,
   challengeListSchema,
@@ -52,6 +51,10 @@ export interface ApiClient {
   getStatus(signal?: AbortSignal): Promise<StatusResponse>;
   register(data: RegisterRequest, signal?: AbortSignal): Promise<AuthResponse>;
   login(data: LoginRequest, signal?: AbortSignal): Promise<AuthResponse>;
+  loginWithStrava(
+    stravaToken: string,
+    signal?: AbortSignal,
+  ): Promise<AuthResponse>;
   getMe(token: string, signal?: AbortSignal): Promise<AuthUser>;
   getProducts(
     filters: ProductFilters,
@@ -210,6 +213,18 @@ export function createApiClient({
         {
           method: 'POST',
           body: JSON.stringify(data),
+          schema: authResponseSchema,
+        },
+        signal,
+      );
+    },
+
+    loginWithStrava(stravaToken, signal) {
+      return request(
+        '/auth/strava',
+        {
+          method: 'POST',
+          body: JSON.stringify({ stravaToken }),
           schema: authResponseSchema,
         },
         signal,

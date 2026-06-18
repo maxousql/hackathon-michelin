@@ -13,8 +13,12 @@ function makeAuthContext(overrides: Partial<ReturnType<typeof useAuth>> = {}) {
   return {
     login: jest.fn(),
     register: jest.fn(),
+    loginWithStrava: jest.fn(),
+    updateStravaPhoto: jest.fn(),
     logout: jest.fn(),
     token: null,
+    stravaToken: null,
+    stravaPhotoUrl: null,
     user: null,
     isLoading: false,
     ...overrides,

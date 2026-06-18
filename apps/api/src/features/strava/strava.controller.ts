@@ -55,6 +55,16 @@ export class StravaController {
     return { accessToken: data.access_token, expiresIn: data.expires_in };
   }
 
+  @Get('athlete')
+  async getAthlete(@Headers('x-strava-token') token: string): Promise<unknown> {
+    if (!token) throw new UnauthorizedException('Missing x-strava-token');
+    const res = await fetch('https://www.strava.com/api/v3/athlete', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new UnauthorizedException('Strava API error');
+    return res.json();
+  }
+
   @Get('activities')
   async getActivities(
     @Headers('x-strava-token') token: string,

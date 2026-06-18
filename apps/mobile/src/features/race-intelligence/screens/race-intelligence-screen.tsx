@@ -29,6 +29,8 @@ const ACCESSORY_ID = 'race-no-toolbar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { parseGpxMobile } from '../utils/gpx-parser';
 import { toast } from '../../../utils/toast';
+import { AuthGate } from '../../../components/auth-gate';
+import { useAuth } from '../../auth/context/auth-context';
 
 import {
   colors,
@@ -506,6 +508,7 @@ map.fitBounds([[${bounds.minLat},${bounds.minLon}],[${bounds.maxLat},${bounds.ma
 type DataSource = 'manual' | 'gpx' | 'strava';
 
 export function RaceIntelligenceScreen() {
+  const { token, stravaToken: authStravaToken } = useAuth();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [loading, setLoading] = useState(false);
@@ -523,7 +526,10 @@ export function RaceIntelligenceScreen() {
     minLon: number;
     maxLon: number;
   } | null>(null);
-  const [stravaToken, setStravaToken] = useState<string | null>(null);
+  // localStravaToken is used when the user connects Strava from within this screen
+  // (email/password users who want Strava data without switching accounts)
+  const [localStravaToken, setLocalStravaToken] = useState<string | null>(null);
+  const effectiveStravaToken = authStravaToken ?? localStravaToken;
   const [stravaActivities, setStravaActivities] = useState<StravaActivity[]>(
     [],
   );
@@ -532,6 +538,18 @@ export function RaceIntelligenceScreen() {
   const [selectedActivityId, setSelectedActivityId] = useState<number | null>(
     null,
   );
+
+  // Auto-load Strava activities when source switches to 'strava' and token is available
+  useEffect(() => {
+    if (
+      dataSource === 'strava' &&
+      effectiveStravaToken &&
+      stravaActivities.length === 0
+    ) {
+      void fetchStravaActivities(effectiveStravaToken);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataSource, effectiveStravaToken]);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -651,7 +669,7 @@ export function RaceIntelligenceScreen() {
       const { access_token } = (await tokenRes.json()) as {
         access_token: string;
       };
-      setStravaToken(access_token);
+      setLocalStravaToken(access_token);
       toast.success('Tes activités sont prêtes.', 'Strava connecté');
       await fetchStravaActivities(access_token);
     } catch {
@@ -661,30 +679,30 @@ export function RaceIntelligenceScreen() {
     }
   }
 
-  async function fetchStravaActivities(token: string) {
+  async function fetchStravaActivities(tkn: string) {
     setStravaLoading(true);
     try {
       const res = await fetch(
         'https://www.strava.com/api/v3/athlete/activities?per_page=30&page=1',
-        { headers: { Authorization: `Bearer ${token}` } },
+        { headers: { Authorization: `Bearer ${tkn}` } },
       );
       if (!res.ok) return;
       const data = (await res.json()) as StravaActivity[];
-      setStravaActivities(data);
+      setStravaActivities(Array.isArray(data) ? data : []);
     } finally {
       setStravaLoading(false);
     }
   }
 
   async function selectStravaActivity(act: StravaActivity) {
-    if (!stravaToken) return;
+    if (!effectiveStravaToken) return;
     setSelectedActivityId(act.id);
     try {
       const url =
         `https://www.strava.com/api/v3/activities/${act.id}/streams` +
         `?keys=latlng,altitude,distance&key_by_type=true`;
       const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${stravaToken}` },
+        headers: { Authorization: `Bearer ${effectiveStravaToken}` },
       });
       if (!res.ok) return;
       const streams = (await res.json()) as {
@@ -765,10 +783,15 @@ export function RaceIntelligenceScreen() {
     setRouteBounds(null);
     setGpxFileName(null);
     setSelectedActivityId(null);
-    setStravaToken(null);
+    setLocalStravaToken(null);
     setStravaActivities([]);
     setDataSource('manual');
   }
+
+  if (!token)
+    return (
+      <AuthGate label="Connectez-vous pour analyser votre parcours et obtenir votre recommandation pneu." />
+    );
 
   if (result) {
     return (
@@ -1090,7 +1113,7 @@ export function RaceIntelligenceScreen() {
 
               {dataSource === 'strava' && (
                 <View style={styles.field}>
-                  {!stravaToken ? (
+                  {!effectiveStravaToken ? (
                     <Pressable
                       style={[
                         styles.stravaBtn,

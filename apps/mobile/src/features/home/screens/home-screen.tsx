@@ -3,7 +3,6 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import {
-  Image,
   ImageBackground,
   Pressable,
   ScrollView,
@@ -14,7 +13,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import heroImage from '../../../../assets/michelin-race-hero.jpg';
-import logo from '../../../../assets/logo-michelin-race.png';
 import { colors, radius, spacing } from '../../../theme';
 import { useAuth } from '../../auth/context/auth-context';
 import type { AppTabParamList } from '../../../navigation/types';
@@ -58,9 +56,6 @@ export function HomeScreen() {
           <Text style={styles.userName}>
             {user?.firstName ?? 'Cycliste'} 👋
           </Text>
-        </View>
-        <View style={styles.logoBadge}>
-          <Image source={logo} style={styles.logoImg} resizeMode="contain" />
         </View>
       </View>
 
@@ -187,16 +182,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
     marginTop: 2,
   },
-  logoBadge: {
-    backgroundColor: colors.surfaceDefault,
-    borderRadius: radius.large,
-    padding: spacing[2],
-  },
-  logoImg: {
-    width: 44,
-    height: 44,
-  },
-
   scroll: {
     flex: 1,
     backgroundColor: colors.surfaceCanvas,

@@ -1,9 +1,12 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useEffect } from 'react';
 import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 
 import logo from '../../assets/logo-michelin-race.png';
 
@@ -11,6 +14,8 @@ import { useAuth } from '../features/auth/context/auth-context';
 import { LoginScreen } from '../features/auth/screens/login-screen';
 import { RegisterScreen } from '../features/auth/screens/register-screen';
 import { AdminUsersScreen } from '../features/admin/screens/admin-users-screen';
+import { ChallengeScreen } from '../features/challenge/screens/challenge-screen';
+import { ComparatorScreen } from '../features/comparator/screens/comparator-screen';
 import { RepriseScreen } from '../features/buyback/screens/reprise-screen';
 import { HomeScreen } from '../features/home/screens/home-screen';
 import { ProfileScreen } from '../features/profile/screens/profile-screen';
@@ -23,13 +28,26 @@ import type {
   AppTabParamList,
   AuthStackParamList,
   CatalogStackParamList,
+  RootStackParamList,
 } from './types';
 
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const Tab = createBottomTabNavigator<AppTabParamList>();
 const CatalogStack = createNativeStackNavigator<CatalogStackParamList>();
 
-function AuthNavigator() {
+// ─── Auth screens (modal) — auto-dismisses when token is set ─────────────────
+
+function AuthScreens(
+  _props: NativeStackScreenProps<RootStackParamList, 'Auth'>,
+) {
+  const { token } = useAuth();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  useEffect(() => {
+    if (token) navigation.goBack();
+  }, [token, navigation]);
+
   return (
     <AuthStack.Navigator screenOptions={{ headerShown: false }}>
       <AuthStack.Screen name="Login" component={LoginScreen} />
@@ -37,6 +55,8 @@ function AuthNavigator() {
     </AuthStack.Navigator>
   );
 }
+
+// ─── Catalog nested stack ─────────────────────────────────────────────────────
 
 function CatalogMain({
   navigation,
@@ -72,7 +92,9 @@ function CatalogNavigator() {
   );
 }
 
-function AppNavigator() {
+// ─── Tab navigator (always visible, no auth gate) ────────────────────────────
+
+function AppTabNavigator() {
   return (
     <Tab.Navigator
       tabBar={(props) => <FloatingTabBar {...props} />}
@@ -81,6 +103,8 @@ function AppNavigator() {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Catalog" component={CatalogNavigator} />
       <Tab.Screen name="Race" component={RaceIntelligenceScreen} />
+      <Tab.Screen name="Challenge" component={ChallengeScreen} />
+      <Tab.Screen name="Comparateur" component={ComparatorScreen} />
       <Tab.Screen name="Reprise" component={RepriseScreen} />
       <Tab.Screen name="Admin" component={AdminUsersScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
@@ -88,8 +112,10 @@ function AppNavigator() {
   );
 }
 
+// ─── Root navigator ───────────────────────────────────────────────────────────
+
 export function RootNavigator() {
-  const { token, isLoading } = useAuth();
+  const { isLoading } = useAuth();
   const insets = useSafeAreaInsets();
 
   if (isLoading) {
@@ -113,7 +139,10 @@ export function RootNavigator() {
 
   return (
     <>
-      {token ? <AppNavigator /> : <AuthNavigator />}
+      <RootStack.Navigator screenOptions={{ headerShown: false }}>
+        <RootStack.Screen name="Tabs" component={AppTabNavigator} />
+        <RootStack.Screen name="Auth" component={AuthScreens} />
+      </RootStack.Navigator>
       <Toast topOffset={insets.top + 8} />
     </>
   );

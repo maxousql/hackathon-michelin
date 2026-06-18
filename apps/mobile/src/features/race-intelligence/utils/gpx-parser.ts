@@ -1,6 +1,14 @@
+export interface GradientStats {
+  flat: number; // % < 3%
+  rolling: number; // % 3–6%
+  hilly: number; // % 6–12%
+  steep: number; // % > 12%
+}
+
 export interface GpxStats {
   distanceKm: number;
   elevationGainM: number;
+  gradientStats: GradientStats;
   points: { latitude: number; longitude: number }[];
   bounds: { minLat: number; maxLat: number; minLon: number; maxLon: number };
 }
@@ -42,14 +50,34 @@ export function parseGpxMobile(content: string): GpxStats | null {
 
   let distKm = 0;
   let elevGain = 0;
+  let flat = 0,
+    rolling = 0,
+    hilly = 0,
+    steep = 0;
 
   for (let i = 1; i < points.length; i++) {
     const prev = points[i - 1]!;
     const curr = points[i]!;
-    distKm += haversineKm(prev.lat, prev.lon, curr.lat, curr.lon);
+    const segKm = haversineKm(prev.lat, prev.lon, curr.lat, curr.lon);
+    distKm += segKm;
     const dEle = curr.ele - prev.ele;
     if (dEle > 0) elevGain += dEle;
+    if (segKm > 0) {
+      const pct = Math.abs(dEle / (segKm * 1000)) * 100;
+      if (pct < 3) flat += segKm;
+      else if (pct < 6) rolling += segKm;
+      else if (pct < 12) hilly += segKm;
+      else steep += segKm;
+    }
   }
+
+  const total = flat + rolling + hilly + steep || 1;
+  const gradientStats: GradientStats = {
+    flat: Math.round((flat / total) * 100),
+    rolling: Math.round((rolling / total) * 100),
+    hilly: Math.round((hilly / total) * 100),
+    steep: Math.round((steep / total) * 100),
+  };
 
   const step = Math.max(1, Math.floor(points.length / 500));
   const decimated = points.filter((_, i) => i % step === 0);
@@ -60,6 +88,7 @@ export function parseGpxMobile(content: string): GpxStats | null {
   return {
     distanceKm: Math.round(distKm),
     elevationGainM: Math.round(elevGain),
+    gradientStats,
     points: decimated.map((p) => ({ latitude: p.lat, longitude: p.lon })),
     bounds: {
       minLat: Math.min(...lats),

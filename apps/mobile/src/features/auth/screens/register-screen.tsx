@@ -58,6 +58,7 @@ export function RegisterScreen({ navigation }: Props) {
       <AuthScreenShell
         title="Inscription"
         subtitle="Renseigne tes informations."
+        onBack={() => navigation.goBack()}
       >
         <StepIndicator current={1} total={2} />
 
