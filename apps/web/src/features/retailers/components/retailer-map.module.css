@@ -1,0 +1,28 @@
+.map {
+  height: 360px;
+  width: 100%;
+  border-radius: var(--radius-medium);
+  border: 1px solid var(--border-default);
+  z-index: 0;
+}
+
+.pin {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--brand-blue);
+  border: 2px solid var(--surface-default);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 35%);
+}
+
+.userPin {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--brand-yellow, #ffcd00);
+  border: 3px solid var(--surface-default);
+  box-shadow: 0 0 0 2px var(--brand-blue);
+}
