@@ -1,10 +1,12 @@
 import type { ProductListItem } from '@michelin/contracts';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
 
 import {
   productCycleType,
+  productImageSrc,
   productName,
   productRange,
   productSize,
@@ -22,13 +24,18 @@ export function ProductCard({ product }: ProductCardProps) {
   const cycleType = productCycleType(product);
   const size = productSize(product);
   const tags = productTags(product);
+  const imageSrc = productImageSrc(product);
 
   return (
     <Link href={`/products/${product.id}`} className={styles.card}>
       <div className={styles.media} aria-hidden="true">
-        <span className={styles.mediaInitial}>
-          {(range ?? name).charAt(0).toUpperCase()}
-        </span>
+        <Image
+          className={styles.mediaImage}
+          src={imageSrc}
+          alt=""
+          fill
+          sizes="(min-width: 1180px) 18rem, (min-width: 720px) 40vw, 100vw"
+        />
       </div>
 
       <div className={styles.body}>
@@ -40,7 +47,9 @@ export function ProductCard({ product }: ProductCardProps) {
         {tags.length > 0 && (
           <div className={styles.tags}>
             {tags.map((tag) => (
-              <Badge key={tag}>{tag}</Badge>
+              <Badge key={tag} tone="brand">
+                {tag}
+              </Badge>
             ))}
           </div>
         )}

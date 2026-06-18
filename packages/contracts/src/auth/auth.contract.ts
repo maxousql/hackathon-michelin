@@ -21,6 +21,7 @@ export const authUserSchema = z.object({
   email: z.string().email(),
   firstName: z.string(),
   lastName: z.string(),
+  isAdmin: z.boolean(),
 });
 
 export const authResponseSchema = z.object({
@@ -28,7 +29,17 @@ export const authResponseSchema = z.object({
   user: authUserSchema,
 });
 
+export const adminUserSchema = z.object({
+  id: z.string().uuid(),
+  email: z.string().email(),
+  firstName: z.string(),
+  lastName: z.string(),
+  isAdmin: z.boolean(),
+  createdAt: z.string(),
+});
+
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 export type AuthUser = z.infer<typeof authUserSchema>;
 export type AuthResponse = z.infer<typeof authResponseSchema>;
+export type AdminUser = z.infer<typeof adminUserSchema>;

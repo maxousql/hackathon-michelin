@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import { Noto_Sans } from 'next/font/google';
 import type { ReactNode } from 'react';
 
+import { AppHeader } from '@/components/layout/app-header';
+import { Footer } from '@/components/layout/footer';
+
 import './globals.css';
 
 const notoSans = Noto_Sans({
@@ -13,8 +16,8 @@ const notoSans = Noto_Sans({
 
 export const metadata: Metadata = {
   description:
-    'Michelin Race aide les cyclistes route, gravel et VTT à trouver les pneus Michelin adaptés à leur pratique, leur terrain et leurs priorités de performance.',
-  title: 'Michelin Race | Pneus vélo performance',
+    'La plateforme digitale Michelin Vélo — Race Intelligence & Boutique.',
+  title: 'Michelin Vélo',
 };
 
 interface RootLayoutProps {
@@ -23,8 +26,12 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html className={notoSans.variable} lang="fr">
-      <body>{children}</body>
+    <html lang="fr">
+      <body className={notoSans.variable}>
+        <AppHeader />
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }

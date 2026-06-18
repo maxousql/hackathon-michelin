@@ -9,6 +9,7 @@ const AUTH_RESPONSE = {
     email: 'jane@example.com',
     firstName: 'Jane',
     lastName: 'Doe',
+    isAdmin: false,
   },
 };
 
@@ -172,6 +173,125 @@ describe('createApiClient — auth', () => {
           Authorization: 'Bearer mock-token',
         }),
       }),
+    );
+  });
+});
+
+describe('createApiClient — comparator', () => {
+  it('compareTires() posts the benchmark input and returns the validated response', async () => {
+    const response = {
+      recommendedProductId: 2,
+      routeSummary: ['118 km', '1750 m de D+'],
+      results: [
+        {
+          product: {
+            id: 1,
+            name: 'Power Cup',
+            productType: 'TYRE',
+            range: 'Power',
+            cycleType: 'ROAD',
+            segment: 'Racing',
+            size: '700 x 28',
+            widthEtrto: '28',
+            diameterEtrto: '622',
+            type: null,
+            valve: null,
+            valveLength: null,
+            rimType: null,
+            fitting: null,
+            sealing: 'Tubeless Ready',
+            weight: '250 g',
+            pressureRange: 'Pression : 5 - 7 bar',
+            terrainTypes: 'Road',
+            use: 'Race',
+            technologies: ['Grip Compound'],
+          },
+          scores: {
+            overall: 82,
+            routeFit: 80,
+            rollingEfficiency: 92,
+            grip: 75,
+            punctureProtection: 70,
+            durability: 72,
+          },
+          advantages: ['Très bon rendement'],
+          tradeoffs: ['Protection limitée sur routes dégradées'],
+          technicalDetails: ['ETRTO : 28-622'],
+          equivalenceNote: null,
+          verdict: 'Rapide, mais moins sécurisant sur très longue distance.',
+        },
+        {
+          product: {
+            id: 2,
+            name: 'Power Endurance',
+            productType: 'TYRE',
+            range: 'Power',
+            cycleType: 'ROAD',
+            segment: 'Performance',
+            size: '700 x 28',
+            widthEtrto: '28',
+            diameterEtrto: '622',
+            type: null,
+            valve: null,
+            valveLength: null,
+            rimType: null,
+            fitting: null,
+            sealing: 'Tube Type',
+            weight: '300 g',
+            pressureRange: 'Pression : 5 - 7 bar',
+            terrainTypes: 'Road',
+            use: 'Endurance',
+            technologies: ['Bead 2 Bead Protek'],
+          },
+          scores: {
+            overall: 86,
+            routeFit: 88,
+            rollingEfficiency: 78,
+            grip: 80,
+            punctureProtection: 90,
+            durability: 92,
+          },
+          advantages: ['Protection adaptée à la distance'],
+          tradeoffs: ['Rendement moins explosif'],
+          technicalDetails: ['ETRTO : 28-622'],
+          equivalenceNote: null,
+          verdict: 'Le meilleur compromis pour ce parcours.',
+        },
+      ],
+    };
+
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(JSON.stringify(response), {
+        headers: { 'Content-Type': 'application/json' },
+        status: 200,
+      }),
+    );
+
+    const client = createApiClient({
+      baseUrl: 'http://localhost:3001/api/v1',
+      fetcher,
+    });
+
+    await expect(
+      client.compareTires({
+        route: {
+          source: 'gpx',
+          surface: 'road',
+          distanceKm: 118,
+          elevationGainM: 1750,
+        },
+        selectedProductIds: [1, 2],
+      }),
+    ).resolves.toMatchObject({
+      recommendedProductId: 2,
+      results: expect.arrayContaining([
+        expect.objectContaining({ verdict: expect.any(String) }),
+      ]),
+    });
+
+    expect(fetcher).toHaveBeenCalledWith(
+      'http://localhost:3001/api/v1/comparator/benchmark',
+      expect.objectContaining({ method: 'POST' }),
     );
   });
 });

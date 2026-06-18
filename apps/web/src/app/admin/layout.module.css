@@ -1,0 +1,60 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--surface-canvas);
+}
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-8) var(--space-4);
+  background: var(--surface-brand);
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-8);
+  gap: 2px;
+  text-decoration: none;
+}
+
+.wordmark {
+  color: var(--brand-yellow);
+  font-size: var(--type-caption);
+  font-weight: var(--weight-black);
+  letter-spacing: 2px;
+}
+
+.product {
+  color: var(--text-on-brand);
+  font-size: var(--type-body-small);
+  font-weight: var(--weight-semibold);
+}
+
+.navLink {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-medium);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: var(--type-body-small);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+  transition:
+    background var(--motion-fast) var(--motion-easing),
+    color var(--motion-fast) var(--motion-easing);
+}
+
+.navLink:hover,
+.navLinkActive {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-on-brand);
+}
+
+.main {
+  flex: 1;
+  padding: var(--space-8);
+  overflow: auto;
+}

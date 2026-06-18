@@ -6,10 +6,12 @@ export {
 } from './status/status.contract';
 
 export {
+  adminUserSchema,
   authResponseSchema,
   authUserSchema,
   loginRequestSchema,
   registerRequestSchema,
+  type AdminUser,
   type AuthResponse,
   type AuthUser,
   type LoginRequest,
@@ -49,3 +51,39 @@ export {
   type ProductListItem,
   type ProductListResponse,
 } from './products/products.contract';
+
+export {
+  surfaceTypeSchema,
+  disciplineSchema,
+  weatherConditionSchema,
+  raceAnalyzeRequestSchema,
+  tireRecommendationSchema,
+  pressureRecommendationSchema,
+  raceAnalyzeResponseSchema,
+  type SurfaceType,
+  type Discipline,
+  type WeatherCondition,
+  type RaceAnalyzeRequest,
+  type TireRecommendation,
+  type PressureRecommendation,
+  type RaceAnalyzeResponse,
+} from './race-intelligence/race-intelligence.contract';
+
+export {
+  routeSourceSchema,
+  routeGradientStatsSchema,
+  comparatorRouteStatsSchema,
+  tireComparisonRequestSchema,
+  tireComparisonScoreSchema,
+  tireComparisonProductSchema,
+  tireBenchmarkResultSchema,
+  tireComparisonResponseSchema,
+  type RouteSource,
+  type RouteGradientStats,
+  type ComparatorRouteStats,
+  type TireComparisonRequest,
+  type TireComparisonScore,
+  type TireComparisonProduct,
+  type TireBenchmarkResult,
+  type TireComparisonResponse,
+} from './comparator/comparator.contract';

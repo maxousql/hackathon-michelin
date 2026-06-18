@@ -1,0 +1,40 @@
+.nativeSelect {
+  display: flex;
+  min-height: 2.75rem;
+  width: 100%;
+  padding-inline: var(--space-4) var(--space-10);
+  border: 1px solid rgb(var(--brand-blue-rgb) / 16%);
+  border-radius: var(--radius-medium);
+  background:
+    linear-gradient(45deg, transparent 50%, var(--brand-blue) 50%)
+      calc(100% - 1.15rem) 52% / 0.42rem 0.42rem no-repeat,
+    linear-gradient(135deg, var(--brand-blue) 50%, transparent 50%)
+      calc(100% - 0.88rem) 52% / 0.42rem 0.42rem no-repeat,
+    var(--surface-default);
+  box-shadow: 0 1px 2px rgb(var(--brand-midnight-rgb) / 7%);
+  color: var(--text-primary);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  appearance: none;
+  transition:
+    border-color var(--motion-fast) var(--motion-easing),
+    box-shadow var(--motion-fast) var(--motion-easing),
+    background-color var(--motion-fast) var(--motion-easing);
+}
+
+.nativeSelect:hover {
+  border-color: rgb(var(--brand-blue-rgb) / 42%);
+}
+
+.nativeSelect:focus-visible {
+  border-color: var(--focus-ring);
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgb(var(--brand-blue-rgb) / 14%),
+    0 1px 2px rgb(var(--brand-midnight-rgb) / 7%);
+}
+
+.nativeSelect:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}

@@ -9,4 +9,5 @@ export type AppStackParamList = {
   Catalog: undefined;
   ProductDetail: { id: number };
   Reprise: undefined;
+  AdminUsers: undefined;
 };

@@ -12,6 +12,9 @@ export class AuthUserDto {
 
   @ApiProperty()
   lastName!: string;
+
+  @ApiProperty()
+  isAdmin!: boolean;
 }
 
 export class AuthResponseDto {
