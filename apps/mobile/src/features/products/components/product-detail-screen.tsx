@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  ImageBackground,
   Linking,
   Pressable,
   ScrollView,
@@ -10,9 +11,18 @@ import {
   Text,
   View,
 } from 'react-native';
+
+import heroImage from '../../../../assets/michelin-race-hero.jpg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors, fontSize, fontWeight, radius, spacing } from '../../../theme';
+import {
+  colors,
+  fontSize,
+  fontWeight,
+  radius,
+  shadows,
+  spacing,
+} from '../../../theme';
 import { apiBaseUrl } from '../../../config/api';
 import { useProduct } from '../hooks/use-product';
 import {
@@ -37,6 +47,15 @@ interface SpecRow {
 function clean(value: string | null | undefined): string | null {
   const trimmed = value?.trim();
   return trimmed ? trimmed : null;
+}
+
+function joinValues(values: Array<string | null | undefined>): string | null {
+  const visible = values.map((v) => v?.trim()).filter(Boolean);
+  return visible.length > 0 ? visible.join(' · ') : null;
+}
+
+function display(value: string | null | undefined, fallback: string): string {
+  return value?.trim() || fallback;
 }
 
 function pressure(
@@ -121,6 +140,56 @@ function ProductBody({ product }: { product: MichelinProduct }) {
   const size = productSize(product);
   const tags = productTags(product);
 
+  const heroTitle = range ?? name;
+  const heroSubtitle =
+    heroTitle === name ? (clean(product.designation) ?? size) : name;
+  const pressionLabel =
+    pressure(product.minimum_pressure, product.maximum_pressure, 'bar') ??
+    pressure(product.conversion_psi_mini, product.conversion_psi_maxi, 'psi');
+  const heroFacts = [
+    { label: 'Dimension', value: display(size, 'À confirmer') },
+    {
+      label: 'Montage',
+      value: display(
+        joinValues([product.sealing, product.fitting]),
+        'À vérifier',
+      ),
+    },
+    { label: 'Pression', value: pressionLabel ?? 'Voir fiche' },
+  ];
+
+  const featureTiles = [
+    {
+      icon: 'map-outline' as const,
+      title: 'Usage',
+      text: display(
+        joinValues([product.use, product.terrain_types]),
+        'Usage à vérifier',
+      ),
+    },
+    {
+      icon: 'resize-outline' as const,
+      title: 'Format',
+      text: display(joinValues([size, product.rim_type]), 'À confirmer'),
+    },
+    {
+      icon: 'construct-outline' as const,
+      title: 'Compatibilité',
+      text: display(
+        joinValues([product.sealing, product.fitting, product.bead]),
+        'À vérifier',
+      ),
+    },
+    {
+      icon: 'flash-outline' as const,
+      title: 'Construction',
+      text: display(
+        joinValues([product.rubber_technologies, product.casing_technologies]),
+        'Voir fiche technique',
+      ),
+    },
+  ];
+
   const dimensions: SpecRow[] = [
     { label: 'Diamètre', value: clean(product.web_diameter) },
     { label: 'Largeur', value: clean(product.web_width) },
@@ -179,12 +248,44 @@ function ProductBody({ product }: { product: MichelinProduct }) {
 
   return (
     <View>
-      {cycleType ? <Text style={styles.eyebrow}>{cycleType}</Text> : null}
-      <Text style={styles.name}>{name}</Text>
-      {range && range !== name ? (
-        <Text style={styles.range}>{range}</Text>
-      ) : null}
-      {size ? <Text style={styles.size}>{size}</Text> : null}
+      {/* Hero */}
+      <ImageBackground
+        source={heroImage}
+        style={styles.hero}
+        resizeMode="cover"
+      >
+        <View style={styles.heroOverlay} />
+        <View style={styles.heroContent}>
+          {cycleType ? (
+            <Text style={styles.heroEyebrow}>{cycleType}</Text>
+          ) : null}
+          <Text style={styles.heroTitle}>{heroTitle}</Text>
+          {heroSubtitle && heroSubtitle !== heroTitle ? (
+            <Text style={styles.heroSubtitle}>{heroSubtitle}</Text>
+          ) : null}
+          <View style={styles.heroFacts}>
+            {heroFacts.map((fact) => (
+              <View key={fact.label} style={styles.heroFact}>
+                <Text style={styles.heroFactLabel}>{fact.label}</Text>
+                <Text style={styles.heroFactValue}>{fact.value}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </ImageBackground>
+
+      {/* Feature tiles */}
+      <View style={styles.featureGrid}>
+        {featureTiles.map((tile) => (
+          <View key={tile.title} style={styles.featureTile}>
+            <Ionicons name={tile.icon} size={20} color={colors.brandBlue} />
+            <Text style={styles.featureTileTitle}>{tile.title}</Text>
+            <Text style={styles.featureTileText} numberOfLines={3}>
+              {tile.text}
+            </Text>
+          </View>
+        ))}
+      </View>
 
       {tags.length > 0 || isEbike(product) ? (
         <View style={styles.tags}>
@@ -255,29 +356,91 @@ const styles = StyleSheet.create({
     fontSize: fontSize.body,
     color: colors.textSecondary,
   },
-  eyebrow: {
-    marginBottom: spacing[1],
-    fontSize: fontSize.caption,
-    fontWeight: fontWeight.bold,
-    letterSpacing: 1,
-    color: colors.brandBlue,
+
+  hero: {
+    marginHorizontal: -spacing[6],
+    height: 280,
+    marginBottom: spacing[6],
   },
-  name: {
+  heroOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(10,20,60,0.58)',
+  },
+  heroContent: {
+    flex: 1,
+    paddingHorizontal: spacing[6],
+    paddingBottom: spacing[6],
+    justifyContent: 'flex-end',
+  },
+  heroEyebrow: {
+    fontSize: fontSize.caption,
+    fontWeight: fontWeight.black,
+    letterSpacing: 2,
+    color: colors.brandYellow,
+    textTransform: 'uppercase',
+    marginBottom: spacing[2],
+  },
+  heroTitle: {
     fontSize: fontSize.h2,
+    fontWeight: fontWeight.black,
+    color: '#fff',
+    letterSpacing: -0.5,
+  },
+  heroSubtitle: {
+    fontSize: fontSize.bodyLarge,
+    color: 'rgba(255,255,255,0.72)',
+    marginTop: spacing[1],
+  },
+  heroFacts: {
+    flexDirection: 'row',
+    gap: spacing[4],
+    marginTop: spacing[4],
+    paddingTop: spacing[4],
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.2)',
+  },
+  heroFact: { flex: 1 },
+  heroFactLabel: {
+    fontSize: 10,
+    fontWeight: fontWeight.bold,
+    color: 'rgba(255,255,255,0.55)',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 3,
+  },
+  heroFactValue: {
+    fontSize: fontSize.caption,
+    fontWeight: fontWeight.black,
+    color: '#fff',
+  },
+
+  featureGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing[3],
+    marginBottom: spacing[6],
+  },
+  featureTile: {
+    width: '47%',
+    padding: spacing[4],
+    borderRadius: radius.large,
+    borderWidth: 1,
+    borderColor: colors.borderDefault,
+    backgroundColor: colors.surfaceDefault,
+    gap: spacing[2],
+    ...shadows.low,
+  },
+  featureTileTitle: {
+    fontSize: fontSize.bodySmall,
     fontWeight: fontWeight.black,
     color: colors.textPrimary,
   },
-  range: {
-    marginTop: spacing[1],
-    fontSize: fontSize.bodyLarge,
+  featureTileText: {
+    fontSize: fontSize.caption,
     color: colors.textSecondary,
+    lineHeight: 18,
   },
-  size: {
-    marginTop: spacing[2],
-    fontSize: fontSize.h4,
-    fontWeight: fontWeight.bold,
-    color: colors.textPrimary,
-  },
+
   tags: {
     flexDirection: 'row',
     flexWrap: 'wrap',

@@ -403,10 +403,34 @@ function ChoiceCard({
 function RecommendationCard({
   result,
   onReset,
+  onSave,
+  defaultRaceName,
 }: {
   result: RaceAnalyzeResponse;
   onReset: () => void;
+  onSave?: (raceName: string) => Promise<void>;
+  defaultRaceName?: string;
 }) {
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  async function handleSave() {
+    if (!onSave || saving || saved) return;
+    setSaving(true);
+    try {
+      await onSave(defaultRaceName || 'Ma course');
+      setSaved(true);
+      toast.success(
+        defaultRaceName ?? 'Ma course',
+        'Course sauvegardée dans ton profil',
+      );
+    } catch {
+      toast.error('Impossible de sauvegarder. Réessaie.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   const { tire, pressure, weatherSummary, justification, confidenceScore } =
     result;
   return (
@@ -469,6 +493,27 @@ function RecommendationCard({
         <Text style={styles.priceLabel}>Prix indicatif</Text>
         <Text style={styles.priceValue}>{tire.priceEur.toFixed(2)} €</Text>
       </View>
+
+      {onSave && (
+        <Pressable
+          style={[styles.saveBtn, (saving || saved) && styles.saveBtnDisabled]}
+          onPress={() => void handleSave()}
+          disabled={saving || saved}
+        >
+          <Ionicons
+            name={saved ? 'checkmark-circle' : 'bookmark-outline'}
+            size={16}
+            color={colors.textOnBrand}
+          />
+          <Text style={styles.saveBtnText}>
+            {saved
+              ? 'Course sauvegardée'
+              : saving
+                ? 'Sauvegarde…'
+                : 'Sauvegarder dans mon profil'}
+          </Text>
+        </Pressable>
+      )}
 
       <Pressable style={styles.resetBtn} onPress={onReset}>
         <Ionicons name="refresh" size={16} color={colors.brandBlue} />
@@ -788,6 +833,28 @@ export function RaceIntelligenceScreen() {
     setDataSource('manual');
   }
 
+  async function handleSaveRace(raceName: string) {
+    if (
+      !token ||
+      !result ||
+      !form.surface ||
+      !form.discipline ||
+      !form.raceDate
+    )
+      throw new Error('missing data');
+    await raceClient.createSavedRace(token, {
+      raceName: raceName || form.locationName || 'Ma course',
+      raceDate: form.raceDate.toISOString().split('T')[0]!,
+      locationName: form.locationName,
+      surface: form.surface,
+      discipline: form.discipline,
+      distanceKm: parseFloat(form.distanceKm) || 0,
+      elevationGainM: parseFloat(form.elevationGainM) || 0,
+      riderWeightKg: parseFloat(form.riderWeightKg) || 0,
+      result,
+    });
+  }
+
   if (!token)
     return (
       <AuthGate label="Connectez-vous pour analyser votre parcours et obtenir votre recommandation pneu." />
@@ -797,7 +864,12 @@ export function RaceIntelligenceScreen() {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
         <StatusBar style="dark" />
-        <RecommendationCard result={result} onReset={reset} />
+        <RecommendationCard
+          result={result}
+          onReset={reset}
+          onSave={handleSaveRace}
+          defaultRaceName={form.locationName || undefined}
+        />
       </SafeAreaView>
     );
   }
@@ -1800,5 +1872,61 @@ const styles = StyleSheet.create({
     fontSize: fontSize.caption,
     color: colors.textSecondary,
     marginTop: 2,
+  },
+
+  saveSection: {
+    gap: spacing[3],
+    padding: spacing[4],
+    borderRadius: radius.xlarge,
+    backgroundColor: colors.surfaceDefault,
+    borderWidth: 1,
+    borderColor: colors.borderDefault,
+    ...shadows.low,
+  },
+  saveLabel: {
+    fontSize: fontSize.bodySmall,
+    fontWeight: fontWeight.bold,
+    color: colors.textPrimary,
+  },
+  saveInput: {
+    borderWidth: 1.5,
+    borderColor: colors.borderDefault,
+    borderRadius: radius.medium,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+    fontSize: fontSize.body,
+    color: colors.textPrimary,
+    backgroundColor: colors.surfaceCanvas,
+  },
+  saveError: {
+    fontSize: fontSize.caption,
+    color: colors.stateError,
+  },
+  saveBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing[2],
+    paddingVertical: spacing[4],
+    borderRadius: radius.large,
+    backgroundColor: colors.brandBlue,
+  },
+  saveBtnDisabled: { opacity: 0.5 },
+  saveBtnText: {
+    fontSize: fontSize.body,
+    fontWeight: fontWeight.black,
+    color: colors.textOnBrand,
+  },
+  savedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing[2],
+    paddingVertical: spacing[3],
+  },
+  savedText: {
+    fontSize: fontSize.body,
+    fontWeight: fontWeight.bold,
+    color: colors.stateSuccess,
   },
 });

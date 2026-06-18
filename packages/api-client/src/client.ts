@@ -16,6 +16,8 @@ import {
   raceAnalyzeRequestSchema,
   raceAnalyzeResponseSchema,
   retailerListSchema,
+  savedRaceListSchema,
+  savedRaceSchema,
   statusResponseSchema,
   tireComparisonResponseSchema,
   type AdminUser,
@@ -27,6 +29,7 @@ import {
   type BuybackRequest,
   type Challenge,
   type CreateBikeRequest,
+  type CreateSavedRaceRequest,
   type LoginRequest,
   type MichelinProduct,
   type ProductFacets,
@@ -36,6 +39,7 @@ import {
   type RaceAnalyzeResponse,
   type RegisterRequest,
   type Retailer,
+  type SavedRace,
   type StatusResponse,
   type TireComparisonRequest,
   type TireComparisonResponse,
@@ -96,6 +100,17 @@ export interface ApiClient {
     signal?: AbortSignal,
   ): Promise<Bike>;
   deleteBike(token: string, id: string, signal?: AbortSignal): Promise<void>;
+  getSavedRaces(token: string, signal?: AbortSignal): Promise<SavedRace[]>;
+  createSavedRace(
+    token: string,
+    data: CreateSavedRaceRequest,
+    signal?: AbortSignal,
+  ): Promise<SavedRace>;
+  deleteSavedRace(
+    token: string,
+    id: string,
+    signal?: AbortSignal,
+  ): Promise<void>;
   getAdminUsers(token: string, signal?: AbortSignal): Promise<AdminUser[]>;
   updateAdminUser(
     token: string,
@@ -370,6 +385,58 @@ export function createApiClient({
       let response: Response;
       try {
         response = await fetcher(`${normalizedBaseUrl}/bikes/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          signal,
+        });
+      } catch (error) {
+        throw new ApiClientError('Unable to reach the API.', undefined, {
+          cause: error,
+        });
+      }
+      if (!response.ok) {
+        let message = `The API returned HTTP ${response.status}.`;
+        try {
+          const body = (await response.json()) as { message?: string };
+          if (body.message) message = String(body.message);
+        } catch {
+          /* ignore */
+        }
+        throw new ApiClientError(message, response.status);
+      }
+    },
+
+    getSavedRaces(token, signal) {
+      return request(
+        '/saved-races',
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          schema: savedRaceListSchema,
+        },
+        signal,
+      );
+    },
+
+    createSavedRace(token, data, signal) {
+      return request(
+        '/saved-races',
+        {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: { Authorization: `Bearer ${token}` },
+          schema: savedRaceSchema,
+        },
+        signal,
+      );
+    },
+
+    async deleteSavedRace(token, id, signal) {
+      let response: Response;
+      try {
+        response = await fetcher(`${normalizedBaseUrl}/saved-races/${id}`, {
           method: 'DELETE',
           headers: {
             Accept: 'application/json',
