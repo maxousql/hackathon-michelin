@@ -23,7 +23,6 @@ function haversineKm(
 }
 
 export function parseGpxMobile(content: string): GpxStats | null {
-  // Normalise lat/lon attr order: some files have lon before lat
   const trkptRegex =
     /<trkpt\s[^>]*?(lat="([^"]+)"\s+lon="([^"]+)"|lon="([^"]+)"\s+lat="([^"]+)")[^>]*>([\s\S]*?)<\/trkpt>/g;
   const eleRegex = /<ele>([\d.eE+-]+)<\/ele>/;
@@ -32,7 +31,6 @@ export function parseGpxMobile(content: string): GpxStats | null {
   let match: RegExpExecArray | null;
 
   while ((match = trkptRegex.exec(content)) !== null) {
-    // Group 2/3 = lat first, group 4/5 = lon first
     const lat = parseFloat(match[2] ?? match[5] ?? '0');
     const lon = parseFloat(match[3] ?? match[4] ?? '0');
     const eleMatch = eleRegex.exec(match[6] ?? '');
@@ -53,7 +51,6 @@ export function parseGpxMobile(content: string): GpxStats | null {
     if (dEle > 0) elevGain += dEle;
   }
 
-  // Décimation : garde au max 500 points pour la carte
   const step = Math.max(1, Math.floor(points.length / 500));
   const decimated = points.filter((_, i) => i % step === 0);
 

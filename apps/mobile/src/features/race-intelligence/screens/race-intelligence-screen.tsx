@@ -14,6 +14,7 @@ import {
   Dimensions,
   InputAccessoryView,
   Keyboard,
+  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -39,12 +40,8 @@ import {
 } from '../../../theme';
 import { raceClient } from '../api';
 
-// ─── Strava helpers ─────────────────────────────────────────────────────────
-
 const STRAVA_CLIENT_ID = '258523';
 const STRAVA_CLIENT_SECRET = '8d7c6659b7cdcced2de8d4c0c7a39bec202adec4';
-// michelin-race://localhost → host = "localhost" = callback domain Strava enregistré ✓
-// iOS intercepte michelin-race:// avant que le navigateur charge la page
 const STRAVA_REDIRECT_URI = 'michelin-race://localhost';
 
 interface StravaActivity {
@@ -70,8 +67,6 @@ function sportTypeLabel(t: string) {
   };
   return map[t] ?? t;
 }
-
-// ─── Config ─────────────────────────────────────────────────────────────────
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -125,8 +120,6 @@ const DISCIPLINES: Record<
 const TOTAL_STEPS = 5;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
 interface FormState {
   surface: SurfaceType | null;
   discipline: Discipline | null;
@@ -146,8 +139,6 @@ const INITIAL_FORM: FormState = {
   raceDate: null,
   riderWeightKg: '',
 };
-
-// ─── City autocomplete ───────────────────────────────────────────────────────
 
 interface NominatimResult {
   display_name: string;
@@ -209,7 +200,6 @@ function CityAutocomplete({
             item.display_name;
           return a?.country ? `${place}, ${a.country}` : place;
         });
-        // dédoublonne
         setSuggestions([...new Set(labels)]);
       } catch {
         setSuggestions([]);
@@ -279,8 +269,6 @@ function CityAutocomplete({
   );
 }
 
-// ─── Date picker ─────────────────────────────────────────────────────────────
-
 function RaceDatePicker({
   value,
   onChange,
@@ -289,11 +277,14 @@ function RaceDatePicker({
   onChange: (d: Date) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const today = useState(() => new Date())[0];
+  const today = useState(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  })[0];
   const maxDate = useState(
     () => new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
   )[0];
-  // DateTimePicker exige toujours un Date valide — on utilise today par défaut
   const pickerValue = value ?? today;
   const display = value
     ? value.toLocaleDateString('fr-FR', {
@@ -343,8 +334,6 @@ function RaceDatePicker({
     </View>
   );
 }
-
-// ─── Shared UI ───────────────────────────────────────────────────────────────
 
 function StepHeader({ step, onBack }: { step: number; onBack?: () => void }) {
   return (
@@ -408,8 +397,6 @@ function ChoiceCard({
     </Pressable>
   );
 }
-
-// ─── Result card ─────────────────────────────────────────────────────────────
 
 function RecommendationCard({
   result,
@@ -489,10 +476,6 @@ function RecommendationCard({
   );
 }
 
-// ─── Main screen ─────────────────────────────────────────────────────────────
-
-// ─── Leaflet map ─────────────────────────────────────────────────────────────
-
 function buildLeafletHtml(
   points: { latitude: number; longitude: number }[],
   bounds: { minLat: number; maxLat: number; minLon: number; maxLon: number },
@@ -528,7 +511,6 @@ export function RaceIntelligenceScreen() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<RaceAnalyzeResponse | null>(null);
 
-  // Source selector state
   const [dataSource, setDataSource] = useState<DataSource>('manual');
   const [gpxLoading, setGpxLoading] = useState(false);
   const [gpxFileName, setGpxFileName] = useState<string | null>(null);
@@ -565,7 +547,6 @@ export function RaceIntelligenceScreen() {
       });
       if (res.canceled || !res.assets?.[0]) return;
       const asset = res.assets[0]!;
-      // fetch() est plus fiable que FileSystem sur iOS
       const response = await fetch(asset.uri);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const content = await response.text();
@@ -641,7 +622,6 @@ export function RaceIntelligenceScreen() {
         `&scope=activity:read` +
         `&approval_prompt=auto`;
 
-      // iOS (ASWebAuthenticationSession) intercepte michelin-race:// avant de charger l'URL
       const result = await WebBrowser.openAuthSessionAsync(
         authUrl,
         'michelin-race://',
@@ -654,7 +634,6 @@ export function RaceIntelligenceScreen() {
         return;
       }
 
-      // Échange direct avec Strava — pas de serveur intermédiaire requis
       const tokenRes = await fetch('https://www.strava.com/oauth/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -726,7 +705,6 @@ export function RaceIntelligenceScreen() {
         'elevationGainM',
         String(Math.round(distM > 0 ? elevGain : act.total_elevation_gain)),
       );
-      // Stocke les points GPS pour la carte
       const latlngData = streams.latlng?.data ?? [];
       if (latlngData.length >= 2) {
         const step = Math.max(1, Math.floor(latlngData.length / 500));
@@ -811,7 +789,6 @@ export function RaceIntelligenceScreen() {
         onBack={step > 1 ? () => setStep((s) => s - 1) : undefined}
       />
 
-      {/* Étape carte : hors ScrollView pour que le WebView capte les touches */}
       {step === 4 && (
         <View style={styles.mapStepContainer}>
           <View style={styles.mapStepHeader}>
@@ -881,413 +858,413 @@ export function RaceIntelligenceScreen() {
         </View>
       )}
 
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        style={step === 4 ? { display: 'none' } : undefined}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* ── Étape 1 : Surface ── */}
-        {step === 1 && (
-          <View style={styles.stepBody}>
-            <Text style={styles.eyebrow}>ÉTAPE 1</Text>
-            <Text style={styles.stepTitle}>Quelle est ta surface ?</Text>
-            <View style={styles.choiceGrid}>
-              {SURFACES.map((s) => (
-                <ChoiceCard
-                  key={s.value}
-                  icon={s.icon}
-                  label={s.label}
-                  desc={s.desc}
-                  selected={form.surface === s.value}
-                  onPress={() => {
-                    update('surface', s.value);
-                    update('discipline', null);
-                    setStep(2);
-                  }}
-                />
-              ))}
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          style={step === 4 ? { display: 'none' } : undefined}
+        >
+          {step === 1 && (
+            <View style={styles.stepBody}>
+              <Text style={styles.eyebrow}>ÉTAPE 1</Text>
+              <Text style={styles.stepTitle}>Quelle est ta surface ?</Text>
+              <View style={styles.choiceGrid}>
+                {SURFACES.map((s) => (
+                  <ChoiceCard
+                    key={s.value}
+                    icon={s.icon}
+                    label={s.label}
+                    desc={s.desc}
+                    selected={form.surface === s.value}
+                    onPress={() => {
+                      update('surface', s.value);
+                      update('discipline', null);
+                      setStep(2);
+                    }}
+                  />
+                ))}
+              </View>
             </View>
-          </View>
-        )}
+          )}
 
-        {/* ── Étape 2 : Discipline ── */}
-        {step === 2 && form.surface && (
-          <View style={styles.stepBody}>
-            <Text style={styles.eyebrow}>ÉTAPE 2</Text>
-            <Text style={styles.stepTitle}>Quelle est ta discipline ?</Text>
-            <View style={styles.choiceGrid}>
-              {DISCIPLINES[form.surface].map((d) => (
-                <ChoiceCard
-                  key={d.value}
-                  icon={d.icon}
-                  label={d.label}
-                  selected={form.discipline === d.value}
-                  onPress={() => {
-                    update('discipline', d.value);
-                    setStep(3);
-                  }}
-                />
-              ))}
+          {step === 2 && form.surface && (
+            <View style={styles.stepBody}>
+              <Text style={styles.eyebrow}>ÉTAPE 2</Text>
+              <Text style={styles.stepTitle}>Quelle est ta discipline ?</Text>
+              <View style={styles.choiceGrid}>
+                {DISCIPLINES[form.surface].map((d) => (
+                  <ChoiceCard
+                    key={d.value}
+                    icon={d.icon}
+                    label={d.label}
+                    selected={form.discipline === d.value}
+                    onPress={() => {
+                      update('discipline', d.value);
+                      setStep(3);
+                    }}
+                  />
+                ))}
+              </View>
             </View>
-          </View>
-        )}
+          )}
 
-        {/* ── Étape 3 : Parcours ── */}
-        {step === 3 && (
-          <View style={styles.stepBody}>
-            <Text style={styles.eyebrow}>ÉTAPE 3</Text>
-            <Text style={styles.stepTitle}>Ton parcours</Text>
+          {step === 3 && (
+            <View style={styles.stepBody}>
+              <Text style={styles.eyebrow}>ÉTAPE 3</Text>
+              <Text style={styles.stepTitle}>Ton parcours</Text>
 
-            {/* Source selector */}
-            <View style={styles.sourceGrid}>
-              {(
-                [
-                  {
-                    src: 'manual',
-                    icon: 'create-outline' as IoniconName,
-                    label: 'Manuel',
-                  },
-                  {
-                    src: 'gpx',
-                    icon: 'document-outline' as IoniconName,
-                    label: 'GPX',
-                  },
-                ] as { src: DataSource; icon: IoniconName; label: string }[]
-              ).map(({ src, icon, label }) => (
+              <View style={styles.sourceGrid}>
+                {(
+                  [
+                    {
+                      src: 'manual',
+                      icon: 'create-outline' as IoniconName,
+                      label: 'Manuel',
+                    },
+                    {
+                      src: 'gpx',
+                      icon: 'document-outline' as IoniconName,
+                      label: 'GPX',
+                    },
+                  ] as { src: DataSource; icon: IoniconName; label: string }[]
+                ).map(({ src, icon, label }) => (
+                  <Pressable
+                    key={src}
+                    style={[
+                      styles.sourceCard,
+                      dataSource === src && styles.sourceCardActive,
+                    ]}
+                    onPress={() => setDataSource(src)}
+                  >
+                    <Ionicons
+                      name={icon}
+                      size={22}
+                      color={
+                        dataSource === src
+                          ? colors.brandBlue
+                          : colors.textSecondary
+                      }
+                    />
+                    <Text
+                      style={[
+                        styles.sourceLabel,
+                        dataSource === src && styles.sourceLabelActive,
+                      ]}
+                    >
+                      {label}
+                    </Text>
+                  </Pressable>
+                ))}
                 <Pressable
-                  key={src}
                   style={[
                     styles.sourceCard,
-                    dataSource === src && styles.sourceCardActive,
+                    dataSource === 'strava' && styles.sourceCardActive,
                   ]}
-                  onPress={() => setDataSource(src)}
+                  onPress={() => setDataSource('strava')}
                 >
-                  <Ionicons
-                    name={icon}
-                    size={22}
-                    color={
-                      dataSource === src
-                        ? colors.brandBlue
-                        : colors.textSecondary
-                    }
-                  />
+                  <Text
+                    style={[
+                      styles.stravaS,
+                      dataSource === 'strava' && styles.stravaSActive,
+                    ]}
+                  >
+                    S
+                  </Text>
                   <Text
                     style={[
                       styles.sourceLabel,
-                      dataSource === src && styles.sourceLabelActive,
+                      dataSource === 'strava' && styles.sourceLabelActive,
                     ]}
                   >
-                    {label}
+                    Strava
                   </Text>
                 </Pressable>
-              ))}
-              <Pressable
-                style={[
-                  styles.sourceCard,
-                  dataSource === 'strava' && styles.sourceCardActive,
-                ]}
-                onPress={() => setDataSource('strava')}
-              >
-                <Text
-                  style={[
-                    styles.stravaS,
-                    dataSource === 'strava' && styles.stravaSActive,
-                  ]}
-                >
-                  S
-                </Text>
-                <Text
-                  style={[
-                    styles.sourceLabel,
-                    dataSource === 'strava' && styles.sourceLabelActive,
-                  ]}
-                >
-                  Strava
-                </Text>
-              </Pressable>
-            </View>
+              </View>
 
-            {/* ── Manuel ── */}
-            {dataSource === 'manual' && (
-              <>
-                <View style={styles.field}>
-                  <Text style={styles.fieldLabel}>Distance</Text>
-                  <View style={styles.inputRow}>
-                    <Ionicons
-                      name="swap-horizontal-outline"
-                      size={18}
-                      color={colors.textSecondary}
-                      style={styles.inputIcon}
-                    />
-                    <TextInput
-                      style={styles.inputWithIcon}
-                      value={form.distanceKm}
-                      onChangeText={(v) => update('distanceKm', v)}
-                      keyboardType="numeric"
-                      placeholder="80"
-                      placeholderTextColor={colors.borderStrong}
-                      returnKeyType="done"
-                      inputAccessoryViewID={
-                        Platform.OS === 'ios' ? ACCESSORY_ID : undefined
-                      }
-                    />
-                    <Text style={styles.inputUnit}>km</Text>
-                  </View>
-                </View>
-                <View style={styles.field}>
-                  <Text style={styles.fieldLabel}>Dénivelé positif</Text>
-                  <View style={styles.inputRow}>
-                    <Ionicons
-                      name="trending-up-outline"
-                      size={18}
-                      color={colors.textSecondary}
-                      style={styles.inputIcon}
-                    />
-                    <TextInput
-                      style={styles.inputWithIcon}
-                      value={form.elevationGainM}
-                      onChangeText={(v) => update('elevationGainM', v)}
-                      keyboardType="numeric"
-                      placeholder="1200"
-                      placeholderTextColor={colors.borderStrong}
-                      returnKeyType="done"
-                      inputAccessoryViewID={
-                        Platform.OS === 'ios' ? ACCESSORY_ID : undefined
-                      }
-                    />
-                    <Text style={styles.inputUnit}>m</Text>
-                  </View>
-                </View>
-              </>
-            )}
-
-            {/* ── GPX ── */}
-            {dataSource === 'gpx' && (
-              <View style={styles.field}>
-                <Pressable
-                  style={[
-                    styles.importBtn,
-                    gpxLoading && styles.importBtnLoading,
-                  ]}
-                  onPress={pickGpx}
-                  disabled={gpxLoading}
-                >
-                  {gpxLoading ? (
-                    <ActivityIndicator size="small" color={colors.brandBlue} />
-                  ) : (
-                    <Ionicons
-                      name="cloud-upload-outline"
-                      size={20}
-                      color={colors.brandBlue}
-                    />
-                  )}
-                  <Text style={styles.importBtnText}>
-                    {gpxLoading
-                      ? 'Lecture…'
-                      : gpxFileName
-                        ? 'Changer de fichier'
-                        : 'Importer un fichier GPX'}
-                  </Text>
-                </Pressable>
-                {gpxFileName && (
-                  <View style={styles.gpxResult}>
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={18}
-                      color={colors.stateSuccess}
-                    />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.gpxFileName} numberOfLines={1}>
-                        {gpxFileName}
-                      </Text>
-                      <Text style={styles.gpxStats}>
-                        {form.distanceKm} km · ↑ {form.elevationGainM} m
-                      </Text>
+              {dataSource === 'manual' && (
+                <>
+                  <View style={styles.field}>
+                    <Text style={styles.fieldLabel}>Distance</Text>
+                    <View style={styles.inputRow}>
+                      <Ionicons
+                        name="swap-horizontal-outline"
+                        size={18}
+                        color={colors.textSecondary}
+                        style={styles.inputIcon}
+                      />
+                      <TextInput
+                        style={styles.inputWithIcon}
+                        value={form.distanceKm}
+                        onChangeText={(v) => update('distanceKm', v)}
+                        keyboardType="numeric"
+                        placeholder="80"
+                        placeholderTextColor={colors.borderStrong}
+                        returnKeyType="done"
+                        inputAccessoryViewID={
+                          Platform.OS === 'ios' ? ACCESSORY_ID : undefined
+                        }
+                      />
+                      <Text style={styles.inputUnit}>km</Text>
                     </View>
                   </View>
-                )}
-              </View>
-            )}
+                  <View style={styles.field}>
+                    <Text style={styles.fieldLabel}>Dénivelé positif</Text>
+                    <View style={styles.inputRow}>
+                      <Ionicons
+                        name="trending-up-outline"
+                        size={18}
+                        color={colors.textSecondary}
+                        style={styles.inputIcon}
+                      />
+                      <TextInput
+                        style={styles.inputWithIcon}
+                        value={form.elevationGainM}
+                        onChangeText={(v) => update('elevationGainM', v)}
+                        keyboardType="numeric"
+                        placeholder="1200"
+                        placeholderTextColor={colors.borderStrong}
+                        returnKeyType="done"
+                        inputAccessoryViewID={
+                          Platform.OS === 'ios' ? ACCESSORY_ID : undefined
+                        }
+                      />
+                      <Text style={styles.inputUnit}>m</Text>
+                    </View>
+                  </View>
+                </>
+              )}
 
-            {/* ── Strava ── */}
-            {dataSource === 'strava' && (
-              <View style={styles.field}>
-                {!stravaToken ? (
+              {dataSource === 'gpx' && (
+                <View style={styles.field}>
                   <Pressable
                     style={[
-                      styles.stravaBtn,
-                      stravaConnecting && styles.importBtnLoading,
+                      styles.importBtn,
+                      gpxLoading && styles.importBtnLoading,
                     ]}
-                    onPress={connectStrava}
-                    disabled={stravaConnecting}
+                    onPress={pickGpx}
+                    disabled={gpxLoading}
                   >
-                    {stravaConnecting ? (
-                      <ActivityIndicator size="small" color="#fff" />
-                    ) : (
-                      <Text style={styles.stravaBtnIcon}>S</Text>
-                    )}
-                    <Text style={styles.stravaBtnText}>
-                      {stravaConnecting
-                        ? 'Connexion…'
-                        : 'Se connecter avec Strava'}
-                    </Text>
-                  </Pressable>
-                ) : (
-                  <View style={styles.stravaList}>
-                    {stravaLoading && (
+                    {gpxLoading ? (
                       <ActivityIndicator
                         size="small"
                         color={colors.brandBlue}
-                        style={{
-                          alignSelf: 'center',
-                          marginVertical: spacing[4],
-                        }}
+                      />
+                    ) : (
+                      <Ionicons
+                        name="cloud-upload-outline"
+                        size={20}
+                        color={colors.brandBlue}
                       />
                     )}
-                    {!stravaLoading && stravaActivities.length === 0 && (
-                      <Text style={styles.stravaEmpty}>
-                        Aucune activité trouvée sur Strava.
-                      </Text>
-                    )}
-                    {stravaActivities.map((act) => {
-                      const distKm = Math.round(act.distance / 1000);
-                      const elevM = Math.round(act.total_elevation_gain);
-                      const date = new Date(
-                        act.start_date_local,
-                      ).toLocaleDateString('fr-FR', {
-                        day: '2-digit',
-                        month: 'short',
-                      });
-                      const isSelected = selectedActivityId === act.id;
-                      return (
-                        <Pressable
-                          key={act.id}
-                          style={[
-                            styles.stravaItem,
-                            isSelected && styles.stravaItemSelected,
-                          ]}
-                          onPress={() => selectStravaActivity(act)}
-                        >
-                          <View style={{ flex: 1 }}>
-                            <Text
-                              style={styles.stravaItemName}
-                              numberOfLines={1}
-                            >
-                              {act.name}
-                            </Text>
-                            <Text style={styles.stravaItemMeta}>
-                              {sportTypeLabel(act.sport_type)} · {distKm} km · ↑{' '}
-                              {elevM} m · {date}
-                            </Text>
-                          </View>
-                          {isSelected && (
-                            <Ionicons
-                              name="checkmark-circle"
-                              size={18}
-                              color={colors.brandBlue}
-                            />
-                          )}
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-                )}
-              </View>
-            )}
-
-            <Pressable
-              style={[
-                styles.nextBtn,
-                !form.distanceKm && styles.nextBtnDisabled,
-              ]}
-              disabled={!form.distanceKm}
-              onPress={() => setStep(4)}
-            >
-              <Text style={styles.nextBtnText}>Suivant</Text>
-              <Ionicons
-                name="arrow-forward"
-                size={16}
-                color={colors.textOnBrand}
-              />
-            </Pressable>
-          </View>
-        )}
-
-        {/* ── Étape 5 : Détails ── */}
-        {step === 5 && (
-          <View style={styles.stepBody}>
-            <Text style={styles.eyebrow}>ÉTAPE 5</Text>
-            <Text style={styles.stepTitle}>Les derniers détails</Text>
-
-            <View style={styles.field}>
-              <Text style={styles.fieldLabel}>Lieu de départ</Text>
-              <CityAutocomplete
-                value={form.locationName}
-                onSelect={(name) => update('locationName', name)}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.fieldLabel}>Date de course</Text>
-              <RaceDatePicker
-                value={form.raceDate}
-                onChange={(d) => update('raceDate', d)}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.fieldLabel}>Ton poids</Text>
-              <View style={styles.inputRow}>
-                <Ionicons
-                  name="person-outline"
-                  size={18}
-                  color={colors.textSecondary}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.inputWithIcon}
-                  value={form.riderWeightKg}
-                  onChangeText={(v) => update('riderWeightKg', v)}
-                  keyboardType="numeric"
-                  placeholder="72"
-                  placeholderTextColor={colors.borderStrong}
-                  returnKeyType="done"
-                  onSubmitEditing={analyze}
-                  inputAccessoryViewID={
-                    Platform.OS === 'ios' ? ACCESSORY_ID : undefined
-                  }
-                />
-                <Text style={styles.inputUnit}>kg</Text>
-              </View>
-            </View>
-
-            <Pressable
-              style={[styles.analyzeBtn, loading && styles.analyzeBtnLoading]}
-              onPress={analyze}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color={colors.textOnYellow} size="small" />
-              ) : (
-                <>
-                  <Ionicons
-                    name="analytics"
-                    size={18}
-                    color={colors.textOnYellow}
-                  />
-                  <Text style={styles.analyzeBtnText}>Analyser ma course</Text>
-                </>
+                    <Text style={styles.importBtnText}>
+                      {gpxLoading
+                        ? 'Lecture…'
+                        : gpxFileName
+                          ? 'Changer de fichier'
+                          : 'Importer un fichier GPX'}
+                    </Text>
+                  </Pressable>
+                  {gpxFileName && (
+                    <View style={styles.gpxResult}>
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={18}
+                        color={colors.stateSuccess}
+                      />
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.gpxFileName} numberOfLines={1}>
+                          {gpxFileName}
+                        </Text>
+                        <Text style={styles.gpxStats}>
+                          {form.distanceKm} km · ↑ {form.elevationGainM} m
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+                </View>
               )}
-            </Pressable>
-          </View>
-        )}
-      </ScrollView>
+
+              {dataSource === 'strava' && (
+                <View style={styles.field}>
+                  {!stravaToken ? (
+                    <Pressable
+                      style={[
+                        styles.stravaBtn,
+                        stravaConnecting && styles.importBtnLoading,
+                      ]}
+                      onPress={connectStrava}
+                      disabled={stravaConnecting}
+                    >
+                      {stravaConnecting ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                      ) : (
+                        <Text style={styles.stravaBtnIcon}>S</Text>
+                      )}
+                      <Text style={styles.stravaBtnText}>
+                        {stravaConnecting
+                          ? 'Connexion…'
+                          : 'Se connecter avec Strava'}
+                      </Text>
+                    </Pressable>
+                  ) : (
+                    <View style={styles.stravaList}>
+                      {stravaLoading && (
+                        <ActivityIndicator
+                          size="small"
+                          color={colors.brandBlue}
+                          style={{
+                            alignSelf: 'center',
+                            marginVertical: spacing[4],
+                          }}
+                        />
+                      )}
+                      {!stravaLoading && stravaActivities.length === 0 && (
+                        <Text style={styles.stravaEmpty}>
+                          Aucune activité trouvée sur Strava.
+                        </Text>
+                      )}
+                      {stravaActivities.map((act) => {
+                        const distKm = Math.round(act.distance / 1000);
+                        const elevM = Math.round(act.total_elevation_gain);
+                        const date = new Date(
+                          act.start_date_local,
+                        ).toLocaleDateString('fr-FR', {
+                          day: '2-digit',
+                          month: 'short',
+                        });
+                        const isSelected = selectedActivityId === act.id;
+                        return (
+                          <Pressable
+                            key={act.id}
+                            style={[
+                              styles.stravaItem,
+                              isSelected && styles.stravaItemSelected,
+                            ]}
+                            onPress={() => selectStravaActivity(act)}
+                          >
+                            <View style={{ flex: 1 }}>
+                              <Text
+                                style={styles.stravaItemName}
+                                numberOfLines={1}
+                              >
+                                {act.name}
+                              </Text>
+                              <Text style={styles.stravaItemMeta}>
+                                {sportTypeLabel(act.sport_type)} · {distKm} km ·
+                                ↑ {elevM} m · {date}
+                              </Text>
+                            </View>
+                            {isSelected && (
+                              <Ionicons
+                                name="checkmark-circle"
+                                size={18}
+                                color={colors.brandBlue}
+                              />
+                            )}
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  )}
+                </View>
+              )}
+
+              <Pressable
+                style={[
+                  styles.nextBtn,
+                  !form.distanceKm && styles.nextBtnDisabled,
+                ]}
+                disabled={!form.distanceKm}
+                onPress={() => setStep(4)}
+              >
+                <Text style={styles.nextBtnText}>Suivant</Text>
+                <Ionicons
+                  name="arrow-forward"
+                  size={16}
+                  color={colors.textOnBrand}
+                />
+              </Pressable>
+            </View>
+          )}
+
+          {step === 5 && (
+            <View style={styles.stepBody}>
+              <Text style={styles.eyebrow}>ÉTAPE 5</Text>
+              <Text style={styles.stepTitle}>Les derniers détails</Text>
+
+              <View style={styles.field}>
+                <Text style={styles.fieldLabel}>Lieu de départ</Text>
+                <CityAutocomplete
+                  value={form.locationName}
+                  onSelect={(name) => update('locationName', name)}
+                />
+              </View>
+
+              <View style={styles.field}>
+                <Text style={styles.fieldLabel}>Date de course</Text>
+                <RaceDatePicker
+                  value={form.raceDate}
+                  onChange={(d) => update('raceDate', d)}
+                />
+              </View>
+
+              <View style={styles.field}>
+                <Text style={styles.fieldLabel}>Ton poids</Text>
+                <View style={styles.inputRow}>
+                  <Ionicons
+                    name="person-outline"
+                    size={18}
+                    color={colors.textSecondary}
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={styles.inputWithIcon}
+                    value={form.riderWeightKg}
+                    onChangeText={(v) => update('riderWeightKg', v)}
+                    keyboardType="numeric"
+                    placeholder="72"
+                    placeholderTextColor={colors.borderStrong}
+                    returnKeyType="done"
+                    onSubmitEditing={analyze}
+                    inputAccessoryViewID={
+                      Platform.OS === 'ios' ? ACCESSORY_ID : undefined
+                    }
+                  />
+                  <Text style={styles.inputUnit}>kg</Text>
+                </View>
+              </View>
+
+              <Pressable
+                style={[styles.analyzeBtn, loading && styles.analyzeBtnLoading]}
+                onPress={analyze}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color={colors.textOnYellow} size="small" />
+                ) : (
+                  <>
+                    <Ionicons
+                      name="analytics"
+                      size={18}
+                      color={colors.textOnYellow}
+                    />
+                    <Text style={styles.analyzeBtnText}>
+                      Analyser ma course
+                    </Text>
+                  </>
+                )}
+              </Pressable>
+            </View>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-
-// ─── Styles ──────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.surfaceCanvas },
@@ -1404,7 +1381,6 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
 
-  // City autocomplete
   suggestList: {
     marginTop: 4,
     borderWidth: 1,
@@ -1430,7 +1406,6 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
 
-  // Date picker
   dateBtn: { justifyContent: 'space-between' },
   dateText: { flex: 1, fontSize: fontSize.body, color: colors.textPrimary },
   datePlaceholder: { color: colors.borderStrong },
@@ -1476,7 +1451,6 @@ const styles = StyleSheet.create({
     color: colors.textOnYellow,
   },
 
-  // Result
   resultContent: {
     paddingHorizontal: spacing[6],
     paddingTop: spacing[6],
@@ -1620,7 +1594,6 @@ const styles = StyleSheet.create({
     color: colors.brandBlue,
   },
 
-  // Map step (hors ScrollView)
   mapStepContainer: {
     paddingHorizontal: spacing[6],
     paddingBottom: spacing[4],
@@ -1634,7 +1607,6 @@ const styles = StyleSheet.create({
   },
   mapStepFooter: { gap: spacing[3] },
 
-  // Map container (ancienne version, gardé pour le placeholder)
   mapContainer: {
     borderRadius: radius.xlarge,
     overflow: 'hidden',
@@ -1683,7 +1655,6 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
 
-  // Source selector
   sourceGrid: { flexDirection: 'row', gap: spacing[3] },
   sourceCard: {
     flex: 1,
@@ -1714,7 +1685,6 @@ const styles = StyleSheet.create({
   },
   stravaSActive: { color: '#FC4C02' },
 
-  // GPX import
   importBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1754,7 +1724,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // Strava
   stravaBtn: {
     flexDirection: 'row',
     alignItems: 'center',

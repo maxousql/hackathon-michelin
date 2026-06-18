@@ -96,7 +96,6 @@ export function CatalogScreen({ onSelect }: CatalogScreenProps) {
               Trouvez les pneus adaptés à vos sorties
             </Text>
 
-            {/* Barre recherche + bouton filtre */}
             <View style={styles.searchRow}>
               <TextInput
                 value={search}
