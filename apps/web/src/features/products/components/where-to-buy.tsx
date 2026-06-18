@@ -283,7 +283,7 @@ export function WhereToBuy({ retailers }: WhereToBuyProps) {
               onClick={locate}
               disabled={geoStatus === 'locating'}
             >
-              {geoStatus === 'locating' ? 'Localisation…' : '📍 Autour de moi'}
+              {geoStatus === 'locating' ? 'Localisation…' : 'Autour de moi'}
             </button>
           </div>
         )}

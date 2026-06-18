@@ -4,6 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import type * as LeafletNS from 'leaflet';
 import type {
   CircleMarker,
+  LatLngBounds,
   LatLngExpression,
   Map,
   Marker,
@@ -33,6 +34,8 @@ export function RouteMapInner({
   const startMarkerRef = useRef<Marker | null>(null);
   const endMarkerRef = useRef<Marker | null>(null);
   const highlightMarkerRef = useRef<CircleMarker | null>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
+  const routeBoundsRef = useRef<LatLngBounds | null>(null);
   const mapReadyRef = useRef(false);
 
   // ── Init map (once on mount) ─────────────────────────────────────────────
@@ -83,11 +86,25 @@ export function RouteMapInner({
 
       drawRoute(L, map, points);
       mapReadyRef.current = true;
+      scheduleMapRefresh(map);
+
+      if ('ResizeObserver' in window && containerRef.current) {
+        resizeObserverRef.current = new ResizeObserver((entries) => {
+          const entry = entries[0];
+          if (!entry || entry.contentRect.width === 0) return;
+          if (entry.contentRect.height === 0) return;
+          scheduleMapRefresh(map);
+        });
+        resizeObserverRef.current.observe(containerRef.current);
+      }
     });
 
     return () => {
       cancelled = true;
       mapReadyRef.current = false;
+      resizeObserverRef.current?.disconnect();
+      resizeObserverRef.current = null;
+      routeBoundsRef.current = null;
       highlightMarkerRef.current?.remove();
       highlightMarkerRef.current = null;
       clearRouteLayers();
@@ -116,6 +133,7 @@ export function RouteMapInner({
       highlightMarkerRef.current?.remove();
       highlightMarkerRef.current = null;
       drawRoute(L, mapRef.current, points);
+      scheduleMapRefresh(mapRef.current);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colorMode, points, variant]);
@@ -150,6 +168,7 @@ export function RouteMapInner({
 
   function drawRoute(L: typeof LeafletNS, map: Map, pts: GpxPoint[]) {
     const latlngs: LatLngExpression[] = pts.map((p) => [p.lat, p.lon]);
+    routeBoundsRef.current = L.latLngBounds(latlngs);
     const isMichelin = variant === 'michelin';
     const usesTerrainColors = colorMode === 'terrain';
     const routeSegments = usesTerrainColors
@@ -212,9 +231,28 @@ export function RouteMapInner({
         icon: endIcon,
       }).addTo(map);
 
-    map.fitBounds(L.latLngBounds(latlngs), {
-      padding: isMichelin ? [36, 36] : [24, 24],
+    fitMapToRoute(map);
+  }
+
+  function fitMapToRoute(map: Map) {
+    if (!routeBoundsRef.current) return;
+
+    map.invalidateSize({ pan: false, debounceMoveend: true });
+    map.fitBounds(routeBoundsRef.current, {
+      animate: false,
+      padding: variant === 'michelin' ? [36, 36] : [24, 24],
     });
+  }
+
+  function scheduleMapRefresh(map: Map) {
+    const refresh = () => {
+      if (mapRef.current !== map) return;
+      fitMapToRoute(map);
+    };
+
+    window.requestAnimationFrame(refresh);
+    window.setTimeout(refresh, 120);
+    window.setTimeout(refresh, 360);
   }
 
   function clearRouteLayers() {
