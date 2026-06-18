@@ -45,6 +45,9 @@ export function Footer() {
             Trouvez, comparez et entretenez vos pneus MICHELIN vélo avec une
             lecture terrain claire, du choix produit à la seconde vie.
           </p>
+          <Link className={styles.cta} href="/race-intelligence">
+            Lancer Race Intelligence
+          </Link>
         </div>
 
         <nav className={styles.nav} aria-label="Navigation du pied de page">
@@ -79,7 +82,7 @@ export function Footer() {
 
       <div className={styles.bottom}>
         <p>© {year} Compagnie Générale des Établissements Michelin</p>
-        <p>Design Michelin Race Intelligence</p>
+        <p>Michelin Race Intelligence</p>
       </div>
     </footer>
   );

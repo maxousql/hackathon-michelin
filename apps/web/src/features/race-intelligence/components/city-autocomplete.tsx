@@ -52,18 +52,28 @@ export function CityAutocomplete({
   const containerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const shouldSearchRef = useRef(false);
+  const lastLocalChangeRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (lastLocalChangeRef.current === value) {
+      lastLocalChangeRef.current = null;
+      return;
+    }
+
+    shouldSearchRef.current = false;
+    setQuery(value);
+    setSuggestions([]);
+    setIsOpen(false);
+  }, [value]);
 
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
     abortRef.current?.abort();
 
-    if (query.length < 3) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSuggestions([]);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsOpen(false);
-      return;
-    }
+    if (!shouldSearchRef.current) return;
+
+    if (query.length < 3) return;
 
     timerRef.current = setTimeout(async () => {
       abortRef.current = new AbortController();
@@ -122,6 +132,8 @@ export function CityAutocomplete({
   function select(result: NominatimResult) {
     const { primary, secondary } = getCityLabel(result);
     const label = secondary ? `${primary}, ${secondary}` : primary;
+    shouldSearchRef.current = false;
+    lastLocalChangeRef.current = label;
     setQuery(label);
     onChange(label);
     setIsOpen(false);
@@ -167,8 +179,15 @@ export function CityAutocomplete({
           type="text"
           value={query}
           onChange={(e) => {
-            setQuery(e.target.value);
-            onChange(e.target.value);
+            const nextQuery = e.target.value;
+            shouldSearchRef.current = true;
+            lastLocalChangeRef.current = nextQuery;
+            setQuery(nextQuery);
+            onChange(nextQuery);
+            if (nextQuery.length < 3) {
+              setSuggestions([]);
+              setIsOpen(false);
+            }
           }}
           onFocus={() => suggestions.length > 0 && setIsOpen(true)}
           onKeyDown={handleKeyDown}
@@ -176,7 +195,9 @@ export function CityAutocomplete({
           className="ri-autocomplete-input"
           autoComplete="off"
           spellCheck={false}
+          role="combobox"
           aria-autocomplete="list"
+          aria-haspopup="listbox"
           aria-expanded={isOpen}
           aria-controls="ri-autocomplete-list"
         />

@@ -626,15 +626,24 @@
 
 .purchaseSection {
   display: grid;
-  grid-template-columns: minmax(16rem, 0.7fr) minmax(0, 1.3fr);
-  gap: var(--space-8);
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(var(--space-10), 5vw, var(--space-20));
   align-items: start;
   padding-block: var(--space-20);
+}
+
+.purchaseSection > * {
+  min-width: 0;
 }
 
 .purchaseCopy {
   position: sticky;
   inset-block-start: calc(var(--site-header-height) + var(--space-8));
+}
+
+.purchaseCopy h2 {
+  max-width: 12.5ch;
+  font-size: clamp(2rem, 4vw, 3.75rem);
 }
 
 .specSection {

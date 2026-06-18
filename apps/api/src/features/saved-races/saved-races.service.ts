@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { SavedRace } from '@michelin/contracts';
 
 import type { Environment } from '../../config/environment';
 import type { CreateSavedRaceDto } from './dto/create-saved-race.dto';
+import type { UpdateSavedRaceDto } from './dto/update-saved-race.dto';
 
 interface SavedRaceRow {
   id: string;
+  bike_id: string | null;
   race_name: string;
   race_date: string;
   location_name: string;
@@ -20,9 +22,25 @@ interface SavedRaceRow {
   created_at: string;
 }
 
+const SAVED_RACE_COLUMNS = [
+  'id',
+  'bike_id',
+  'race_name',
+  'race_date',
+  'location_name',
+  'surface',
+  'discipline',
+  'distance_km',
+  'elevation_gain_m',
+  'rider_weight_kg',
+  'result_json',
+  'created_at',
+].join(', ');
+
 function toDto(row: SavedRaceRow): SavedRace {
   return {
     id: row.id,
+    bikeId: row.bike_id,
     raceName: row.race_name,
     raceDate: row.race_date,
     locationName: row.location_name,
@@ -51,21 +69,24 @@ export class SavedRacesService {
   async list(userId: string): Promise<SavedRace[]> {
     const { data, error } = await this.supabase
       .from('saved_races')
-      .select(
-        'id, race_name, race_date, location_name, surface, discipline, distance_km, elevation_gain_m, rider_weight_kg, result_json, created_at',
-      )
+      .select(SAVED_RACE_COLUMNS)
       .eq('user_id', userId)
       .order('race_date', { ascending: true });
 
     if (error) throw new Error(error.message);
-    return (data as SavedRaceRow[]).map(toDto);
+    return (data as unknown as SavedRaceRow[]).map(toDto);
   }
 
   async create(userId: string, dto: CreateSavedRaceDto): Promise<SavedRace> {
+    const bikeId = dto.bikeId
+      ? await this.ensureOwnBike(userId, dto.bikeId)
+      : null;
+
     const { data, error } = await this.supabase
       .from('saved_races')
       .insert({
         user_id: userId,
+        bike_id: bikeId,
         race_name: dto.raceName,
         race_date: dto.raceDate,
         location_name: dto.locationName,
@@ -76,13 +97,36 @@ export class SavedRacesService {
         rider_weight_kg: dto.riderWeightKg,
         result_json: dto.result,
       })
-      .select(
-        'id, race_name, race_date, location_name, surface, discipline, distance_km, elevation_gain_m, rider_weight_kg, result_json, created_at',
-      )
+      .select(SAVED_RACE_COLUMNS)
       .single();
 
     if (error) throw new Error(error.message);
-    return toDto(data as SavedRaceRow);
+    return toDto(data as unknown as SavedRaceRow);
+  }
+
+  async update(
+    userId: string,
+    id: string,
+    dto: UpdateSavedRaceDto,
+  ): Promise<SavedRace> {
+    const values: Record<string, unknown> = {};
+
+    if (dto.bikeId !== undefined) {
+      values.bike_id = dto.bikeId
+        ? await this.ensureOwnBike(userId, dto.bikeId)
+        : null;
+    }
+
+    const { data, error } = await this.supabase
+      .from('saved_races')
+      .update(values)
+      .eq('id', id)
+      .eq('user_id', userId)
+      .select(SAVED_RACE_COLUMNS)
+      .single();
+
+    if (error) throw new Error(error.message);
+    return toDto(data as unknown as SavedRaceRow);
   }
 
   async remove(userId: string, id: string): Promise<void> {
@@ -93,5 +137,18 @@ export class SavedRacesService {
       .eq('user_id', userId);
 
     if (error) throw new Error(error.message);
+  }
+
+  private async ensureOwnBike(userId: string, bikeId: string): Promise<string> {
+    const { data, error } = await this.supabase
+      .from('bikes')
+      .select('id')
+      .eq('id', bikeId)
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    if (!data) throw new BadRequestException('Bike does not belong to user');
+    return bikeId;
   }
 }

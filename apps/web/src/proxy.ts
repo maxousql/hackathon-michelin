@@ -5,11 +5,9 @@ import { type NextRequest, NextResponse } from 'next/server';
 // utilisateur qui possède un cookie expiré.
 const AUTH_PATHS = ['/login', '/register'];
 
-// Pages accessibles sans être connecté : la landing (`/`) et le catalogue
-// produits (`/products` et ses fiches). Toutes les autres features
-// (comparateur, challenge, race-intelligence, reprise, profil, admin…)
-// nécessitent une connexion.
-const OPEN_PATHS = ['/products'];
+// Pages accessibles sans être connecté (et sans redirection si on l'est).
+// Le catalogue produits et le comparateur sont publics.
+const OPEN_PATHS = ['/products', '/produit', '/comparateur'];
 
 function matchesPath(pathname: string, base: string): boolean {
   return pathname === base || pathname.startsWith(`${base}/`);

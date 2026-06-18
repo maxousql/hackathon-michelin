@@ -6,6 +6,7 @@ import {
   HttpCode,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -24,6 +25,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../auth/user.type';
 import { BikesService } from './bikes.service';
 import { CreateBikeDto } from './dto/create-bike.dto';
+import { UpdateBikeDto } from './dto/update-bike.dto';
 
 @ApiTags('bikes')
 @Controller('bikes')
@@ -47,6 +49,17 @@ export class BikesController {
     @Body() dto: CreateBikeDto,
   ): Promise<Bike> {
     return this.bikesService.create(user.id, dto);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a bike' })
+  @ApiOkResponse({ description: 'Bike updated' })
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateBikeDto,
+  ): Promise<Bike> {
+    return this.bikesService.update(user.id, id, dto);
   }
 
   @Delete(':id')

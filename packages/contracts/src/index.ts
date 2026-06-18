@@ -1,11 +1,19 @@
 export {
+  ridingPrioritySchema,
+  ridingSurfaceSchema,
+  tireSealingSchema,
   bikeTypeSchema,
   bikeSchema,
   bikeListSchema,
   createBikeRequestSchema,
+  updateBikeRequestSchema,
   type Bike,
   type BikeType,
   type CreateBikeRequest,
+  type UpdateBikeRequest,
+  type RidingPriority,
+  type RidingSurface,
+  type TireSealing,
 } from './bikes/bikes.contract';
 
 export {
@@ -66,16 +74,20 @@ export {
   surfaceTypeSchema,
   disciplineSchema,
   weatherConditionSchema,
+  raceBikeFitmentSchema,
   raceAnalyzeRequestSchema,
   tireRecommendationSchema,
   pressureRecommendationSchema,
+  bikeCompatibilitySchema,
   raceAnalyzeResponseSchema,
   type SurfaceType,
   type Discipline,
   type WeatherCondition,
+  type RaceBikeFitment,
   type RaceAnalyzeRequest,
   type TireRecommendation,
   type PressureRecommendation,
+  type BikeCompatibility,
   type RaceAnalyzeResponse,
 } from './race-intelligence/race-intelligence.contract';
 
@@ -83,9 +95,23 @@ export {
   savedRaceSchema,
   savedRaceListSchema,
   createSavedRaceRequestSchema,
+  updateSavedRaceRequestSchema,
   type SavedRace,
   type CreateSavedRaceRequest,
+  type UpdateSavedRaceRequest,
 } from './saved-races/saved-races.contract';
+
+export {
+  tirePassportStatusSchema,
+  tirePassportSchema,
+  tirePassportListSchema,
+  createTirePassportRequestSchema,
+  updateTirePassportRequestSchema,
+  type TirePassportStatus,
+  type TirePassport,
+  type CreateTirePassportRequest,
+  type UpdateTirePassportRequest,
+} from './tire-passports/tire-passports.contract';
 
 export {
   challengeEntrySchema,

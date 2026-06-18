@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import type {
+  BikeCompatibility,
   Discipline,
   PressureRecommendation,
   RaceAnalyzeResponse,
+  RaceBikeFitment,
   SurfaceType,
   TireRecommendation,
   WeatherCondition,
@@ -20,24 +22,43 @@ interface WeatherData {
   description: string;
 }
 
+const BIKE_TYPE_LABELS: Record<SurfaceType, string> = {
+  road: 'Route',
+  gravel: 'Gravel',
+  mtb: 'VTT',
+};
+
 @Injectable()
 export class RaceIntelligenceService {
   constructor(private readonly config: ConfigService<Environment, true>) {}
 
   async analyze(dto: AnalyzeRaceDto): Promise<RaceAnalyzeResponse> {
     const weather = await this.fetchWeather(dto.locationName, dto.raceDate);
-    const tire = this.selectTire(
-      dto.surface,
-      dto.discipline,
-      weather.condition,
-      dto.distanceKm,
+    const fitmentSurface = dto.bike?.type ?? dto.surface;
+    const tire = this.applyBikeFitment(
+      this.selectTire(
+        fitmentSurface,
+        dto.discipline,
+        weather.condition,
+        dto.distanceKm,
+      ),
+      dto.bike,
     );
     const pressure = this.computePressure(
-      dto.surface,
+      fitmentSurface,
       dto.riderWeightKg,
       weather.condition,
     );
-    const justification = this.buildJustification(dto, tire, weather, pressure);
+    const compatibility = dto.bike
+      ? this.buildBikeCompatibility(dto.bike, dto.surface)
+      : undefined;
+    const justification = this.buildJustification(
+      dto,
+      tire,
+      weather,
+      pressure,
+      compatibility,
+    );
 
     return {
       tire,
@@ -45,6 +66,7 @@ export class RaceIntelligenceService {
       weatherSummary: weather.description,
       justification,
       confidenceScore: this.computeConfidence(dto),
+      bikeCompatibility: compatibility,
     };
   }
 
@@ -64,7 +86,6 @@ export class RaceIntelligenceService {
       return TIRE_CATALOG['force-am']!;
     }
 
-    // Road
     if (discipline === 'competition' && weather !== 'rain') {
       return TIRE_CATALOG['power-cup-2']!;
     }
@@ -75,6 +96,59 @@ export class RaceIntelligenceService {
       return TIRE_CATALOG['power-endurance']!;
     }
     return TIRE_CATALOG['power-all-season']!;
+  }
+
+  private applyBikeFitment(
+    tire: TireRecommendation,
+    bike?: RaceBikeFitment,
+  ): TireRecommendation {
+    if (!bike) return tire;
+
+    const details = this.buildFitmentDetails(bike);
+    const fitmentHighlight =
+      details.length > 0
+        ? `Compatible ${details.join(' · ')}`
+        : `Compatible ${BIKE_TYPE_LABELS[bike.type]}`;
+
+    return {
+      ...tire,
+      description: `${tire.description} Configuration affinée pour ${bike.name}.`,
+      highlights: [...new Set([fitmentHighlight, ...tire.highlights])],
+    };
+  }
+
+  private buildBikeCompatibility(
+    bike: RaceBikeFitment,
+    routeSurface: SurfaceType,
+  ): BikeCompatibility {
+    const details = this.buildFitmentDetails(bike);
+    const warning =
+      bike.type !== routeSurface
+        ? `Le vélo sélectionné est typé ${BIKE_TYPE_LABELS[bike.type]} alors que le parcours est ${BIKE_TYPE_LABELS[routeSurface].toLowerCase()}. La recommandation privilégie la compatibilité avec ce vélo.`
+        : undefined;
+
+    return {
+      bikeId: bike.id,
+      bikeName: bike.name,
+      summary:
+        details.length > 0 ? details.join(' · ') : BIKE_TYPE_LABELS[bike.type],
+      details,
+      warning,
+    };
+  }
+
+  private buildFitmentDetails(bike: RaceBikeFitment): string[] {
+    const diameter = this.clean(bike.tireDiameter);
+    const width = this.clean(bike.tireWidth);
+    const size =
+      diameter && width ? `${diameter} x ${width}` : diameter || width;
+
+    return [
+      BIKE_TYPE_LABELS[bike.type],
+      size,
+      bike.tireSealing,
+      bike.isEbike ? 'E-bike' : null,
+    ].filter((detail): detail is string => Boolean(detail));
   }
 
   private computePressure(
@@ -106,7 +180,6 @@ export class RaceIntelligenceService {
       };
     }
 
-    // Road
     const base = 7.2;
     const weightBonus =
       riderWeightKg > 80 ? 0.3 : riderWeightKg > 70 ? 0.15 : 0;
@@ -129,6 +202,7 @@ export class RaceIntelligenceService {
     tire: TireRecommendation,
     weather: WeatherData,
     pressure: PressureRecommendation,
+    compatibility?: BikeCompatibility,
   ): string {
     const surfaceLabel: Record<SurfaceType, string> = {
       road: 'route',
@@ -148,6 +222,13 @@ export class RaceIntelligenceService {
       `Pour votre ${disciplineLabel[dto.discipline]} ${surfaceLabel[dto.surface]} de ${dto.distanceKm} km avec ${dto.elevationGainM} m de dénivelé positif,`,
       `les conditions météo prévues à ${dto.locationName} le ${new Date(dto.raceDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })} indiquent ${weather.description.toLowerCase()}.`,
     ];
+
+    if (compatibility) {
+      parts.push(
+        `Le vélo sélectionné, ${compatibility.bikeName}, ajoute une contrainte de compatibilité ${compatibility.summary}.`,
+      );
+      if (compatibility.warning) parts.push(compatibility.warning);
+    }
 
     if (dto.surface === 'road') {
       if (tire.id === 'power-cup-2') {
@@ -185,6 +266,7 @@ export class RaceIntelligenceService {
     if (dto.hasGpx) score += 10;
     if (dto.locationName.length > 5) score += 10;
     if (dto.elevationGainM > 0) score += 5;
+    if (dto.bike) score += 5;
     return Math.min(score, 100);
   }
 
@@ -277,5 +359,10 @@ export class RaceIntelligenceService {
       temperatureCelsius: 24,
       description: 'Ensoleillé, 24°C',
     };
+  }
+
+  private clean(value: string | null | undefined): string | null {
+    const trimmed = value?.trim();
+    return trimmed ? trimmed : null;
   }
 }

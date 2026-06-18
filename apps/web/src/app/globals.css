@@ -1890,94 +1890,73 @@ h3 {
 .buyback-preview {
   position: relative;
   display: grid;
+  align-content: start;
   gap: var(--space-5);
   overflow: hidden;
-  padding: var(--space-4);
+  padding: clamp(var(--space-5), 3vw, var(--space-8));
   border: 1px solid rgb(255 255 255 / 18%);
   border-radius: var(--radius-medium);
   background:
-    radial-gradient(circle at 86% 12%, rgb(252 229 0 / 24%), transparent 13rem),
+    radial-gradient(circle at 88% 10%, rgb(252 229 0 / 18%), transparent 12rem),
     linear-gradient(145deg, rgb(255 255 255 / 12%), rgb(255 255 255 / 6%));
   box-shadow: 0 28px 70px rgb(0 0 0 / 22%);
+  color: var(--text-on-brand);
 }
 
-.buyback-preview::before {
+.buyback-preview::after {
   position: absolute;
-  display: none;
-  inset-block: 12% 10%;
-  inset-inline-start: 46%;
-  width: 0.18rem;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    rgb(252 229 0 / 60%),
-    transparent
-  );
+  inset-inline-end: clamp(var(--space-5), 4vw, var(--space-10));
+  inset-block-end: clamp(var(--space-5), 4vw, var(--space-10));
+  width: clamp(5rem, 12vw, 8rem);
+  height: clamp(5rem, 12vw, 8rem);
+  border: 1rem solid rgb(255 255 255 / 8%);
+  border-radius: var(--radius-full);
+  box-shadow:
+    inset 0 0 0 0.45rem rgb(0 12 52 / 44%),
+    0 1.5rem 3rem rgb(0 0 0 / 18%);
   content: '';
+  opacity: 0.72;
+  transform: rotate(-18deg);
 }
 
-.buyback-device,
-.buyback-flow-rail {
+.buyback-card-header,
+.buyback-simple-card,
+.buyback-summary-list,
+.buyback-estimate,
+.buyback-action {
   position: relative;
   z-index: 1;
 }
 
-.buyback-device {
-  overflow: hidden;
-  border: 1px solid rgb(var(--brand-dark-blue-rgb) / 14%);
-  border-radius: var(--radius-large);
-  background: var(--surface-default);
-  color: var(--text-primary);
-  box-shadow: 0 24px 54px rgb(0 0 0 / 20%);
-}
-
-.buyback-device-bar {
+.buyback-card-header {
   display: flex;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  background: var(--brand-midnight);
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: clamp(var(--space-4), 2.2vw, var(--space-6));
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: var(--radius-medium);
+  background: rgb(0 12 52 / 18%);
 }
 
-.buyback-device-bar span {
-  width: 0.48rem;
-  height: 0.48rem;
-  border-radius: var(--radius-full);
-  background: rgb(255 255 255 / 42%);
-}
-
-.buyback-screen-header {
+.buyback-card-header div {
   display: grid;
-  gap: var(--space-3);
-  padding: var(--space-5);
-  background:
-    linear-gradient(
-      135deg,
-      rgb(var(--brand-blue-rgb) / 92%),
-      var(--brand-dark-blue)
-    ),
-    var(--brand-dark-blue);
-  color: var(--text-on-brand);
+  gap: var(--space-2);
 }
 
-.buyback-eyebrow,
-.buyback-selected span,
-.buyback-field-label,
+.buyback-card-header p,
+.buyback-simple-card span,
+.buyback-summary-list dt,
 .buyback-estimate span,
-.buyback-request span,
-.buyback-step span {
-  color: var(--brand-blue);
+.buyback-card-header > span {
+  color: var(--brand-yellow);
   font-size: var(--type-caption-size);
   font-weight: 900;
   line-height: var(--type-caption-line);
   text-transform: uppercase;
 }
 
-.buyback-eyebrow {
-  color: var(--brand-yellow);
-}
-
-.buyback-screen-header h3 {
-  max-width: 12ch;
+.buyback-card-header h3 {
   color: var(--text-on-brand);
   font-family: var(--font-title);
   font-size: var(--type-h3-size);
@@ -1988,96 +1967,63 @@ h3 {
   text-transform: uppercase;
 }
 
-.buyback-screen-header p:not(.buyback-eyebrow) {
-  color: rgb(255 255 255 / 78%);
-  font-size: var(--type-body-small-size);
-  line-height: var(--type-body-small-line);
-}
-
-.buyback-selected {
+.buyback-simple-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-4);
-  align-items: start;
-  padding: var(--space-4) var(--space-5);
-  border-block-end: 1px solid rgb(var(--brand-blue-rgb) / 10%);
-  background: rgb(var(--brand-blue-rgb) / 5%);
-}
-
-.buyback-selected div,
-.buyback-field,
-.buyback-form-row > div,
-.buyback-request div,
-.buyback-step div {
-  display: grid;
-  gap: var(--space-1);
-}
-
-.buyback-selected strong,
-.buyback-form-row strong,
-.buyback-request strong {
-  color: var(--brand-midnight);
-  font-weight: 900;
-}
-
-.buyback-selected p,
-.buyback-field p,
-.buyback-request p,
-.buyback-step p {
-  color: var(--text-secondary);
-  font-size: var(--type-body-small-size);
-  line-height: var(--type-body-small-line);
-}
-
-.buyback-selected a {
-  color: var(--brand-blue);
-  font-size: var(--type-caption-size);
-  font-weight: 900;
-  text-decoration: none;
-}
-
-.buyback-field {
-  padding: var(--space-4) var(--space-5);
-  border-block-end: 1px solid rgb(var(--brand-dark-blue-rgb) / 8%);
-}
-
-.buyback-chips {
-  display: flex;
-  flex-wrap: wrap;
   gap: var(--space-2);
+  max-width: 34rem;
+  padding: clamp(var(--space-6), 3vw, var(--space-8));
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: var(--radius-medium);
+  background: rgb(0 12 52 / 18%);
 }
 
-.buyback-chips span {
-  display: inline-flex;
-  min-height: 2rem;
-  align-items: center;
-  padding-inline: var(--space-3);
-  border: 1px solid rgb(var(--brand-blue-rgb) / 18%);
-  border-radius: var(--radius-full);
-  background: var(--surface-default);
-  color: var(--brand-blue);
-  font-size: var(--type-caption-size);
-  font-weight: 900;
+.buyback-simple-card span {
+  color: var(--brand-yellow);
 }
 
-.buyback-chips .buyback-chip-active {
-  border-color: var(--brand-blue);
-  background: var(--brand-blue);
+.buyback-simple-card strong {
+  max-width: 18ch;
   color: var(--text-on-brand);
+  font-size: clamp(1.55rem, 2.4vw, 2.45rem);
+  font-weight: 900;
+  line-height: 1.02;
+  text-wrap: balance;
 }
 
-.buyback-form-row {
+.buyback-simple-card p {
+  max-width: 28rem;
+  color: rgb(255 255 255 / 74%);
+  font-size: var(--type-body-small-size);
+  line-height: var(--type-body-small-line);
+}
+
+.buyback-summary-list {
   display: grid;
   gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
-  border-block-end: 1px solid rgb(var(--brand-dark-blue-rgb) / 8%);
+  margin: 0;
 }
 
-.buyback-form-row > div {
-  padding: var(--space-3);
-  border: 1px solid rgb(var(--brand-blue-rgb) / 10%);
+.buyback-summary-list div {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid rgb(255 255 255 / 12%);
   border-radius: var(--radius-medium);
-  background: #f7f8fa;
+  background: rgb(255 255 255 / 8%);
+}
+
+.buyback-summary-list dt {
+  color: rgb(255 255 255 / 58%);
+}
+
+.buyback-summary-list dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--text-on-brand);
+  font-size: var(--type-body-small-size);
+  font-weight: 900;
+  line-height: var(--type-body-small-line);
 }
 
 .buyback-estimate {
@@ -2085,7 +2031,6 @@ h3 {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  margin: var(--space-4) var(--space-5) 0;
   padding: var(--space-4);
   border-radius: var(--radius-medium);
   background: var(--brand-yellow);
@@ -2108,68 +2053,12 @@ h3 {
   min-height: 3rem;
   align-items: center;
   justify-content: center;
-  margin: var(--space-3) var(--space-5) var(--space-4);
   border-radius: var(--radius-medium);
   background: var(--brand-blue);
   color: var(--text-on-brand);
   font-size: var(--type-label-size);
   font-weight: 900;
   text-decoration: none;
-}
-
-.buyback-request {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-4);
-  align-items: center;
-  padding: var(--space-4) var(--space-5);
-  border-block-start: 1px solid rgb(var(--brand-dark-blue-rgb) / 8%);
-}
-
-.buyback-request > strong {
-  color: var(--brand-midnight);
-  font-size: var(--type-h4-size);
-  line-height: var(--type-h4-line);
-}
-
-.buyback-flow-rail {
-  display: grid;
-  align-content: center;
-  border-block: 1px solid rgb(255 255 255 / 16%);
-}
-
-.buyback-step {
-  display: grid;
-  grid-template-columns: 2.75rem minmax(0, 1fr);
-  gap: var(--space-3);
-  padding-block: var(--space-5);
-  border-block-end: 1px solid rgb(255 255 255 / 14%);
-}
-
-.buyback-step:last-child {
-  border-block-end: 0;
-}
-
-.buyback-step span {
-  display: inline-flex;
-  width: 2rem;
-  height: 2rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-full);
-  background: var(--brand-yellow);
-  color: var(--text-on-yellow);
-}
-
-.buyback-step strong {
-  color: var(--text-on-brand);
-  font-size: var(--type-h4-size);
-  font-weight: 900;
-  line-height: var(--type-h4-line);
-}
-
-.buyback-step p {
-  color: rgb(255 255 255 / 72%);
 }
 
 .landing-modern {
@@ -2191,6 +2080,129 @@ h3 {
   font-family: var(--font-title);
   font-size: clamp(2.35rem, 4.55vw, 4.35rem);
   letter-spacing: 0;
+}
+
+.landing-modern .ri-container {
+  width: min(90rem, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.landing-modern .ri-final {
+  padding-block: 7rem;
+  background:
+    linear-gradient(122deg, rgb(255 255 255 / 64%) 0 35%, transparent 35%),
+    linear-gradient(135deg, var(--brand-yellow), #fff27a);
+  font-family: Geist, var(--font-noto-sans), Arial, sans-serif;
+}
+
+.landing-modern .ri-final-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2rem;
+  align-items: end;
+}
+
+.landing-modern .ri-final p {
+  margin: 0;
+  color: var(--brand-midnight);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.landing-modern .ri-final h2 {
+  max-width: 19ch;
+  margin: 0;
+  color: var(--brand-midnight);
+  font-size: clamp(2.15rem, 4.6vw, 4.35rem);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.04;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.landing-modern .ri-final-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.landing-modern .ri-cta {
+  display: inline-flex;
+  min-height: 3.1rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding-inline: 1.25rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.15;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.landing-modern .ri-cta:hover {
+  transform: translateY(-2px);
+}
+
+.landing-modern .ri-cta-primary {
+  background: var(--brand-yellow);
+  color: var(--brand-midnight);
+  box-shadow: 0 18px 38px rgb(252 229 0 / 24%);
+}
+
+.landing-modern .ri-cta-primary:hover {
+  background: #fff27a;
+}
+
+.landing-modern .ri-cta-outline {
+  border-color: rgb(0 12 52 / 20%);
+  background: #ffffff;
+  color: var(--brand-dark-blue);
+}
+
+.landing-modern .ri-cta-outline:hover {
+  background: rgb(var(--brand-blue-rgb) / 8%);
+}
+
+@media (max-width: 1120px) {
+  .landing-modern .ri-final-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-modern .ri-final-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 620px) {
+  .landing-modern .ri-container {
+    width: min(100% - 1rem, 90rem);
+  }
+
+  .landing-modern .ri-final {
+    padding-block: 4.5rem;
+  }
+
+  .landing-modern .ri-final-actions,
+  .landing-modern .ri-cta {
+    width: 100%;
+  }
 }
 
 .section-heading-wide {
@@ -2668,15 +2680,7 @@ h3 {
 }
 
 .stack-card .buyback-preview {
-  grid-template-columns: 1fr;
-}
-
-.stack-card .buyback-preview::before {
-  display: none;
-}
-
-.stack-card .buyback-flow-rail {
-  padding-inline-start: 0;
+  gap: var(--space-5);
 }
 
 .stack-card .intelligence-panel {
@@ -2688,42 +2692,36 @@ h3 {
   min-height: 9.5rem;
 }
 
-.brand-marquee {
+.ri-marquee {
   overflow: hidden;
-  border-block: 1px solid rgb(var(--brand-blue-rgb) / 14%);
-  background: var(--surface-default);
+  border-block: 1px solid rgb(0 12 52 / 10%);
+  background: var(--ri-yellow, var(--brand-yellow));
+  color: var(--ri-midnight, var(--brand-midnight));
+  font-family: var(
+    --ri-font,
+    'Geist',
+    var(--font-noto-sans),
+    Arial,
+    sans-serif
+  );
 }
 
-.marquee-track {
+.ri-marquee-track {
   display: flex;
   width: max-content;
-  gap: 0;
-  padding-block: var(--space-5);
+  align-items: center;
+  gap: 2.5rem;
+  padding-block: 1.1rem;
   will-change: transform;
 }
 
-.marquee-track span {
-  flex: 0 0 auto;
-  color: var(--brand-blue);
-  font-family: var(--font-title);
-  font-size: clamp(1.6rem, 3.4vw, 4rem);
+.ri-marquee-track span {
+  font-size: clamp(1.35rem, 3vw, 3rem);
   font-style: italic;
   font-weight: 900;
-  letter-spacing: 0;
   line-height: 1;
   text-transform: uppercase;
   white-space: nowrap;
-}
-
-.marquee-track span::after {
-  display: inline-block;
-  width: 0.52rem;
-  height: 0.52rem;
-  margin-inline: clamp(var(--space-8), 6vw, var(--space-14));
-  border-radius: var(--radius-full);
-  background: var(--brand-yellow);
-  content: '';
-  vertical-align: middle;
 }
 
 .auth-divider {
@@ -2965,9 +2963,12 @@ h3 {
   .story-stats,
   .assurance-strip,
   .signal-grid,
-  .comparison-grid,
-  .buyback-form-row {
+  .comparison-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .buyback-summary-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -3062,19 +3063,6 @@ h3 {
   .lifecycle-row {
     grid-template-columns: 7rem minmax(10rem, 0.8fr) minmax(0, 1.2fr);
     align-items: start;
-  }
-
-  .buyback-preview {
-    grid-template-columns: minmax(0, 0.94fr) minmax(11rem, 0.46fr);
-    align-items: stretch;
-  }
-
-  .buyback-preview::before {
-    display: block;
-  }
-
-  .buyback-flow-rail {
-    padding-inline-start: var(--space-4);
   }
 
   .product-showcase {

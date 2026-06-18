@@ -2,6 +2,10 @@
 
 .rp-page {
   min-height: calc(100vh - var(--site-header-height));
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 12% 0%, rgb(255 200 0 / 10%), transparent 26rem),
+    linear-gradient(180deg, #ffffff 0, var(--surface-canvas) 34rem);
 }
 
 /* ── Hero ─────────────────────────────────────────────────────────────────── */
@@ -135,6 +139,22 @@
   gap: 1.25rem;
 }
 
+.rp-data-section {
+  padding: 1.25rem;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xlarge);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 92%), rgb(255 255 255 / 98%)),
+    var(--surface-default);
+  box-shadow: var(--shadow-low);
+}
+
+@media (min-width: 760px) {
+  .rp-data-section {
+    padding: 1.5rem;
+  }
+}
+
 .rp-kicker {
   margin: 0;
   color: var(--brand-blue);
@@ -154,6 +174,27 @@
   font-size: var(--type-h3-size);
   font-weight: var(--weight-black);
   line-height: var(--type-h3-line);
+}
+
+.rp-section-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.rp-section-count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.625rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: var(--radius-full);
+  background: rgb(0 49 137 / 7%);
+  border: 1px solid rgb(0 49 137 / 12%);
+  color: var(--brand-dark-blue);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-black);
+  white-space: nowrap;
 }
 
 /* ── Stats ────────────────────────────────────────────────────────────────── */
@@ -208,7 +249,7 @@
 
 .rp-bike-card {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1.5rem;
   padding: 1.25rem 1.5rem;
@@ -231,8 +272,9 @@
 
 .rp-bike-left {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
+  flex: 1 1 26rem;
   min-width: 0;
 }
 
@@ -287,15 +329,22 @@
   font-size: var(--type-body-small-size);
 }
 
-.rp-bike-rec {
+.rp-bike-fitment {
   display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  min-width: 200px;
-  padding: 0.875rem 1.125rem;
-  border-radius: var(--radius-medium);
-  background: var(--surface-canvas);
-  border: 1px solid var(--border-default);
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.625rem;
+}
+
+.rp-bike-fitment span {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-full);
+  background: rgb(0 49 137 / 6%);
+  color: var(--brand-dark-blue);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-semibold);
 }
 
 .rp-rec-label {
@@ -312,6 +361,14 @@
   color: var(--brand-dark-blue);
   font-size: var(--type-body-size);
   font-weight: var(--weight-black);
+  text-decoration: none;
+  transition: color var(--motion-fast) var(--motion-easing);
+}
+
+.rp-rec-name:hover {
+  color: var(--brand-blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .rp-rec-sub {
@@ -411,10 +468,93 @@
 
 .rp-section-header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+.rp-data-section .rp-section-header {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.rp-list-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.rp-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.875rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  font-size: var(--type-body-small-size);
+}
+
+.rp-pagination p,
+.rp-pagination span {
+  margin: 0;
+}
+
+.rp-pagination-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.rp-pagination-actions span {
+  color: var(--text-primary);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-black);
+  white-space: nowrap;
+}
+
+.rp-pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-medium);
+  border: 1px solid var(--border-default);
+  background: var(--surface-default);
+  color: var(--brand-dark-blue);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast) var(--motion-easing),
+    color var(--motion-fast) var(--motion-easing),
+    background var(--motion-fast) var(--motion-easing);
+}
+
+.rp-pagination-btn:hover:not(:disabled) {
+  border-color: var(--brand-blue);
+  background: rgb(0 49 137 / 6%);
+  color: var(--brand-blue);
+}
+
+.rp-pagination-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (max-width: 620px) {
+  .rp-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .rp-pagination-actions {
+    justify-content: space-between;
+  }
 }
 
 .rp-add-btn {
@@ -446,6 +586,9 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex: 0 1 22rem;
+  justify-content: flex-end;
+  min-width: min(100%, 18rem);
 }
 
 .rp-source-badge {
@@ -504,7 +647,9 @@
   border-radius: var(--radius-xlarge);
   box-shadow: var(--shadow-high);
   width: 100%;
-  max-width: 480px;
+  max-width: 640px;
+  max-height: min(90vh, 760px);
+  overflow-y: auto;
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -551,6 +696,18 @@
   gap: 0.375rem;
 }
 
+.rp-field-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 620px) {
+  .rp-field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .rp-label {
   font-size: var(--type-body-small-size);
   font-weight: var(--weight-bold);
@@ -573,6 +730,64 @@
 .rp-input:focus {
   outline: none;
   border-color: var(--brand-blue);
+}
+
+.rp-product-search {
+  position: relative;
+}
+
+.rp-product-results {
+  position: absolute;
+  top: calc(100% + 0.375rem);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-medium);
+  background: var(--surface-default);
+  box-shadow: var(--shadow-medium);
+}
+
+.rp-product-option {
+  width: 100%;
+  padding: 0.75rem 0.875rem;
+  border: 0;
+  border-bottom: 1px solid var(--border-default);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--motion-easing);
+}
+
+.rp-product-option:last-child {
+  border-bottom: 0;
+}
+
+.rp-product-option:hover {
+  background: rgb(0 49 137 / 6%);
+}
+
+.rp-product-option span,
+.rp-product-option strong,
+.rp-product-option small {
+  display: block;
+}
+
+.rp-product-option strong {
+  color: var(--text-primary);
+  font-size: var(--type-body-small-size);
+  line-height: 1.3;
+}
+
+.rp-product-option small,
+.rp-product-status {
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  line-height: 1.4;
 }
 
 .rp-field--checkbox {
@@ -695,4 +910,422 @@
 
 .rp-race-tire {
   text-align: right;
+  max-width: 24rem;
+}
+
+.rp-pressure-note {
+  margin: 0.25rem 0 0;
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  line-height: 1.45;
+}
+
+/* ── Profile insights ─────────────────────────────────────────────────────── */
+
+.rp-overview-grid,
+.rp-insights-grid,
+.rp-passport-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 760px) {
+  .rp-overview-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .rp-insights-grid {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+
+  .rp-passport-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.rp-summary-tile,
+.rp-completeness,
+.rp-alerts-panel,
+.rp-passport {
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-low);
+}
+
+.rp-summary-tile {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.rp-summary-tile span {
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rp-summary-tile strong {
+  color: var(--brand-dark-blue);
+  font-size: var(--type-body-size);
+  font-weight: var(--weight-black);
+  line-height: 1.2;
+}
+
+.rp-summary-tile p,
+.rp-muted {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--type-body-small-size);
+  line-height: 1.45;
+}
+
+.rp-completeness,
+.rp-alerts-panel {
+  padding: 1.25rem;
+}
+
+.rp-completeness-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.rp-completeness-count {
+  color: var(--brand-dark-blue);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-black);
+}
+
+.rp-progress {
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--surface-canvas);
+  overflow: hidden;
+  margin-block: 1rem;
+}
+
+.rp-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--brand-yellow);
+}
+
+.rp-action-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--text-secondary);
+  font-size: var(--type-body-small-size);
+  line-height: 1.6;
+}
+
+.rp-alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.rp-alert {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: var(--radius-medium);
+  font-size: var(--type-body-small-size);
+  line-height: 1.45;
+}
+
+.rp-alert strong {
+  color: var(--text-primary);
+}
+
+.rp-alert span {
+  color: var(--text-secondary);
+}
+
+.rp-alert--info {
+  background: rgb(0 49 137 / 7%);
+  border: 1px solid rgb(0 49 137 / 14%);
+}
+
+.rp-alert--warning {
+  background: rgb(255 200 0 / 14%);
+  border: 1px solid rgb(255 200 0 / 30%);
+}
+
+/* ── Bike actions and recommendation conversion ───────────────────────────── */
+
+.rp-bike-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.rp-link-btn {
+  border: 1px solid var(--border-default);
+  background: var(--surface-default);
+  color: var(--brand-dark-blue);
+  border-radius: var(--radius-small);
+  padding: 0.375rem 0.5rem;
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast) var(--motion-easing),
+    color var(--motion-fast) var(--motion-easing);
+}
+
+.rp-link-btn:hover {
+  border-color: var(--brand-blue);
+  color: var(--brand-blue);
+}
+
+.rp-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin-top: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--radius-medium);
+  background: var(--surface-canvas);
+  border: 1px solid var(--border-default);
+  max-width: 36rem;
+}
+
+.rp-comparison strong {
+  color: var(--text-primary);
+  font-size: var(--type-body-small-size);
+}
+
+.rp-comparison span {
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  line-height: 1.45;
+}
+
+.rp-comparison--missing {
+  border-style: dashed;
+}
+
+.rp-comparison--aligned {
+  border-color: rgb(0 130 70 / 25%);
+  background: rgb(0 130 70 / 7%);
+}
+
+/* ── Passports ────────────────────────────────────────────────────────────── */
+
+.rp-passport {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.rp-passport h3 {
+  margin: 0.125rem 0;
+  color: var(--brand-dark-blue);
+  font-size: var(--type-h4-size);
+  font-weight: var(--weight-black);
+}
+
+.rp-passport p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--type-body-small-size);
+}
+
+.rp-passport dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.rp-passport dt {
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rp-passport dd {
+  margin: 0.25rem 0 0;
+  color: var(--text-primary);
+  font-size: var(--type-body-small-size);
+  font-weight: var(--weight-bold);
+}
+
+.rp-passport-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ── Race preparation ─────────────────────────────────────────────────────── */
+
+.rp-race-card {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.rp-race-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rp-race-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.rp-date-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--brand-yellow);
+  color: var(--text-on-yellow);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-black);
+}
+
+.rp-race-prep {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-default);
+}
+
+@media (min-width: 760px) {
+  .rp-race-prep {
+    grid-template-columns: minmax(220px, 0.4fr) minmax(0, 1fr);
+  }
+}
+
+.rp-race-bike-select {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.rp-race-bike-select span {
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rp-race-tire-status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: var(--radius-medium);
+  border: 1px solid var(--border-default);
+  background: var(--surface-canvas);
+}
+
+.rp-race-tire-status strong {
+  color: var(--text-primary);
+  font-size: var(--type-body-small-size);
+}
+
+.rp-race-tire-status span {
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  line-height: 1.45;
+}
+
+.rp-race-tire-status--aligned {
+  border-color: rgb(0 130 70 / 25%);
+  background: rgb(0 130 70 / 7%);
+}
+
+.rp-race-tire-status--missing-bike,
+.rp-race-tire-status--missing-passport,
+.rp-race-tire-status--mismatch {
+  border-color: rgb(255 200 0 / 35%);
+  background: rgb(255 200 0 / 12%);
+}
+
+.rp-race-mount-btn {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+.rp-checklist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  grid-column: 1 / -1;
+}
+
+.rp-checklist li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+}
+
+.rp-checklist li span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgb(255 200 0 / 16%);
+  color: var(--brand-dark-blue);
+  font-weight: var(--weight-black);
+}
+
+.rp-checklist li.is-done {
+  color: var(--text-primary);
+}
+
+.rp-checklist li.is-done span {
+  background: rgb(0 130 70 / 12%);
+  color: rgb(0 110 58);
+}
+
+@media (max-width: 700px) {
+  .rp-race-main,
+  .rp-bike-right {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .rp-race-right,
+  .rp-race-tire {
+    width: 100%;
+    text-align: left;
+  }
+
+  .rp-checklist {
+    grid-template-columns: 1fr;
+  }
 }

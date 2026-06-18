@@ -72,8 +72,8 @@ export function LandingMotion() {
       );
     });
 
-    gsap.to('.marquee-track', {
-      duration: 28,
+    gsap.to('.ri-marquee-track', {
+      duration: 32,
       ease: 'none',
       repeat: -1,
       xPercent: -50,
