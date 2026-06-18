@@ -10,6 +10,12 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   transpilePackages: ['@michelin/api-client', '@michelin/contracts'],
+  images: {
+    remotePatterns: [
+      { hostname: '*.cloudfront.net' },
+      { hostname: 'dgalywyr863whv.cloudfront.net' },
+    ],
+  },
 };
 
 export default nextConfig;

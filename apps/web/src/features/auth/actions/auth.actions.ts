@@ -92,3 +92,11 @@ export async function logoutAction(): Promise<void> {
   cookieStore.delete('auth_token');
   redirect('/login');
 }
+
+export async function stravaLogoutAction(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete('strava_at');
+  cookieStore.delete('strava_profile');
+  cookieStore.delete('auth_token');
+  redirect('/');
+}
