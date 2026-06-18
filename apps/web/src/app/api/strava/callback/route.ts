@@ -24,7 +24,10 @@ export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code');
   const error = req.nextUrl.searchParams.get('error');
   const mode = req.nextUrl.searchParams.get('state') ?? 'race';
-  const origin = new URL(req.url).origin;
+  const callbackUrl =
+    process.env.STRAVA_CALLBACK_URL ??
+    'http://localhost:3000/api/strava/callback';
+  const origin = new URL(callbackUrl).origin;
 
   if (error || !code) {
     if (mode === 'login') {
