@@ -406,3 +406,211 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
+
+/* ── Section header + Add button ─────────────────────────────────────────── */
+
+.rp-section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.rp-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-medium);
+  border: 1.5px solid var(--brand-blue);
+  background: transparent;
+  color: var(--brand-blue);
+  font-size: var(--type-body-small-size);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) var(--motion-easing),
+    color var(--motion-fast) var(--motion-easing);
+  white-space: nowrap;
+}
+
+.rp-add-btn:hover {
+  background: var(--brand-blue);
+  color: #fff;
+}
+
+/* ── Bike card additions ──────────────────────────────────────────────────── */
+
+.rp-bike-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.rp-source-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--surface-canvas);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-semibold);
+}
+
+.rp-source-badge--strava {
+  background: rgb(252 76 2 / 8%);
+  border-color: rgb(252 76 2 / 30%);
+  color: #fc4c02;
+}
+
+.rp-delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-small);
+  transition:
+    color var(--motion-fast) var(--motion-easing),
+    background var(--motion-fast) var(--motion-easing);
+  flex-shrink: 0;
+}
+
+.rp-delete-btn:hover {
+  color: #e53e3e;
+  background: rgb(229 62 62 / 8%);
+}
+
+/* ── Modal ────────────────────────────────────────────────────────────────── */
+
+.rp-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+}
+
+.rp-modal {
+  background: var(--surface-default);
+  border-radius: var(--radius-xlarge);
+  box-shadow: var(--shadow-high);
+  width: 100%;
+  max-width: 480px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.rp-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rp-modal-title {
+  margin: 0;
+  font-size: var(--type-h3-size);
+  font-weight: var(--weight-black);
+  color: var(--text-primary);
+}
+
+.rp-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-small);
+  transition: color var(--motion-fast) var(--motion-easing);
+}
+
+.rp-modal-close:hover {
+  color: var(--text-primary);
+}
+
+.rp-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.rp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.rp-label {
+  font-size: var(--type-body-small-size);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.rp-input {
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--radius-medium);
+  border: 1.5px solid var(--border-default);
+  background: var(--surface-canvas);
+  color: var(--text-primary);
+  font-size: var(--type-body-size);
+  font-family: inherit;
+  transition: border-color var(--motion-fast) var(--motion-easing);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.rp-input:focus {
+  outline: none;
+  border-color: var(--brand-blue);
+}
+
+.rp-field--checkbox {
+  flex-direction: row;
+  align-items: center;
+}
+
+.rp-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--type-body-small-size);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.rp-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+.rp-btn-cancel {
+  background: transparent;
+  border: 1.5px solid var(--border-default);
+  color: var(--text-secondary);
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-medium);
+  font-size: var(--type-body-size);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast) var(--motion-easing),
+    color var(--motion-fast) var(--motion-easing);
+}
+
+.rp-btn-cancel:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
