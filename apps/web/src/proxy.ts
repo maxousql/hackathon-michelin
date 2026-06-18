@@ -5,13 +5,15 @@ import { type NextRequest, NextResponse } from 'next/server';
 // utilisateur qui possède un cookie expiré.
 const AUTH_PATHS = ['/login', '/register'];
 
-// Pages accessibles sans être connecté (et sans redirection si on l'est).
-// Le catalogue produits et le comparateur sont publics.
-const OPEN_PATHS = ['/products', '/comparateur'];
+// Pages accessibles sans être connecté : la landing (`/`) et le catalogue
+// produits (`/products` et ses fiches). Toutes les autres features
+// (comparateur, challenge, race-intelligence, reprise, profil, admin…)
+// nécessitent une connexion.
+const OPEN_PATHS = ['/products'];
 
-// Pages qui nécessitent uniquement d'être connecté (le check admin est fait
-// dans le layout côté serveur).
-const PROTECTED_PATHS = ['/admin'];
+function matchesPath(pathname: string, base: string): boolean {
+  return pathname === base || pathname.startsWith(`${base}/`);
+}
 
 export function proxy(request: NextRequest) {
   // Server Actions are POST requests — never redirect them
@@ -20,19 +22,14 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('auth_token')?.value;
 
-  const isAuthPage = AUTH_PATHS.some((p) => pathname.startsWith(p));
-  const isOpen = OPEN_PATHS.some((p) => pathname.startsWith(p));
-  const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p));
+  // La landing est toujours publique (match exact pour ne pas tout ouvrir).
+  const isLanding = pathname === '/';
+  const isAuthPage = AUTH_PATHS.some((p) => matchesPath(pathname, p));
+  const isOpen = OPEN_PATHS.some((p) => matchesPath(pathname, p));
 
-  // Non connecté : seules les pages d'auth et publiques sont accessibles.
-  if (!token && !isAuthPage && !isOpen) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = '/login';
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // /admin sans token → login (redondant avec le cas précédent, mais explicite)
-  if (isProtected && !token) {
+  // Non connecté : seules la landing, les pages d'auth et le catalogue
+  // sont accessibles. Tout le reste redirige vers la connexion.
+  if (!token && !isLanding && !isAuthPage && !isOpen) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
     return NextResponse.redirect(loginUrl);
