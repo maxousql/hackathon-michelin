@@ -14,6 +14,7 @@ import { RaceIntelligenceModule } from './features/race-intelligence/race-intell
 import { SavedRacesModule } from './features/saved-races/saved-races.module';
 import { StravaModule } from './features/strava/strava.module';
 import { StatusModule } from './features/status/status.module';
+import { TirePassportsModule } from './features/tire-passports/tire-passports.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { StatusModule } from './features/status/status.module';
     RaceIntelligenceModule,
     SavedRacesModule,
     StravaModule,
+    TirePassportsModule,
   ],
 })
 export class AppModule {}

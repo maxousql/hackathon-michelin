@@ -39,6 +39,7 @@ interface StravaStreams {
 }
 
 interface StravaPickerProps {
+  initialConnected?: boolean;
   onActivitySelected: (
     stats: GpxStats,
     surface: SurfaceType,
@@ -60,8 +61,11 @@ function routeSubtypeToSurface(subType: number): SurfaceType {
   return 'road';
 }
 
-export function StravaPicker({ onActivitySelected }: StravaPickerProps) {
-  const [connected, setConnected] = useState(false);
+export function StravaPicker({
+  initialConnected = false,
+  onActivitySelected,
+}: StravaPickerProps) {
+  const [connected, setConnected] = useState(initialConnected);
   const [tab, setTab] = useState<'activities' | 'routes'>('activities');
   const [activities, setActivities] = useState<StravaActivity[]>([]);
   const [routes, setRoutes] = useState<StravaRoute[]>([]);
@@ -69,12 +73,18 @@ export function StravaPicker({ onActivitySelected }: StravaPickerProps) {
   const [loadingRoutes, setLoadingRoutes] = useState(false);
   const [loadingId, setLoadingId] = useState<number | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const didBootstrapRef = useRef(false);
   const popupRef = useRef<Window | null>(null);
 
   async function fetchActivities() {
     setLoadingActivities(true);
     try {
       const res = await fetch('/api/strava/activities');
+      if (res.status === 401) {
+        setConnected(false);
+        setActivities([]);
+        return;
+      }
       if (res.ok) setActivities((await res.json()) as StravaActivity[]);
     } finally {
       setLoadingActivities(false);
@@ -85,6 +95,11 @@ export function StravaPicker({ onActivitySelected }: StravaPickerProps) {
     setLoadingRoutes(true);
     try {
       const res = await fetch('/api/strava/routes');
+      if (res.status === 401) {
+        setConnected(false);
+        setRoutes([]);
+        return;
+      }
       if (res.ok) setRoutes((await res.json()) as StravaRoute[]);
     } finally {
       setLoadingRoutes(false);
@@ -100,34 +115,16 @@ export function StravaPicker({ onActivitySelected }: StravaPickerProps) {
     }
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Check if already connected on mount
+  // Load existing Strava data only when the server saw a Strava cookie.
   useEffect(() => {
-    fetch('/api/strava/activities')
-      .then((r) => {
-        if (r.ok) {
-          setConnected(true);
-          return r.json();
-        }
-        return null;
-      })
-      .then((data: StravaActivity[] | null) => {
-        if (data) setActivities(data);
-      })
-      .catch(() => {});
-    fetch('/api/strava/routes')
-      .then((r) => {
-        if (r.ok) return r.json();
-        return null;
-      })
-      .then((data: StravaRoute[] | null) => {
-        if (data) setRoutes(data);
-      })
-      .catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!initialConnected || didBootstrapRef.current) return;
+    didBootstrapRef.current = true;
+    setConnected(true);
+    void fetchActivities();
+    void fetchRoutes();
+  }, [initialConnected]);
 
   function openAuthPopup() {
     const w = 600,

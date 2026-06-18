@@ -67,7 +67,7 @@ const bentoCards = [
   {
     className: 'bento-card-large bento-card-media',
     eyebrow: 'Michelin Race',
-    image: 'https://picsum.photos/seed/michelin-gravel-trace/1200/900',
+    image: '/race-intelligence/diagnostic-shop.png',
     text: 'Profil vélo, surfaces, météo et priorités deviennent un point de départ lisible.',
     title: 'Le contexte avant le catalogue.',
   },
@@ -86,7 +86,7 @@ const bentoCards = [
   {
     className: 'bento-card-wide bento-card-dark',
     eyebrow: 'Challenge mon pneu',
-    image: 'https://picsum.photos/seed/michelin-bike-benchmark/1400/900',
+    image: '/race-intelligence/terrain-road.png',
     text: 'Le comparateur rassure avant de demander au cycliste de changer.',
     title: 'Comparer sur le même parcours.',
   },
@@ -100,36 +100,25 @@ const bentoCards = [
 
 const accordionItems = [
   {
-    image: 'https://picsum.photos/seed/michelin-road-speed/1100/900',
+    image: '/race-intelligence/terrain-road.png',
     text: 'La vitesse ne suffit pas : la recommandation expose le compromis entre rendement, pression et tenue.',
     title: 'Route',
   },
   {
-    image: 'https://picsum.photos/seed/michelin-gravel-control/1100/900',
+    image: '/race-intelligence/terrain-gravel.png',
     text: 'Le gravel demande une lecture fine des surfaces mixtes et des transitions rapides.',
     title: 'Gravel',
   },
   {
-    image: 'https://picsum.photos/seed/michelin-mtb-control/1100/900',
+    image: '/race-intelligence/terrain-mtb.png',
     text: 'Le VTT rend les limites visibles : grip, protection et contrôle passent avant la promesse universelle.',
     title: 'VTT',
   },
   {
-    image: 'https://picsum.photos/seed/michelin-ebike-torque/1100/900',
+    image: '/race-intelligence/diagnostic-trace.png',
     text: 'L’e-bike ajoute couple, charge et usure : la compatibilité doit être traitée avant l’achat.',
     title: 'E-bike',
   },
-];
-
-const marqueeItems = [
-  'Michelin Race',
-  'Race Intelligence',
-  'Power Gravel',
-  'GUM-X',
-  'Tubeless Ready',
-  'Challenge mon pneu',
-  'Reprise Michelin',
-  'ETRTO',
 ];
 
 export function Container({ children, className = '' }: ContainerProps) {
@@ -189,14 +178,7 @@ export function GradientBackground({
 export function ScrubNarrative() {
   return (
     <div className="scrub-narrative">
-      <h2>
-        La sortie
-        <span
-          className="inline-heading-image inline-heading-image-terrain"
-          aria-hidden="true"
-        />
-        avant le pneu.
-      </h2>
+      <h2>La sortie avant le pneu.</h2>
       <p className="scrub-copy">
         {scrubNarrative.split(' ').map((word, index) => (
           <span className="scrub-word" key={`${word}-${index}`}>
@@ -384,20 +366,6 @@ export function DesireStack() {
         </div>
         <BuybackPreview />
       </article>
-    </div>
-  );
-}
-
-export function BrandMarquee() {
-  const repeated = [...marqueeItems, ...marqueeItems];
-
-  return (
-    <div className="brand-marquee" aria-label="Univers Michelin Race">
-      <div className="marquee-track">
-        {repeated.map((item, index) => (
-          <span key={`${item}-${index}`}>{item}</span>
-        ))}
-      </div>
     </div>
   );
 }
@@ -635,96 +603,46 @@ export function BuybackPreview() {
       className="buyback-preview reveal"
       aria-label="Aperçu du service Reprise Michelin"
     >
-      <div className="buyback-device" aria-label="Écran Reprise Michelin">
-        <div className="buyback-device-bar" aria-hidden="true">
-          <span />
-          <span />
-          <span />
+      <header className="buyback-card-header">
+        <div>
+          <p>Seconde vie</p>
+          <h3>Reprise Michelin</h3>
         </div>
+        <span>24 € estimés</span>
+      </header>
 
-        <header className="buyback-screen-header">
-          <p className="buyback-eyebrow">Seconde vie</p>
-          <h3>Reprise MICHELIN</h3>
-          <p>
-            Donnez une seconde vie à vos pneus et obtenez une récompense claire
-            avant l’envoi.
-          </p>
-        </header>
-
-        <div className="buyback-selected">
-          <div>
-            <span>Votre modèle de pneu</span>
-            <strong>MICHELIN Power Gravel</strong>
-            <p>700 x 40C · Competition Line</p>
-          </div>
-          <a href="/reprise">Changer</a>
-        </div>
-
-        <div className="buyback-field">
-          <span className="buyback-field-label">État du pneu</span>
-          <div className="buyback-chips" aria-label="État sélectionné">
-            <span className="buyback-chip-active">Bon</span>
-            <span>Usé</span>
-            <span>À contrôler</span>
-          </div>
-          <p>
-            Usure régulière, carcasse intacte, crampons encore exploitables.
-          </p>
-        </div>
-
-        <div className="buyback-form-row">
-          <div>
-            <span className="buyback-field-label">Quantité</span>
-            <strong>2 pneus</strong>
-          </div>
-          <div>
-            <span className="buyback-field-label">Traitement</span>
-            <strong>Reconditionnement</strong>
-          </div>
-        </div>
-
-        <div className="buyback-estimate">
-          <span>Reprise estimée</span>
-          <strong>24 €</strong>
-        </div>
-
-        <a className="buyback-action" href="/reprise">
-          Demander la reprise
-        </a>
-
-        <div className="buyback-request">
-          <div>
-            <span>Mes demandes</span>
-            <strong>Power Gravel</strong>
-            <p>Bon · ×2 · En cours</p>
-          </div>
-          <strong>24 €</strong>
-        </div>
+      <div className="buyback-simple-card">
+        <span>MICHELIN Power Gravel · 700 x 40C</span>
+        <strong>Une reprise claire, prête avant l’envoi.</strong>
+        <p>
+          Le modèle est reconnu, l’état est qualifié et la valeur de reprise
+          reste visible en un coup d’œil.
+        </p>
       </div>
 
-      <div className="buyback-flow-rail" aria-label="Étapes du service">
-        <div className="buyback-step">
-          <span>01</span>
-          <div>
-            <strong>Identifier</strong>
-            <p>Le pneu est recherché dans le catalogue Michelin.</p>
-          </div>
+      <dl className="buyback-summary-list">
+        <div>
+          <dt>État</dt>
+          <dd>Bon</dd>
         </div>
-        <div className="buyback-step">
-          <span>02</span>
-          <div>
-            <strong>Qualifier</strong>
-            <p>L’état et la quantité donnent une estimation transparente.</p>
-          </div>
+        <div>
+          <dt>Quantité</dt>
+          <dd>2 pneus</dd>
         </div>
-        <div className="buyback-step">
-          <span>03</span>
-          <div>
-            <strong>Suivre</strong>
-            <p>La demande reste visible après l’envoi.</p>
-          </div>
+        <div>
+          <dt>Traitement</dt>
+          <dd>Reconditionnement</dd>
         </div>
+      </dl>
+
+      <div className="buyback-estimate">
+        <span>Reprise estimée</span>
+        <strong>24 €</strong>
       </div>
+
+      <a className="buyback-action" href="/reprise">
+        Préparer la reprise
+      </a>
     </aside>
   );
 }

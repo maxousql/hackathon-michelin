@@ -4,10 +4,12 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
 import type {
+  Bike,
   CreateSavedRaceRequest,
   Discipline,
   RaceAnalyzeRequest,
   RaceAnalyzeResponse,
+  RaceBikeFitment,
   SurfaceType,
 } from '@michelin/contracts';
 
@@ -20,6 +22,7 @@ import { parseGpx } from '../utils/gpx-parser';
 import { BicycleSpinner } from './bicycle-spinner';
 import { CityAutocomplete } from './city-autocomplete';
 import { ElevationProfile } from './elevation-profile';
+import { RaceDatePicker } from './race-date-picker';
 import { RecommendationCard } from './recommendation-card';
 import { RouteMap } from './route-map';
 import { StravaPicker } from './strava-picker';
@@ -40,12 +43,22 @@ interface FormData {
   };
   locationName: string;
   raceDate: string;
+  routeSourceLabel?: string;
   riderWeightKg: string;
+  selectedBikeId: string;
+  selectedBike: RaceBikeFitment | null;
 }
 
 const TOTAL_STEPS = 4;
 
 const STEP_LABELS = ['Surface', 'Discipline', 'Parcours', 'Détails'] as const;
+const STEPPER_STORAGE_KEY = 'ri_stepper';
+
+const BIKE_TYPE_LABELS: Record<SurfaceType, string> = {
+  road: 'Route',
+  gravel: 'Gravel',
+  mtb: 'VTT',
+};
 
 // ── Option configs ────────────────────────────────────────────────────────────
 
@@ -284,13 +297,59 @@ const DISCIPLINE_OPTIONS: Record<
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getTodayStr() {
-  return new Date().toISOString().split('T')[0]!;
+  return formatDateInputValue(new Date());
 }
 
 function getMaxDateStr() {
-  return new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split('T')[0]!;
+  return formatDateInputValue(new Date(Date.now() + 14 * 24 * 60 * 60 * 1000));
+}
+
+function formatDateInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function normalizeRaceDate(value?: string | null) {
+  const today = getTodayStr();
+  if (!value || value < today) return today;
+  return value;
+}
+
+function cleanBikeValue(value: string | null | undefined) {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function bikeToFitment(bike: Bike): RaceBikeFitment {
+  return {
+    id: bike.id,
+    name: bike.name,
+    type: bike.type,
+    tireDiameter: cleanBikeValue(bike.tireDiameter),
+    tireWidth: cleanBikeValue(bike.tireWidth),
+    tireSealing: bike.tireSealing,
+    ridingSurface: bike.ridingSurface,
+    ridingPriority: bike.ridingPriority,
+    isEbike: bike.isEbike,
+  };
+}
+
+function bikeFitmentSummary(bike: RaceBikeFitment) {
+  const size =
+    cleanBikeValue(bike.tireDiameter) && cleanBikeValue(bike.tireWidth)
+      ? `${cleanBikeValue(bike.tireDiameter)} x ${cleanBikeValue(bike.tireWidth)}`
+      : cleanBikeValue(bike.tireDiameter) || cleanBikeValue(bike.tireWidth);
+
+  return [
+    BIKE_TYPE_LABELS[bike.type],
+    size,
+    bike.tireSealing,
+    bike.isEbike ? 'E-bike' : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 }
 
 // ── Step interfaces ───────────────────────────────────────────────────────────
@@ -312,7 +371,7 @@ function StepSurface({ data, onUpdate, onNext, direction }: StepSurfaceProps) {
   return (
     <div className="ri-step" data-direction={direction}>
       <div className="ri-step-question">
-        <span className="ri-step-num">01</span>
+        <span className="ri-step-num">Choisir</span>
         <h2>Quelle est votre surface ?</h2>
         <p>Votre choix déterminera la gamme de pneus Michelin adaptée.</p>
       </div>
@@ -372,15 +431,35 @@ function StepDiscipline({
 
   return (
     <div className="ri-step" data-direction={direction}>
-      <div className="ri-step-question">
-        <span className="ri-step-num">02</span>
-        <h2>
-          Votre discipline <span>{surfaceLabel}</span> ?
-        </h2>
-        <p>
-          Chaque discipline a ses exigences spécifiques en matière de grip et
-          d&apos;endurance.
-        </p>
+      <div className="ri-step-top">
+        <div className="ri-step-question">
+          <span className="ri-step-num">Qualifier</span>
+          <h2>
+            Votre discipline <span>{surfaceLabel}</span> ?
+          </h2>
+          <p>
+            Chaque discipline a ses exigences spécifiques en matière de grip et
+            d&apos;endurance.
+          </p>
+        </div>
+        <div className="ri-step-footer-solo">
+          <button type="button" className="ri-back-btn" onClick={onBack}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Retour
+          </button>
+        </div>
       </div>
       <div className="ri-option-list">
         {options.map((opt) => (
@@ -415,24 +494,6 @@ function StepDiscipline({
           </button>
         ))}
       </div>
-      <div className="ri-step-footer-solo">
-        <button type="button" className="ri-back-btn" onClick={onBack}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          Retour
-        </button>
-      </div>
     </div>
   );
 }
@@ -440,13 +501,18 @@ function StepDiscipline({
 // ── Step 3 — Parcours ─────────────────────────────────────────────────────────
 
 interface StepParcoursProps extends BaseStepProps {
+  initialRouteStats: GpxStats | null;
   onNext: (values: {
     distanceKm: string;
     elevationGainM: string;
     hasGpx: boolean;
     gradientStats?: GpxStats['gradientStats'];
+    routeStats?: GpxStats | null;
+    routeSourceLabel?: string;
   }) => void;
   onLocationDetected?: (city: string) => void;
+  onRouteStats: (stats: GpxStats | null) => void;
+  stravaConnected: boolean;
 }
 
 const GRADIENT_LABELS = [
@@ -468,18 +534,31 @@ const GRADIENT_LABELS = [
 
 function StepParcours({
   data,
+  initialRouteStats,
   onBack,
   direction,
   onNext,
+  onUpdate,
   onLocationDetected,
+  onRouteStats,
+  stravaConnected,
 }: StepParcoursProps) {
-  const [fileName, setFileName] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(() =>
+    data.routeSourceLabel && data.routeSourceLabel !== 'Activité Strava chargée'
+      ? data.routeSourceLabel
+      : null,
+  );
   const [dragging, setDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [localDist, setLocalDist] = useState(data.distanceKm);
   const [localElev, setLocalElev] = useState(data.elevationGainM);
-  const [gpxStats, setGpxStats] = useState<GpxStats | null>(null);
+  const [gpxStats, setGpxStats] = useState<GpxStats | null>(initialRouteStats);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [stravaSource, setStravaSource] = useState<string | null>(() =>
+    data.routeSourceLabel === 'Activité Strava chargée'
+      ? data.routeSourceLabel
+      : null,
+  );
 
   const hoveredLatLon = useMemo<[number, number] | null>(() => {
     if (hoveredIdx === null || !gpxStats) return null;
@@ -498,13 +577,24 @@ function StepParcours({
     return closest ? [closest.lat, closest.lon] : null;
   }, [hoveredIdx, gpxStats]);
 
-  const [stravaSource, setStravaSource] = useState<string | null>(null);
   const canContinue = Number(localDist) > 0 && localElev !== '';
 
-  function applyStats(stats: GpxStats, startLatLon?: [number, number] | null) {
+  function applyStats(
+    stats: GpxStats,
+    startLatLon?: [number, number] | null,
+    sourceLabel?: string,
+  ) {
     setGpxStats(stats);
+    onRouteStats(stats);
     setLocalDist(String(stats.distanceKm));
     setLocalElev(String(stats.elevationGainM));
+    onUpdate({
+      distanceKm: String(stats.distanceKm),
+      elevationGainM: String(stats.elevationGainM),
+      gradientStats: stats.gradientStats,
+      hasGpx: true,
+      routeSourceLabel: sourceLabel,
+    });
 
     const firstPt = startLatLon
       ? { lat: startLatLon[0], lon: startLatLon[1] }
@@ -544,7 +634,7 @@ function StepParcours({
       const stats = parseGpx(text);
       if (stats) {
         setStravaSource(null);
-        applyStats(stats);
+        applyStats(stats, null, file.name);
       }
     };
     reader.readAsText(file);
@@ -552,10 +642,62 @@ function StepParcours({
 
   return (
     <div className="ri-step" data-direction={direction}>
-      <div className="ri-step-question">
-        <span className="ri-step-num">03</span>
-        <h2>Votre parcours</h2>
-        <p>Distance et dénivelé pour calibrer résistance et pression idéale.</p>
+      <div className="ri-step-top">
+        <div className="ri-step-question">
+          <span className="ri-step-num">Tracer</span>
+          <h2>Votre parcours</h2>
+          <p>
+            Distance et dénivelé pour calibrer résistance et pression idéale.
+          </p>
+        </div>
+        <div className="ri-step-footer">
+          <button type="button" className="ri-back-btn" onClick={onBack}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Retour
+          </button>
+          <button
+            type="button"
+            className="ri-next-btn"
+            disabled={!canContinue}
+            onClick={() =>
+              onNext({
+                distanceKm: localDist,
+                elevationGainM: localElev,
+                hasGpx: !!gpxStats,
+                gradientStats: gpxStats?.gradientStats,
+                routeStats: gpxStats,
+                routeSourceLabel: fileName ?? stravaSource ?? undefined,
+              })
+            }
+          >
+            Continuer
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div className="ri-step-fields">
@@ -564,10 +706,11 @@ function StepParcours({
           {/* Strava */}
           <div className="ri-source-row">
             <StravaPicker
+              initialConnected={stravaConnected}
               onActivitySelected={(stats, _surface, startLatLon) => {
                 setFileName(null);
                 setStravaSource(`Activité Strava chargée`);
-                applyStats(stats, startLatLon);
+                applyStats(stats, startLatLon, 'Activité Strava chargée');
               }}
             />
           </div>
@@ -766,53 +909,6 @@ function StepParcours({
           </div>
         </div>
       </div>
-
-      <div className="ri-step-footer">
-        <button type="button" className="ri-back-btn" onClick={onBack}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          Retour
-        </button>
-        <button
-          type="button"
-          className="ri-next-btn"
-          disabled={!canContinue}
-          onClick={() =>
-            onNext({
-              distanceKm: localDist,
-              elevationGainM: localElev,
-              hasGpx: !!gpxStats,
-              gradientStats: gpxStats?.gradientStats,
-            })
-          }
-        >
-          Continuer
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </button>
-      </div>
     </div>
   );
 }
@@ -823,26 +919,144 @@ interface StepDetailsValues {
   locationName: string;
   raceDate: string;
   riderWeightKg: string;
+  selectedBikeId: string;
+  selectedBike: RaceBikeFitment | null;
 }
 
 interface StepDetailsProps extends BaseStepProps {
+  canSelectBikes: boolean;
   onAnalyze: (values: StepDetailsValues) => void;
 }
 
-function StepDetails({ data, onBack, direction, onAnalyze }: StepDetailsProps) {
+function StepDetails({
+  data,
+  canSelectBikes,
+  onBack,
+  direction,
+  onAnalyze,
+}: StepDetailsProps) {
   const [localLoc, setLocalLoc] = useState(data.locationName);
-  const [localDate, setLocalDate] = useState(data.raceDate);
+  const [localDate, setLocalDate] = useState(() =>
+    normalizeRaceDate(data.raceDate),
+  );
   const [localWeight, setLocalWeight] = useState(data.riderWeightKg);
+  const [bikes, setBikes] = useState<Bike[]>([]);
+  const [bikeLoadStatus, setBikeLoadStatus] = useState<
+    'idle' | 'loading' | 'ready' | 'error'
+  >(() => (canSelectBikes ? 'loading' : 'idle'));
+  const [selectedBikeId, setSelectedBikeId] = useState(data.selectedBikeId);
+  const hasEditedLocationRef = useRef(false);
+  const hasEditedDateRef = useRef(false);
+
+  const selectedProfileBike = bikes.find((bike) => bike.id === selectedBikeId);
+  const selectedBike = selectedProfileBike
+    ? bikeToFitment(selectedProfileBike)
+    : data.selectedBike?.id === selectedBikeId
+      ? data.selectedBike
+      : null;
 
   const canContinue =
     localLoc.trim().length > 2 && !!localDate && Number(localWeight) >= 30;
 
+  useEffect(() => {
+    if (
+      hasEditedLocationRef.current ||
+      !data.locationName ||
+      data.locationName === localLoc
+    ) {
+      return;
+    }
+    setLocalLoc(data.locationName);
+  }, [data.locationName, localLoc]);
+
+  useEffect(() => {
+    const nextDate = normalizeRaceDate(data.raceDate);
+    if (hasEditedDateRef.current || nextDate === localDate) return;
+    setLocalDate(nextDate);
+  }, [data.raceDate, localDate]);
+
+  useEffect(() => {
+    if (!canSelectBikes) return;
+    const controller = new AbortController();
+
+    async function loadBikes() {
+      try {
+        const response = await fetch('/api/bikes', {
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          setBikeLoadStatus('error');
+          return;
+        }
+        setBikes((await response.json()) as Bike[]);
+        setBikeLoadStatus('ready');
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError')
+          return;
+        setBikeLoadStatus('error');
+      }
+    }
+
+    void loadBikes();
+    return () => controller.abort();
+  }, [canSelectBikes]);
+
   return (
     <div className="ri-step" data-direction={direction}>
-      <div className="ri-step-question">
-        <span className="ri-step-num">04</span>
-        <h2>Date, lieu & profil</h2>
-        <p>Pour analyser la météo prévue et calibrer la pression exacte.</p>
+      <div className="ri-step-top">
+        <div className="ri-step-question">
+          <span className="ri-step-num">Finaliser</span>
+          <h2>Date, lieu & profil</h2>
+          <p>Pour analyser la météo prévue et calibrer la pression exacte.</p>
+        </div>
+        <div className="ri-step-footer">
+          <button type="button" className="ri-back-btn" onClick={onBack}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Retour
+          </button>
+          <button
+            type="button"
+            className="ri-next-btn"
+            disabled={!canContinue}
+            onClick={() =>
+              onAnalyze({
+                locationName: localLoc,
+                raceDate: localDate,
+                riderWeightKg: localWeight,
+                selectedBikeId: selectedBike?.id ?? '',
+                selectedBike,
+              })
+            }
+          >
+            Analyser ma course
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div className="ri-step-fields">
@@ -851,7 +1065,10 @@ function StepDetails({ data, onBack, direction, onAnalyze }: StepDetailsProps) {
           <CityAutocomplete
             id="locationName"
             value={localLoc}
-            onChange={setLocalLoc}
+            onChange={(value) => {
+              hasEditedLocationRef.current = true;
+              setLocalLoc(value);
+            }}
             placeholder="ex : Alpe d'Huez, France"
           />
         </div>
@@ -859,14 +1076,15 @@ function StepDetails({ data, onBack, direction, onAnalyze }: StepDetailsProps) {
         <div className="ri-detail-row">
           <div className="ri-detail-field">
             <label htmlFor="raceDate">Date de course</label>
-            <input
+            <RaceDatePicker
               id="raceDate"
-              type="date"
               min={getTodayStr()}
               max={getMaxDateStr()}
               value={localDate}
-              onChange={(e) => setLocalDate(e.target.value)}
-              className="ri-detail-input"
+              onChange={(value) => {
+                hasEditedDateRef.current = true;
+                setLocalDate(value);
+              }}
             />
           </div>
           <div className="ri-detail-field">
@@ -885,52 +1103,64 @@ function StepDetails({ data, onBack, direction, onAnalyze }: StepDetailsProps) {
             />
           </div>
         </div>
-      </div>
 
-      <div className="ri-step-footer">
-        <button type="button" className="ri-back-btn" onClick={onBack}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          Retour
-        </button>
-        <button
-          type="button"
-          className="ri-next-btn"
-          disabled={!canContinue}
-          onClick={() =>
-            onAnalyze({
-              locationName: localLoc,
-              raceDate: localDate,
-              riderWeightKg: localWeight,
-            })
-          }
-        >
-          Analyser ma course
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </button>
+        {canSelectBikes && (
+          <div className="ri-bike-selector">
+            <div className="ri-bike-selector-head">
+              <div>
+                <span>Vélo utilisé</span>
+                <p>
+                  Optionnel. Si tu sélectionnes un vélo, la recommandation
+                  tiendra compte de sa famille et de ses dimensions.
+                </p>
+              </div>
+              {bikeLoadStatus === 'loading' && <span>Chargement…</span>}
+            </div>
+
+            {bikeLoadStatus === 'error' ? (
+              <p className="ri-bike-selector-empty">
+                Impossible de charger tes vélos pour le moment.
+              </p>
+            ) : bikeLoadStatus === 'ready' && bikes.length === 0 ? (
+              <p className="ri-bike-selector-empty">
+                Aucun vélo enregistré. La recommandation restera basée sur le
+                parcours.
+              </p>
+            ) : (
+              <div className="ri-bike-options">
+                <button
+                  type="button"
+                  className={`ri-bike-option${!selectedBikeId ? ' selected' : ''}`}
+                  onClick={() => setSelectedBikeId('')}
+                >
+                  <span className="ri-bike-option-check" />
+                  <span>
+                    <strong>Sans vélo spécifique</strong>
+                    <small>Recommandation basée sur la course uniquement</small>
+                  </span>
+                </button>
+
+                {bikes.map((bike) => {
+                  const fitment = bikeToFitment(bike);
+                  return (
+                    <button
+                      type="button"
+                      className={`ri-bike-option${selectedBikeId === bike.id ? ' selected' : ''}`}
+                      key={bike.id}
+                      onClick={() => setSelectedBikeId(bike.id)}
+                    >
+                      <span className="ri-bike-option-check" />
+                      <span>
+                        <strong>{bike.name}</strong>
+                        <small>{bikeFitmentSummary(fitment)}</small>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -938,27 +1168,48 @@ function StepDetails({ data, onBack, direction, onAnalyze }: StepDetailsProps) {
 
 // ── Main Stepper ──────────────────────────────────────────────────────────────
 
-const INITIAL_FORM: FormData = {
-  discipline: null,
-  distanceKm: '',
-  elevationGainM: '',
-  hasGpx: false,
-  locationName: '',
-  raceDate: '',
-  riderWeightKg: '',
-  surface: null,
-};
+function createInitialForm(): FormData {
+  return {
+    discipline: null,
+    distanceKm: '',
+    elevationGainM: '',
+    hasGpx: false,
+    locationName: '',
+    raceDate: normalizeRaceDate(),
+    riderWeightKg: '',
+    selectedBike: null,
+    selectedBikeId: '',
+    surface: null,
+  };
+}
+
+interface StoredStepperState {
+  form?: Partial<FormData>;
+  routeStats?: GpxStats | null;
+  step?: number;
+}
 
 interface SaveState {
   status: 'idle' | 'saving' | 'saved' | 'error';
   raceName: string;
 }
 
-export function RaceForm({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
+interface RaceFormProps {
+  canSelectBikes?: boolean;
+  isLoggedIn?: boolean;
+  stravaConnected: boolean;
+}
+
+export function RaceForm({
+  canSelectBikes = false,
+  isLoggedIn = false,
+  stravaConnected,
+}: RaceFormProps) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
-  const [form, setForm] = useState<FormData>(INITIAL_FORM);
+  const [form, setForm] = useState<FormData>(() => createInitialForm());
+  const [routeStats, setRouteStats] = useState<GpxStats | null>(null);
   const [result, setResult] = useState<AnalyzeRaceState>({
     data: null,
     error: null,
@@ -971,17 +1222,20 @@ export function RaceForm({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem('ri_stepper');
+      const raw = localStorage.getItem(STEPPER_STORAGE_KEY);
       if (!raw) return;
-      const saved = JSON.parse(raw) as {
-        step?: number;
-        form?: Partial<FormData>;
-      };
+      const saved = JSON.parse(raw) as StoredStepperState;
       const savedStep = typeof saved.step === 'number' ? saved.step : 0;
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (savedStep > 0 && savedStep < TOTAL_STEPS) setStep(savedStep);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (saved.form) setForm((prev) => ({ ...prev, ...saved.form }));
+      if (saved.form) {
+        setForm((prev) => ({
+          ...prev,
+          ...saved.form,
+          raceDate: normalizeRaceDate(saved.form?.raceDate || prev.raceDate),
+        }));
+      }
+      if (saved.routeStats) setRouteStats(saved.routeStats);
     } catch {
       /* storage unavailable */
     }
@@ -990,25 +1244,48 @@ export function RaceForm({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   useEffect(() => {
     if (step >= TOTAL_STEPS || isPending) return;
     try {
-      localStorage.setItem('ri_stepper', JSON.stringify({ step, form }));
+      localStorage.setItem(
+        STEPPER_STORAGE_KEY,
+        JSON.stringify({ form, routeStats, step }),
+      );
     } catch {
       /* storage unavailable */
     }
-  }, [step, form, isPending]);
+  }, [step, form, isPending, routeStats]);
 
   function restart() {
     try {
-      localStorage.removeItem('ri_stepper');
+      localStorage.removeItem(STEPPER_STORAGE_KEY);
     } catch {
       /* storage unavailable */
     }
     setResult({ data: null, error: null });
     setStep(0);
-    setForm(INITIAL_FORM);
+    setForm(createInitialForm());
+    setRouteStats(null);
   }
 
   function updateForm(partial: Partial<FormData>) {
     setForm((prev) => ({ ...prev, ...partial }));
+  }
+
+  function persistStepper(
+    nextStep: number,
+    nextForm: FormData,
+    nextRouteStats = routeStats,
+  ) {
+    try {
+      localStorage.setItem(
+        STEPPER_STORAGE_KEY,
+        JSON.stringify({
+          form: nextForm,
+          routeStats: nextRouteStats,
+          step: nextStep,
+        }),
+      );
+    } catch {
+      /* storage unavailable */
+    }
   }
 
   function goNext() {
@@ -1034,6 +1311,7 @@ export function RaceForm({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
         locationName: allData.locationName,
         raceDate: allData.raceDate,
         riderWeightKg: Number(allData.riderWeightKg),
+        bike: allData.selectedBike ?? undefined,
         surface: allData.surface!,
       };
       const [res] = await Promise.all([
@@ -1058,6 +1336,7 @@ export function RaceForm({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
       elevationGainM: Number(form.elevationGainM),
       riderWeightKg: Number(form.riderWeightKg),
       result,
+      bikeId: form.selectedBikeId || undefined,
     };
     try {
       const res = await fetch('/api/saved-races', {
@@ -1308,24 +1587,37 @@ export function RaceForm({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
       {step === 2 && (
         <StepParcours
           {...baseProps}
+          initialRouteStats={routeStats}
           onNext={(parcoursValues) => {
-            updateForm(parcoursValues);
-            goNext();
+            const { routeStats: nextRouteStats, ...nextParcoursValues } =
+              parcoursValues;
+            const nextForm: FormData = {
+              ...form,
+              ...nextParcoursValues,
+            };
+            updateForm(nextParcoursValues);
+            setRouteStats(nextRouteStats ?? null);
+            persistStepper(3, nextForm, nextRouteStats ?? null);
+            setDirection('forward');
+            setStep(3);
           }}
           onLocationDetected={(city) => updateForm({ locationName: city })}
+          onRouteStats={setRouteStats}
+          stravaConnected={stravaConnected}
         />
       )}
 
       {step === 3 && (
         <StepDetails
           {...baseProps}
+          canSelectBikes={canSelectBikes}
           onAnalyze={(detailValues) => {
             const allData: FormData = { ...form, ...detailValues };
             if (!isLoggedIn) {
               try {
                 localStorage.setItem(
-                  'ri_stepper',
-                  JSON.stringify({ step: 3, form: allData }),
+                  STEPPER_STORAGE_KEY,
+                  JSON.stringify({ form: allData, routeStats, step: 3 }),
                 );
               } catch {
                 /* storage unavailable */

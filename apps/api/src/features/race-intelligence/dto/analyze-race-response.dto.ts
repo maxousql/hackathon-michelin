@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import type {
+  BikeCompatibility,
   PressureRecommendation,
   RaceAnalyzeResponse,
   TireRecommendation,
@@ -24,6 +25,14 @@ export class PressureRecommendationDto implements PressureRecommendation {
   @ApiProperty() note!: string;
 }
 
+export class BikeCompatibilityDto implements BikeCompatibility {
+  @ApiProperty({ required: false }) bikeId?: string;
+  @ApiProperty() bikeName!: string;
+  @ApiProperty() summary!: string;
+  @ApiProperty({ type: [String] }) details!: string[];
+  @ApiProperty({ required: false }) warning?: string;
+}
+
 export class AnalyzeRaceResponseDto implements RaceAnalyzeResponse {
   @ApiProperty({ type: TireRecommendationDto }) tire!: TireRecommendationDto;
   @ApiProperty({ type: PressureRecommendationDto })
@@ -31,4 +40,6 @@ export class AnalyzeRaceResponseDto implements RaceAnalyzeResponse {
   @ApiProperty() weatherSummary!: string;
   @ApiProperty() justification!: string;
   @ApiProperty() confidenceScore!: number;
+  @ApiProperty({ type: BikeCompatibilityDto, required: false })
+  bikeCompatibility?: BikeCompatibilityDto;
 }

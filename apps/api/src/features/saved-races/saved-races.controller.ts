@@ -6,6 +6,7 @@ import {
   HttpCode,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -24,6 +25,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../auth/user.type';
 import { SavedRacesService } from './saved-races.service';
 import { CreateSavedRaceDto } from './dto/create-saved-race.dto';
+import { UpdateSavedRaceDto } from './dto/update-saved-race.dto';
 
 @ApiTags('saved-races')
 @Controller('saved-races')
@@ -47,6 +49,17 @@ export class SavedRacesController {
     @Body() dto: CreateSavedRaceDto,
   ): Promise<SavedRace> {
     return this.savedRacesService.create(user.id, dto);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a saved race' })
+  @ApiOkResponse({ description: 'Race updated' })
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateSavedRaceDto,
+  ): Promise<SavedRace> {
+    return this.savedRacesService.update(user.id, id, dto);
   }
 
   @Delete(':id')

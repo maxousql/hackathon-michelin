@@ -16,10 +16,11 @@ export async function AppHeader() {
   const user = await getCurrentUser();
   const cookieStore = await cookies();
   const stravaConnected = !!cookieStore.get('strava_at')?.value;
+  const canViewProfile = !!user || stravaConnected;
 
   const navigation = [...MAIN_NAVIGATION];
 
-  if (user || stravaConnected) {
+  if (canViewProfile) {
     navigation.push({ href: '/profil', label: 'Mon Profil' });
   }
 
@@ -31,7 +32,11 @@ export async function AppHeader() {
     <Header
       actions={
         user || stravaConnected ? (
-          <UserMenu isAdmin={user?.isAdmin ?? false} />
+          <UserMenu
+            canViewProfile={canViewProfile}
+            isAdmin={user?.isAdmin ?? false}
+            stravaConnected={stravaConnected}
+          />
         ) : (
           <HeaderIconLink href="/login" label="Connexion" />
         )

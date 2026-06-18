@@ -1,15 +1,16 @@
 import Image from 'next/image';
+import Link from 'next/link';
+
+import { RaceIntelligenceMarquee } from '@/features/race-intelligence/components/race-intelligence-marquee';
 
 import {
   AnimatedBadge,
-  BrandMarquee,
   Container,
   DesireStack,
   ExperienceAccordion,
   GradientBackground,
   MichelinBento,
   MichelinButton,
-  RaceFinderCard,
   Section,
   ScrubNarrative,
 } from './landing-components';
@@ -53,8 +54,6 @@ export function LandingPage() {
                   </MichelinButton>
                 </div>
               </div>
-
-              <RaceFinderCard />
             </Container>
           </section>
         </GradientBackground>
@@ -76,6 +75,8 @@ export function LandingPage() {
             <MichelinBento />
           </Container>
         </Section>
+
+        <RaceIntelligenceMarquee />
 
         <Section
           ariaLabelledby="practices-title"
@@ -125,31 +126,31 @@ export function LandingPage() {
           </Container>
         </Section>
 
-        <BrandMarquee />
-
-        <Section ariaLabelledby="final-cta-title" tone="yellow">
-          <Container className="final-cta">
+        <section
+          className="ri-final"
+          id="decision"
+          aria-labelledby="final-cta-title"
+        >
+          <div className="ri-container ri-final-grid">
             <div>
-              <AnimatedBadge>Michelin Race</AnimatedBadge>
+              <p>Décision Michelin</p>
               <h2 id="final-cta-title">
                 Votre prochaine sortie peut choisir vos pneus.
               </h2>
-              <p>
-                Importez un parcours, obtenez une prescription expliquée, puis
-                comparez, achetez ou préparez le montage avec une décision plus
-                sûre.
-              </p>
             </div>
-            <div className="final-actions">
-              <MichelinButton href="/race-intelligence" variant="secondary">
+            <div className="ri-final-actions">
+              <a
+                className="ri-cta ri-cta-primary"
+                href="/race-intelligence#race-diagnostic"
+              >
                 Lancer Race Intelligence
-              </MichelinButton>
-              <MichelinButton href="/products" variant="outline">
-                Explorer le catalogue
-              </MichelinButton>
+              </a>
+              <Link className="ri-cta ri-cta-outline" href="/comparateur">
+                Comparer deux pneus
+              </Link>
             </div>
-          </Container>
-        </Section>
+          </div>
+        </section>
       </main>
     </>
   );

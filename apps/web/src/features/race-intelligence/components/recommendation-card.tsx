@@ -5,8 +5,14 @@ interface RecommendationCardProps {
 }
 
 export function RecommendationCard({ result }: RecommendationCardProps) {
-  const { tire, pressure, weatherSummary, justification, confidenceScore } =
-    result;
+  const {
+    tire,
+    pressure,
+    weatherSummary,
+    justification,
+    confidenceScore,
+    bikeCompatibility,
+  } = result;
 
   return (
     <div className="ri-rec-card">
@@ -53,6 +59,23 @@ export function RecommendationCard({ result }: RecommendationCardProps) {
           <span className="ri-rec-score-label">Match</span>
         </div>
       </div>
+
+      {bikeCompatibility && (
+        <div className="ri-rec-bike-compat">
+          <div>
+            <p>Compatibilité vélo</p>
+            <h3>{bikeCompatibility.bikeName}</h3>
+          </div>
+          <div className="ri-rec-bike-tags">
+            {bikeCompatibility.details.map((detail) => (
+              <span key={detail}>{detail}</span>
+            ))}
+          </div>
+          {bikeCompatibility.warning && (
+            <p className="ri-rec-bike-warning">{bikeCompatibility.warning}</p>
+          )}
+        </div>
+      )}
 
       {/* ── Pressure hero ── */}
       <div className="ri-rec-pressure-hero">

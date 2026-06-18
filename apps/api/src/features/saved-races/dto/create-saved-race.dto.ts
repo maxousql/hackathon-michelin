@@ -2,7 +2,9 @@ import {
   IsDateString,
   IsNumber,
   IsObject,
+  IsOptional,
   IsString,
+  IsUUID,
   Max,
   MaxLength,
   Min,
@@ -44,4 +46,8 @@ export class CreateSavedRaceDto {
 
   @IsObject()
   result!: Record<string, unknown>;
+
+  @IsOptional()
+  @IsUUID()
+  bikeId?: string | null;
 }
