@@ -5,6 +5,7 @@ import {
   authResponseSchema,
   authUserSchema,
   buybackEstimateSchema,
+  challengeListSchema,
   buybackRequestListSchema,
   buybackRequestSchema,
   challengeListSchema,

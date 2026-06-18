@@ -26,12 +26,12 @@ export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const id = parseId((await params).id);
-  if (id === null) return { title: 'Produit introuvable — MICHELIN Ride ID' };
+  if (id === null) return { title: 'Produit introuvable — MICHELIN Race' };
 
   const product = await loadProduct(id);
-  if (!product) return { title: 'Produit introuvable — MICHELIN Ride ID' };
+  if (!product) return { title: 'Produit introuvable — MICHELIN Race' };
 
-  return { title: `${productName(product)} — MICHELIN Ride ID` };
+  return { title: `${productName(product)} — MICHELIN Race` };
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
