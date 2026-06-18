@@ -1,8 +1,11 @@
+import { cookies } from 'next/headers';
 import type { Metadata } from 'next';
 
 import { RaceForm } from '@/features/race-intelligence/components/race-form';
 
 import '@/features/race-intelligence/race-intelligence.css';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   description:
@@ -10,7 +13,12 @@ export const metadata: Metadata = {
   title: 'Race Intelligence — Michelin Vélo',
 };
 
-export default function RaceIntelligencePage() {
+export default async function RaceIntelligencePage() {
+  const cookieStore = await cookies();
+  const isLoggedIn =
+    !!cookieStore.get('auth_token')?.value ||
+    !!cookieStore.get('strava_at')?.value;
+
   return (
     <main className="ri-page">
       <header className="ri-hero">
@@ -34,7 +42,7 @@ export default function RaceIntelligencePage() {
 
       <section className="ri-content">
         <div className="ri-container">
-          <RaceForm />
+          <RaceForm isLoggedIn={isLoggedIn} />
         </div>
       </section>
     </main>

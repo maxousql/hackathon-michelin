@@ -8,8 +8,12 @@ import {
   stravaLogoutAction,
   logoutAction,
 } from '@/features/auth/actions/auth.actions';
-import type { AuthUser } from '@michelin/contracts';
-import type { Bike, CreateBikeRequest } from '@michelin/contracts';
+import type {
+  AuthUser,
+  Bike,
+  CreateBikeRequest,
+  SavedRace,
+} from '@michelin/contracts';
 
 import '../rider-profile.css';
 
@@ -160,6 +164,7 @@ export function RiderProfile({
   );
   const [activities, setActivities] = useState<StravaActivity[]>([]);
   const [manualBikes, setManualBikes] = useState<Bike[]>([]);
+  const [savedRaces, setSavedRaces] = useState<SavedRace[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddBike, setShowAddBike] = useState(false);
   const [logoutPending, startLogout] = useTransition();
@@ -211,6 +216,9 @@ export function RiderProfile({
           fetch('/api/bikes').then(async (r) => {
             if (r.ok) setManualBikes((await r.json()) as Bike[]);
           }),
+          fetch('/api/saved-races').then(async (r) => {
+            if (r.ok) setSavedRaces((await r.json()) as SavedRace[]);
+          }),
         );
 
         await Promise.all(promises);
@@ -255,6 +263,11 @@ export function RiderProfile({
   async function handleDeleteBike(id: string) {
     await fetch(`/api/bikes/${id}`, { method: 'DELETE' });
     setManualBikes((prev) => prev.filter((b) => b.id !== id));
+  }
+
+  async function handleDeleteSavedRace(id: string) {
+    await fetch(`/api/saved-races/${id}`, { method: 'DELETE' });
+    setSavedRaces((prev) => prev.filter((r) => r.id !== id));
   }
 
   const stats = computeStats(activities);
@@ -481,6 +494,82 @@ export function RiderProfile({
             </div>
           )}
         </section>
+
+        {/* ── Prochaines courses ── */}
+        {(savedRaces.length > 0 || loading) && (
+          <section className="rp-section">
+            <p className="rp-kicker">Race Intelligence</p>
+            <h2 className="rp-section-title">Mes prochaines courses</h2>
+            {loading ? (
+              <div className="rp-bikes-loading">
+                <div className="rp-bike-skeleton" />
+              </div>
+            ) : (
+              <div className="rp-races-list">
+                {savedRaces.map((race) => (
+                  <div key={race.id} className="rp-race-card">
+                    <div className="rp-race-left">
+                      <div className="rp-race-icon" aria-hidden="true">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect x="3" y="4" width="18" height="18" rx="2" />
+                          <line x1="16" y1="2" x2="16" y2="6" />
+                          <line x1="8" y1="2" x2="8" y2="6" />
+                          <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="rp-race-name">{race.raceName}</div>
+                        <div className="rp-race-meta">
+                          <span>
+                            {new Date(race.raceDate).toLocaleDateString(
+                              'fr-FR',
+                              {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              },
+                            )}
+                          </span>
+                          <span className="rp-race-sep">·</span>
+                          <span>{race.locationName}</span>
+                          <span className="rp-race-sep">·</span>
+                          <span>
+                            {race.distanceKm} km / {race.elevationGainM} m D+
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="rp-race-right">
+                      <div className="rp-race-tire">
+                        <p className="rp-rec-label">Pneu recommandé</p>
+                        <p className="rp-rec-name">{race.result.tire.name}</p>
+                        <p className="rp-rec-sub">
+                          {race.result.pressure.frontBar} /{' '}
+                          {race.result.pressure.rearBar} bar
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        className="rp-delete-btn"
+                        onClick={() => void handleDeleteSavedRace(race.id)}
+                        aria-label="Supprimer cette course"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
         {/* ── CTA ── */}
         <section className="rp-cta-section">

@@ -11,14 +11,18 @@ import styles from './auth-shell.module.css';
 
 interface LoginFormProps {
   errorMessage?: string;
+  redirectTo?: string;
 }
 
-export function LoginForm({ errorMessage }: LoginFormProps) {
+export function LoginForm({ errorMessage, redirectTo }: LoginFormProps) {
   const [state, action, pending] = useActionState(loginAction, undefined);
 
   return (
     <>
       <form action={action} className={styles.form}>
+        {redirectTo && (
+          <input type="hidden" name="redirectTo" value={redirectTo} />
+        )}
         <div className={styles.field}>
           <label className={styles.label} htmlFor="email">
             Adresse email
