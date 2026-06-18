@@ -1,18 +1,30 @@
 'use client';
 
+import Link from 'next/link';
 import { useActionState } from 'react';
 
-import { loginAction } from '../actions/auth.actions';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
-export function LoginForm() {
+import { loginAction } from '../actions/auth.actions';
+import styles from './auth-shell.module.css';
+
+interface LoginFormProps {
+  errorMessage?: string;
+}
+
+export function LoginForm({ errorMessage }: LoginFormProps) {
   const [state, action, pending] = useActionState(loginAction, undefined);
 
   return (
     <>
-      <form action={action} className="auth-form">
-        <div className="form-group">
-          <label htmlFor="email">Adresse email</label>
-          <input
+      <form action={action} className={styles.form}>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="email">
+            Adresse email
+          </label>
+          <Input
+            className={styles.input}
             id="email"
             name="email"
             type="email"
@@ -21,13 +33,16 @@ export function LoginForm() {
             placeholder="jane@example.com"
           />
           {state?.errors?.email && (
-            <p className="field-error">{state.errors.email[0]}</p>
+            <p className={styles.fieldError}>{state.errors.email[0]}</p>
           )}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="password">Mot de passe</label>
-          <input
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="password">
+            Mot de passe
+          </label>
+          <Input
+            className={styles.input}
             id="password"
             name="password"
             type="password"
@@ -36,26 +51,27 @@ export function LoginForm() {
             placeholder="••••••••"
           />
           {state?.errors?.password && (
-            <p className="field-error">{state.errors.password[0]}</p>
+            <p className={styles.fieldError}>{state.errors.password[0]}</p>
           )}
         </div>
 
-        {state?.message && <p className="form-error">{state.message}</p>}
+        {errorMessage && <p className={styles.formError}>{errorMessage}</p>}
+        {state?.message && <p className={styles.formError}>{state.message}</p>}
 
-        <button type="submit" disabled={pending} className="btn-primary">
+        <Button className={styles.submit} disabled={pending} type="submit">
           {pending ? 'Connexion…' : 'Se connecter'}
-        </button>
+        </Button>
 
-        <p className="auth-switch">
-          Pas encore de compte ? <a href="/register">Créer un compte</a>
+        <p className={styles.switch}>
+          Pas encore de compte ? <Link href="/register">Créer un compte</Link>
         </p>
       </form>
 
-      <div className="auth-divider">
+      <div className={styles.divider}>
         <span>ou</span>
       </div>
 
-      <a href="/api/strava/auth?mode=login" className="btn-strava">
+      <a href="/api/strava/auth?mode=login" className={styles.stravaButton}>
         <svg
           width="18"
           height="18"

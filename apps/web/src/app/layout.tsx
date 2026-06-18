@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Noto_Sans } from 'next/font/google';
 import type { ReactNode } from 'react';
 
+import { AppChrome } from '@/components/layout/app-chrome';
 import { AppHeader } from '@/components/layout/app-header';
 import { Footer } from '@/components/layout/footer';
 
@@ -28,9 +29,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="fr">
       <body className={notoSans.variable}>
-        <AppHeader />
-        {children}
-        <Footer />
+        <AppChrome footer={<Footer />} header={<AppHeader />}>
+          {children}
+        </AppChrome>
       </body>
     </html>
   );

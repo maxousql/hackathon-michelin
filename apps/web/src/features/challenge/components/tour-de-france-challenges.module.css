@@ -1,0 +1,865 @@
+.section {
+  display: grid;
+  gap: var(--space-16);
+  padding-block: var(--space-16) var(--space-20);
+  color: var(--text-primary);
+}
+
+.heading {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 64rem;
+}
+
+.kicker {
+  margin: 0;
+  color: var(--brand-blue);
+  font-size: var(--type-caption-size);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: var(--type-caption-line);
+  text-transform: uppercase;
+}
+
+.heading h2 {
+  max-width: 17ch;
+  margin: 0;
+  color: var(--brand-midnight);
+  font-family: var(--font-title);
+  font-size: var(--type-display-size);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.04;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.heading p {
+  max-width: 48rem;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--type-body-large-size);
+  line-height: var(--type-body-large-line);
+}
+
+.inlineImage {
+  display: inline-block;
+  width: 5.5rem;
+  height: 2.35rem;
+  margin-inline: 0.45rem;
+  border: 2px solid rgb(var(--brand-midnight-rgb) / 88%);
+  border-radius: var(--radius-full);
+  background:
+    linear-gradient(
+      90deg,
+      rgb(var(--brand-midnight-rgb) / 16%),
+      rgb(252 229 0 / 44%)
+    ),
+    url('https://picsum.photos/seed/tour-de-france-peloton/420/160');
+  background-position: center;
+  background-size: cover;
+  vertical-align: middle;
+  filter: grayscale(1) contrast(1.18);
+}
+
+.bentoGrid {
+  display: grid;
+  grid-auto-flow: dense;
+  grid-auto-rows: minmax(11rem, auto);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid rgb(var(--brand-dark-blue-rgb) / 10%);
+  border-radius: var(--radius-large);
+  background: var(--surface-default);
+  box-shadow: 0 22px 64px rgb(var(--brand-midnight-rgb) / 10%);
+}
+
+.bentoCard {
+  position: relative;
+  display: grid;
+  min-height: 11rem;
+  align-content: end;
+  gap: var(--space-3);
+  overflow: hidden;
+  padding: var(--space-6);
+  border-right: 1px solid rgb(var(--brand-blue-rgb) / 11%);
+  border-bottom: 1px solid rgb(var(--brand-blue-rgb) / 11%);
+  background:
+    radial-gradient(circle at 88% 18%, rgb(252 229 0 / 14%), transparent 9rem),
+    var(--surface-default);
+}
+
+.bentoCard:nth-child(3),
+.bentoCard:nth-child(4) {
+  border-right: 0;
+}
+
+.bentoLarge {
+  grid-column: span 2;
+  grid-row: span 2;
+  min-height: 22rem;
+  background: var(--brand-midnight);
+  color: var(--text-on-brand);
+}
+
+.bentoWide {
+  grid-column: span 2;
+}
+
+.bentoMedia {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--brand-midnight-rgb) / 12%),
+      rgb(var(--brand-midnight-rgb) / 88%)
+    ),
+    url('https://picsum.photos/seed/tour-de-france-route-map/1000/900');
+  background-position: center;
+  background-size: cover;
+  filter: grayscale(1) contrast(1.2);
+  transform: scale(1);
+  transition: transform 700ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.bentoLarge:hover .bentoMedia {
+  transform: scale(1.05);
+}
+
+.bentoCard div {
+  position: relative;
+  z-index: 1;
+}
+
+.bentoCard p,
+.bentoCard span {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--type-body-small-size);
+  font-weight: 800;
+  line-height: var(--type-body-small-line);
+}
+
+.bentoLarge p,
+.bentoLarge span {
+  color: rgb(255 255 255 / 78%);
+}
+
+.bentoCard h3 {
+  margin: 0;
+  color: var(--brand-midnight);
+  font-family: var(--font-title);
+  font-size: var(--type-h2-size);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: var(--type-h2-line);
+  text-transform: uppercase;
+}
+
+.bentoLarge h3 {
+  color: var(--brand-yellow);
+}
+
+.marquee {
+  width: 100%;
+  overflow: hidden;
+  border-block: 1px solid rgb(var(--brand-blue-rgb) / 12%);
+  color: var(--brand-midnight);
+}
+
+.marqueeTrack {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: var(--space-8);
+  padding-block: var(--space-4);
+  will-change: transform;
+}
+
+.marqueeTrack span {
+  color: rgb(var(--brand-midnight-rgb) / 66%);
+  font-family: var(--font-title);
+  font-size: var(--type-h4-size);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.workspace {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.selectorPanel,
+.routePanel,
+.tirePanel,
+.stackCard,
+.actionBand {
+  border: 1px solid rgb(var(--brand-dark-blue-rgb) / 10%);
+  border-radius: var(--radius-large);
+  background: var(--surface-default);
+  box-shadow: 0 18px 48px rgb(var(--brand-midnight-rgb) / 10%);
+}
+
+.selectorPanel {
+  display: grid;
+  gap: var(--space-6);
+  padding: clamp(var(--space-6), 2.4vw, var(--space-8));
+}
+
+.selectorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.selectorHeader h3 {
+  margin: 0;
+  color: var(--brand-midnight);
+  font-family: var(--font-title);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.selectorHeader span {
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--surface-highlight);
+  padding: var(--space-2) var(--space-3);
+  color: var(--brand-midnight);
+  font-size: var(--type-caption-size);
+  font-weight: 900;
+}
+
+.stageAccordion {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding: var(--space-1) var(--space-1) var(--space-2);
+  margin-inline: calc(var(--space-1) * -1);
+  scrollbar-color: rgb(var(--brand-blue-rgb) / 32%) transparent;
+}
+
+.stageButton {
+  display: grid;
+  flex: 0 0 4.75rem;
+  min-height: 9.5rem;
+  align-content: space-between;
+  gap: var(--space-3);
+  overflow: hidden;
+  padding: var(--space-4);
+  border: 1px solid rgb(var(--brand-blue-rgb) / 16%);
+  border-radius: var(--radius-medium);
+  background: var(--surface-canvas);
+  color: var(--brand-midnight);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    flex-basis 360ms cubic-bezier(0.2, 0, 0, 1),
+    background-color var(--motion-standard) var(--motion-easing),
+    border-color var(--motion-standard) var(--motion-easing),
+    transform var(--motion-standard) var(--motion-easing);
+}
+
+.stageButton:hover,
+.stageButton[data-active] {
+  flex-basis: 16rem;
+  border-color: var(--brand-yellow);
+  background:
+    radial-gradient(circle at 100% 0%, rgb(252 229 0 / 32%), transparent 7rem),
+    var(--brand-midnight);
+  color: var(--text-on-brand);
+  transform: translateY(-2px);
+}
+
+.stageButton span {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--brand-yellow);
+  color: var(--brand-midnight);
+  font-weight: 900;
+}
+
+.stageButton strong,
+.stageButton em {
+  min-width: 10rem;
+  opacity: 0;
+  transition: opacity 240ms var(--motion-easing);
+}
+
+.stageButton:hover strong,
+.stageButton:hover em,
+.stageButton[data-active] strong,
+.stageButton[data-active] em {
+  opacity: 1;
+}
+
+.stageButton strong {
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.stageButton em {
+  color: rgb(255 255 255 / 72%);
+  font-size: var(--type-caption-size);
+  font-style: normal;
+  font-weight: 800;
+  line-height: var(--type-caption-line);
+}
+
+.stageLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.55fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.routePanel {
+  display: grid;
+  gap: var(--space-6);
+  overflow: hidden;
+  padding: clamp(var(--space-6), 2.2vw, var(--space-8));
+}
+
+.stageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: 0 0 var(--space-6);
+  border-bottom: 1px solid rgb(var(--brand-blue-rgb) / 12%);
+}
+
+.stageHeader p {
+  margin: 0 0 var(--space-1);
+  color: var(--brand-blue);
+  font-size: var(--type-caption-size);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.stageHeader h3 {
+  margin: 0;
+  color: var(--brand-midnight);
+  font-family: var(--font-title);
+  font-size: var(--type-h3-size);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: var(--type-h3-line);
+  text-transform: uppercase;
+}
+
+.stageHeader > span {
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: rgb(var(--brand-blue-rgb) / 9%);
+  padding: var(--space-2) var(--space-3);
+  color: var(--brand-blue);
+  font-size: var(--type-caption-size);
+  font-weight: 900;
+}
+
+.mapFrame {
+  position: relative;
+  min-height: 28rem;
+  overflow: hidden;
+  border: 1px solid rgb(var(--brand-blue-rgb) / 12%);
+  border-radius: var(--radius-medium);
+  background: var(--mi-blue-pale, #e8eef8);
+}
+
+.mapFrame::after {
+  position: absolute;
+  z-index: 350;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgb(0 32 91 / 10%), transparent 40%),
+    radial-gradient(circle at 16% 18%, rgb(252 229 0 / 18%), transparent 20rem);
+  content: '';
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.mapFrame :global(.ri-route-map) {
+  height: 28rem;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.mapFrame :global(.ri-route-map--michelin) {
+  background: var(--mi-blue-pale, #e8eef8);
+}
+
+.mapFrame :global(.ri-route-map--michelin .leaflet-tile) {
+  filter: saturate(0.8) hue-rotate(172deg) brightness(1.02) contrast(0.92);
+}
+
+.mapFrame :global(.ri-route-map--michelin .leaflet-control-zoom) {
+  overflow: hidden;
+  border: 1px solid rgb(0 32 91 / 22%);
+  border-radius: var(--radius-medium);
+  box-shadow: 0 12px 28px rgb(0 32 91 / 18%);
+}
+
+.mapFrame :global(.ri-route-map--michelin .leaflet-control-zoom a) {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: rgb(255 255 255 / 92%);
+  color: var(--brand-dark-blue);
+  font-weight: 900;
+  line-height: 34px;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid rgb(var(--brand-blue-rgb) / 12%);
+  border-radius: var(--radius-medium);
+}
+
+.metricsGrid span {
+  display: flex;
+  min-height: 5.5rem;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border-right: 1px solid rgb(var(--brand-blue-rgb) / 12%);
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.metricsGrid span:last-child {
+  border-right: 0;
+}
+
+.metricsGrid strong {
+  color: var(--brand-blue);
+  font-size: var(--type-h4-size);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.metricsGrid em {
+  width: 100%;
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.profileBlock {
+  display: grid;
+  gap: var(--space-4);
+  padding: 0;
+}
+
+.profileBlock h4 {
+  margin: 0 0 var(--space-2);
+  color: var(--brand-midnight);
+  font-family: var(--font-title);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.profileBlock p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--type-body-small-size);
+  line-height: var(--type-body-small-line);
+}
+
+.profileBlock :global(.ri-elevation-svg) {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 6rem;
+}
+
+.tirePanel {
+  position: sticky;
+  top: calc(var(--site-header-height) + var(--space-4));
+  display: grid;
+  gap: var(--space-6);
+  overflow: hidden;
+  padding: clamp(var(--space-6), 2.2vw, var(--space-8));
+}
+
+.tireVisual {
+  position: relative;
+  min-height: 14rem;
+  overflow: hidden;
+  border-radius: var(--radius-medium);
+  background:
+    radial-gradient(circle at 50% 45%, rgb(252 229 0 / 34%), transparent 9rem),
+    var(--brand-midnight);
+}
+
+.tireImage {
+  object-fit: contain;
+  padding: var(--space-6);
+  transform: scale(1);
+  transition: transform 700ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.tirePanel:hover .tireImage {
+  transform: scale(1.05);
+}
+
+.tireCopy {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.tireCopy p,
+.tireCopy span {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--type-body-small-size);
+  font-weight: 800;
+  line-height: var(--type-body-small-line);
+}
+
+.tireCopy p {
+  color: var(--brand-blue);
+  text-transform: uppercase;
+}
+
+.tireCopy h3 {
+  margin: 0;
+  color: var(--brand-midnight);
+  font-family: var(--font-title);
+  font-size: var(--type-h3-size);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: var(--type-h3-line);
+  text-transform: uppercase;
+}
+
+.tireScore {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-medium);
+  background: var(--brand-midnight);
+  color: var(--text-on-brand);
+}
+
+.tireScore strong {
+  color: var(--brand-yellow);
+  font-size: var(--type-h3-size);
+  font-weight: 900;
+}
+
+.tireScore span {
+  color: rgb(255 255 255 / 72%);
+  font-size: var(--type-caption-size);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.tireReason {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--type-body-small-size);
+  line-height: var(--type-body-small-line);
+}
+
+.highlightList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.highlightList li {
+  border-radius: var(--radius-full);
+  background: rgb(var(--brand-blue-rgb) / 8%);
+  padding: var(--space-2) var(--space-3);
+  color: var(--brand-blue);
+  font-size: var(--type-caption-size);
+  font-weight: 900;
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.9rem var(--space-6);
+  border: 1px solid transparent;
+  border-radius: var(--radius-medium);
+  font-size: var(--type-label-size);
+  font-weight: 900;
+  line-height: var(--type-label-line);
+  text-align: center;
+  text-decoration: none;
+  transition:
+    transform var(--motion-standard) var(--motion-easing),
+    background-color var(--motion-standard) var(--motion-easing),
+    border-color var(--motion-standard) var(--motion-easing);
+}
+
+.primaryAction {
+  background: var(--brand-yellow);
+  color: var(--text-on-yellow);
+  box-shadow: 0 16px 34px rgb(var(--brand-midnight-rgb) / 18%);
+}
+
+.primaryAction:hover {
+  background: #fff27a;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.secondaryAction {
+  border-color: rgb(255 255 255 / 34%);
+  background: rgb(255 255 255 / 10%);
+  color: var(--text-on-brand);
+}
+
+.secondaryAction:hover {
+  background: rgb(255 255 255 / 18%);
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.stackGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.stackCard {
+  display: grid;
+  min-height: 17rem;
+  align-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-6);
+}
+
+.stackDark {
+  background:
+    radial-gradient(circle at 90% 10%, rgb(252 229 0 / 18%), transparent 10rem),
+    var(--brand-midnight);
+  color: var(--text-on-brand);
+}
+
+.stackCard span {
+  color: var(--brand-blue);
+  font-size: var(--type-caption-size);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.stackDark span {
+  color: var(--brand-yellow);
+}
+
+.stackCard h3 {
+  margin: 0;
+  color: var(--brand-midnight);
+  font-family: var(--font-title);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.stackDark h3 {
+  color: var(--text-on-brand);
+}
+
+.stackCard p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: var(--type-body-line);
+}
+
+.stackDark p {
+  color: rgb(255 255 255 / 72%);
+}
+
+.actionBand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+  padding: var(--space-8);
+  background:
+    radial-gradient(
+      circle at 86% 12%,
+      rgb(255 255 255 / 42%),
+      transparent 16rem
+    ),
+    linear-gradient(135deg, var(--brand-yellow), #fff27a);
+  color: var(--text-on-yellow);
+}
+
+.actionBand h3 {
+  max-width: 18ch;
+  margin: 0 0 var(--space-3);
+  color: var(--text-on-yellow);
+  font-family: var(--font-title);
+  font-size: var(--type-h2-size);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: var(--type-h2-line);
+  text-transform: uppercase;
+}
+
+.actionBand p {
+  max-width: 42rem;
+  margin: 0;
+  color: rgb(var(--brand-midnight-rgb) / 72%);
+  font-size: var(--type-body-large-size);
+  line-height: var(--type-body-large-line);
+}
+
+.actionBand .primaryAction {
+  background: var(--brand-midnight);
+  color: var(--text-on-brand);
+}
+
+.actionBand .primaryAction:hover {
+  background: var(--brand-dark-blue);
+}
+
+.actionBand .secondaryAction {
+  border-color: rgb(var(--brand-midnight-rgb) / 18%);
+  background: rgb(255 255 255 / 42%);
+  color: var(--brand-midnight);
+}
+
+.actionLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+
+.motionScale {
+  will-change: transform, opacity;
+}
+
+@media (width <= 1020px) {
+  .stageLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .tirePanel {
+    position: static;
+  }
+
+  .stackGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width <= 760px) {
+  .section {
+    gap: var(--space-10);
+    padding-block: var(--space-10) var(--space-16);
+  }
+
+  .heading h2 {
+    max-width: 100%;
+    font-size: var(--type-h1-size);
+  }
+
+  .inlineImage {
+    width: 4.5rem;
+    height: 2rem;
+  }
+
+  .bentoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .bentoLarge,
+  .bentoWide {
+    grid-column: auto;
+    grid-row: auto;
+    min-height: 14rem;
+  }
+
+  .bentoCard {
+    border-right: 0;
+  }
+
+  .selectorHeader,
+  .stageHeader,
+  .actionBand {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stageAccordion {
+    display: grid;
+    overflow-x: visible;
+  }
+
+  .stageButton,
+  .stageButton:hover,
+  .stageButton[data-active] {
+    flex-basis: auto;
+    min-height: 6.5rem;
+    transform: none;
+  }
+
+  .stageButton strong,
+  .stageButton em {
+    min-width: 0;
+    opacity: 1;
+  }
+
+  .mapFrame,
+  .mapFrame :global(.ri-route-map) {
+    min-height: 21rem;
+    height: 21rem;
+  }
+
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .metricsGrid span {
+    border-right: 0;
+    border-bottom: 1px solid rgb(var(--brand-blue-rgb) / 12%);
+  }
+
+  .metricsGrid span:last-child {
+    border-bottom: 0;
+  }
+
+  .actionLinks {
+    justify-content: flex-start;
+  }
+}

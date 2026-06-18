@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 
 import styles from './header.module.css';
 
-interface HeaderLink {
+export interface HeaderLink {
   href: string;
   label: string;
 }
@@ -56,6 +56,32 @@ function SmartLink({
     <Link aria-label={ariaLabel} className={className} href={href}>
       {content}
     </Link>
+  );
+}
+
+export function HeaderIconLink({ href, label }: HeaderLink) {
+  return (
+    <SmartLink
+      aria-label={label}
+      className={styles.iconAction}
+      href={href}
+      label={label}
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="20"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+        width="20"
+      >
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 3.582-7 8-7s8 3 8 7" />
+      </svg>
+    </SmartLink>
   );
 }
 

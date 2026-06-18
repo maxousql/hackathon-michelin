@@ -1,5 +1,8 @@
 .page {
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
+  overflow-x: hidden;
   background: linear-gradient(180deg, var(--surface-canvas) 0, #ffffff 30rem);
   color: var(--text-primary);
 }
@@ -84,37 +87,10 @@
 
 .content {
   display: grid;
-  gap: var(--space-10);
+  gap: var(--space-12);
   width: min(var(--container-max), calc(100% - (var(--container-inline) * 2)));
   margin-inline: auto;
   padding-block: var(--space-12) var(--space-20);
-}
-
-.embedSection {
-  border: 1px solid var(--border-subtle, rgb(0 0 0 / 8%));
-  border-radius: var(--radius-large, 1rem);
-  background: #fff;
-  overflow: hidden;
-}
-
-.leaderboardSection {
-  padding: var(--space-6);
-  border: 1px solid var(--border-subtle, rgb(0 0 0 / 8%));
-  border-radius: var(--radius-large, 1rem);
-  background: #fff;
-}
-
-.sectionTitle {
-  margin: 0 0 var(--space-4);
-  font-size: var(--type-title-size, 1.6rem);
-  font-weight: 900;
-}
-
-.empty {
-  margin: 0;
-  padding: var(--space-10);
-  color: var(--text-secondary);
-  text-align: center;
 }
 
 @media (width <= 720px) {

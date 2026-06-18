@@ -1,12 +1,10 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 
-import { ChallengeDetails } from '@/features/challenge/components/challenge-details';
-import { ChallengeLeaderboard } from '@/features/challenge/components/challenge-leaderboard';
-import { ChallengeSteps } from '@/features/challenge/components/challenge-steps';
-import { StravaSegmentEmbed } from '@/features/challenge/components/strava-segment-embed';
+import { ChallengeExperience } from '@/features/challenge/components/challenge-experience';
 import { fetchChallenges } from '@/features/challenge/services/challenges.api';
 
+import '@/features/race-intelligence/race-intelligence.css';
 import styles from './page.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -14,8 +12,8 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Challenge — Michelin Vélo',
   description:
-    'Battez le segment Strava du challenge Michelin : le ou la plus rapide ' +
-    'remporte 2 pneus MICHELIN.',
+    'Battez le segment Strava du challenge Michelin et préparez les étapes ' +
+    'spéciales Tour de France avec trace GPX, profil et conseil pneu.',
 };
 
 export default async function ChallengePage() {
@@ -47,46 +45,9 @@ export default async function ChallengePage() {
         </div>
       </header>
 
-      {challenge ? (
-        <div className={styles.content}>
-          <section aria-label="Segment et lot">
-            <ChallengeDetails challenge={challenge} />
-          </section>
-
-          <section
-            className={styles.embedSection}
-            aria-label="Aperçu du segment Strava"
-          >
-            <StravaSegmentEmbed segmentId={challenge.strava_segment_id} />
-          </section>
-
-          <section aria-labelledby="how-title">
-            <h2 className={styles.sectionTitle} id="how-title">
-              Comment participer
-            </h2>
-            <ChallengeSteps prizeLabel={challenge.prize_label} />
-          </section>
-
-          <section
-            className={styles.leaderboardSection}
-            aria-labelledby="leaderboard-title"
-          >
-            <h2 className={styles.sectionTitle} id="leaderboard-title">
-              Classement
-            </h2>
-            <ChallengeLeaderboard
-              entries={challenge.entries}
-              prizeLabel={challenge.prize_label}
-            />
-          </section>
-        </div>
-      ) : (
-        <div className={styles.content}>
-          <p className={styles.empty}>
-            Aucun challenge en cours pour le moment. Revenez bientôt&nbsp;!
-          </p>
-        </div>
-      )}
+      <div className={styles.content}>
+        <ChallengeExperience challenge={challenge} />
+      </div>
     </main>
   );
 }

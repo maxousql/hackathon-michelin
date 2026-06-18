@@ -1,8 +1,14 @@
 'use client';
 
+import Link from 'next/link';
+import type { ChangeEvent } from 'react';
 import { useActionState, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
 import { registerAction } from '../actions/auth.actions';
+import styles from './auth-shell.module.css';
 
 const rules = [
   { label: '8 caractères minimum', test: (v: string) => v.length >= 8 },
@@ -24,18 +30,21 @@ export function RegisterForm() {
   });
 
   const update =
-    (key: keyof typeof fields) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    (key: keyof typeof fields) => (e: ChangeEvent<HTMLInputElement>) =>
       setFields((f) => ({ ...f, [key]: e.target.value }));
 
   const passwordsMatch = fields.password === fields.confirm;
   const bothFilled = fields.password.length > 0 && fields.confirm.length > 0;
 
   return (
-    <form action={action} className="auth-form">
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="firstName">Prénom</label>
-          <input
+    <form action={action} className={styles.form}>
+      <div className={styles.row}>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="firstName">
+            Prénom
+          </label>
+          <Input
+            className={styles.input}
             id="firstName"
             name="firstName"
             type="text"
@@ -46,13 +55,16 @@ export function RegisterForm() {
             onChange={update('firstName')}
           />
           {state?.errors?.firstName && (
-            <p className="field-error">{state.errors.firstName[0]}</p>
+            <p className={styles.fieldError}>{state.errors.firstName[0]}</p>
           )}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="lastName">Nom</label>
-          <input
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="lastName">
+            Nom
+          </label>
+          <Input
+            className={styles.input}
             id="lastName"
             name="lastName"
             type="text"
@@ -63,14 +75,17 @@ export function RegisterForm() {
             onChange={update('lastName')}
           />
           {state?.errors?.lastName && (
-            <p className="field-error">{state.errors.lastName[0]}</p>
+            <p className={styles.fieldError}>{state.errors.lastName[0]}</p>
           )}
         </div>
       </div>
 
-      <div className="form-group">
-        <label htmlFor="email">Adresse email</label>
-        <input
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="email">
+          Adresse email
+        </label>
+        <Input
+          className={styles.input}
           id="email"
           name="email"
           type="email"
@@ -81,13 +96,16 @@ export function RegisterForm() {
           onChange={update('email')}
         />
         {state?.errors?.email && (
-          <p className="field-error">{state.errors.email[0]}</p>
+          <p className={styles.fieldError}>{state.errors.email[0]}</p>
         )}
       </div>
 
-      <div className="form-group">
-        <label htmlFor="password">Mot de passe</label>
-        <input
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="password">
+          Mot de passe
+        </label>
+        <Input
+          className={styles.input}
           id="password"
           name="password"
           type="password"
@@ -98,25 +116,25 @@ export function RegisterForm() {
           onChange={update('password')}
         />
         {fields.password.length > 0 && (
-          <ul className="password-rules">
+          <ul className={styles.passwordRules}>
             {rules.map((rule) => (
-              <li
-                key={rule.label}
-                className={rule.test(fields.password) ? 'valid' : ''}
-              >
+              <li key={rule.label} data-valid={rule.test(fields.password)}>
                 {rule.label}
               </li>
             ))}
           </ul>
         )}
         {state?.errors?.password && (
-          <p className="field-error">{state.errors.password[0]}</p>
+          <p className={styles.fieldError}>{state.errors.password[0]}</p>
         )}
       </div>
 
-      <div className="form-group">
-        <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
-        <input
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="confirmPassword">
+          Confirmer le mot de passe
+        </label>
+        <Input
+          className={styles.input}
           id="confirmPassword"
           name="confirmPassword"
           type="password"
@@ -127,25 +145,27 @@ export function RegisterForm() {
           onChange={update('confirm')}
         />
         {bothFilled && !passwordsMatch && (
-          <p className="field-error">Les mots de passe ne correspondent pas.</p>
+          <p className={styles.fieldError}>
+            Les mots de passe ne correspondent pas.
+          </p>
         )}
         {bothFilled && passwordsMatch && (
-          <p className="field-valid">Les mots de passe correspondent.</p>
+          <p className={styles.fieldValid}>Les mots de passe correspondent.</p>
         )}
       </div>
 
-      {state?.message && <p className="form-error">{state.message}</p>}
+      {state?.message && <p className={styles.formError}>{state.message}</p>}
 
-      <button
+      <Button
+        className={styles.submit}
         type="submit"
         disabled={pending || (bothFilled && !passwordsMatch)}
-        className="btn-primary"
       >
         {pending ? 'Inscription…' : 'Créer mon compte'}
-      </button>
+      </Button>
 
-      <p className="auth-switch">
-        Déjà un compte ? <a href="/login">Se connecter</a>
+      <p className={styles.switch}>
+        Déjà un compte ? <Link href="/login">Se connecter</Link>
       </p>
     </form>
   );
