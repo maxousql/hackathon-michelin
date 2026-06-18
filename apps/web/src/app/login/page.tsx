@@ -7,7 +7,7 @@ import { getCurrentUser } from '@/features/auth/services/current-user';
 export const metadata = { title: 'Connexion — Michelin Race' };
 
 interface LoginPageProps {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; redirect?: string }>;
 }
 
 const STRAVA_ERROR_MESSAGE =
@@ -15,9 +15,13 @@ const STRAVA_ERROR_MESSAGE =
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const user = await getCurrentUser();
-  if (user) redirect('/');
+  const { error, redirect: redirectTo } = await searchParams;
+  if (user) redirect(redirectTo ?? '/');
 
-  const { error } = await searchParams;
+  const safeRedirect =
+    typeof redirectTo === 'string' && redirectTo.startsWith('/')
+      ? redirectTo
+      : undefined;
 
   return (
     <AuthShell
@@ -27,6 +31,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     >
       <LoginForm
         errorMessage={error === 'strava' ? STRAVA_ERROR_MESSAGE : undefined}
+        redirectTo={safeRedirect}
       />
     </AuthShell>
   );

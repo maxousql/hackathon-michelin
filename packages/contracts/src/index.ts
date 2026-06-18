@@ -1,4 +1,14 @@
 export {
+  bikeTypeSchema,
+  bikeSchema,
+  bikeListSchema,
+  createBikeRequestSchema,
+  type Bike,
+  type BikeType,
+  type CreateBikeRequest,
+} from './bikes/bikes.contract';
+
+export {
   serviceStatusSchema,
   statusResponseSchema,
   type ServiceStatus,
@@ -68,6 +78,14 @@ export {
   type PressureRecommendation,
   type RaceAnalyzeResponse,
 } from './race-intelligence/race-intelligence.contract';
+
+export {
+  savedRaceSchema,
+  savedRaceListSchema,
+  createSavedRaceRequestSchema,
+  type SavedRace,
+  type CreateSavedRaceRequest,
+} from './saved-races/saved-races.contract';
 
 export {
   challengeEntrySchema,

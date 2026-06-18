@@ -33,6 +33,12 @@ export async function loginAction(
     return { errors: parsed.error.flatten().fieldErrors };
   }
 
+  const rawRedirect = formData.get('redirectTo');
+  const redirectTo =
+    typeof rawRedirect === 'string' && rawRedirect.startsWith('/')
+      ? rawRedirect
+      : '/';
+
   try {
     const { accessToken } = await getApiClient().login(parsed.data);
     const cookieStore = await cookies();
@@ -49,7 +55,7 @@ export async function loginAction(
     return { message };
   }
 
-  redirect('/');
+  redirect(redirectTo);
 }
 
 export async function registerAction(

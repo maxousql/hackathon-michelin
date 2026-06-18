@@ -19,7 +19,7 @@ export async function AppHeader() {
 
   const navigation = [...MAIN_NAVIGATION];
 
-  if (stravaConnected) {
+  if (user || stravaConnected) {
     navigation.push({ href: '/profil', label: 'Mon Profil' });
   }
 
@@ -31,10 +31,7 @@ export async function AppHeader() {
     <Header
       actions={
         user || stravaConnected ? (
-          <UserMenu
-            isAdmin={user?.isAdmin ?? false}
-            stravaConnected={stravaConnected}
-          />
+          <UserMenu isAdmin={user?.isAdmin ?? false} />
         ) : (
           <HeaderIconLink href="/login" label="Connexion" />
         )
