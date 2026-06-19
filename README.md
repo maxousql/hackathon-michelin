@@ -79,6 +79,9 @@ Pour activer EAS, créer un projet Expo, puis configurer :
 
 - [Architecture](docs/architecture.md)
 - [Ajouter une feature](docs/adding-a-feature.md)
+- [Documentation technique backend NestJS](docs/technical-backend-nestjs.md)
+- [Documentation technique frontend Next.js](docs/technical-frontend-nextjs.md)
+- [Documentation technique mobile React Native](docs/technical-mobile-react-native.md)
 - [Guide officiel Next.js pour agents IA](https://nextjs.org/docs/app/guides/ai-agents)
 
 Les agents doivent lire la documentation correspondant à la version installée
