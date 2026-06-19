@@ -20,7 +20,7 @@ export default async function RaceIntelligencePage() {
   const cookieStore = await cookies();
   const stravaConnected = !!cookieStore.get('strava_at')?.value;
   const hasAuthSession = !!cookieStore.get('auth_token')?.value;
-  const isLoggedIn = hasAuthSession || stravaConnected;
+  const isLoggedIn = hasAuthSession;
 
   return (
     <main className="ri-page" id="top">
