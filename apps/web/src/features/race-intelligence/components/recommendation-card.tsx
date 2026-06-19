@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 import type { RaceAnalyzeResponse } from '@michelin/contracts';
 
 interface RecommendationCardProps {
@@ -18,11 +20,14 @@ export function RecommendationCard({ result }: RecommendationCardProps) {
     <div className="ri-rec-card">
       {/* ── Header ── */}
       <div className="ri-rec-header">
-        <img
+        <Image
           src="/bibendum.svg"
           className="ri-rec-bib-watermark"
           alt=""
           aria-hidden="true"
+          width={800}
+          height={800}
+          unoptimized
         />
 
         <div className="ri-rec-header-left">
@@ -116,7 +121,14 @@ export function RecommendationCard({ result }: RecommendationCardProps) {
       {/* ── Conseil du Bibendum ── */}
       <div className="ri-rec-conseil">
         <div className="ri-rec-conseil-icon">
-          <img src="/bibendum.svg" alt="" aria-hidden="true" />
+          <Image
+            src="/bibendum.svg"
+            alt=""
+            aria-hidden="true"
+            width={800}
+            height={800}
+            unoptimized
+          />
         </div>
         <div className="ri-rec-conseil-content">
           <p className="ri-rec-conseil-title">Le conseil du Bibendum</p>
