@@ -40,5 +40,10 @@ export async function POST(req: NextRequest) {
     },
     body: JSON.stringify(body),
   });
-  return NextResponse.json(await res.json(), { status: res.status });
+
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    console.error('[saved-races POST] API error', res.status, json);
+  }
+  return NextResponse.json(json, { status: res.status });
 }

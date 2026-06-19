@@ -25,7 +25,8 @@ export async function GET(req: NextRequest) {
   const error = req.nextUrl.searchParams.get('error');
   const mode = req.nextUrl.searchParams.get('state') ?? 'race';
   const isMobile = mode === 'mobile';
-  const origin = new URL(req.url).origin;
+  const callbackUrl = process.env.STRAVA_CALLBACK_URL;
+  const origin = callbackUrl ? new URL(callbackUrl).origin : req.nextUrl.origin;
 
   if (error || !code) {
     if (isMobile) {
