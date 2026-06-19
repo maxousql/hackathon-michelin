@@ -1,6 +1,6 @@
 import type { MichelinProduct, Retailer } from '@michelin/contracts';
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   ImageBackground,
@@ -33,10 +33,23 @@ import {
   productSize,
   productTags,
 } from '../presenter';
+import { Chip } from './chip';
+
+const COUNTRY_LABELS: Record<string, string> = {
+  FR: 'France',
+  DE: 'Allemagne',
+  GB: 'Royaume-Uni',
+  ES: 'Espagne',
+  IT: 'Italie',
+  NL: 'Pays-Bas',
+  BE: 'Belgique',
+  PL: 'Pologne',
+};
 
 interface ProductDetailScreenProps {
   id: number;
   onBack: () => void;
+  onNavigateToComparator?: () => void;
 }
 
 interface SpecRow {
@@ -89,16 +102,27 @@ function SpecGroup({ title, rows }: { title: string; rows: SpecRow[] }) {
 }
 
 function RetailersSection() {
-  const [retailers, setRetailers] = useState<Retailer[]>([]);
+  const [allRetailers, setAllRetailers] = useState<Retailer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCountry, setSelectedCountry] = useState<string>('FR');
 
   useEffect(() => {
-    fetch(`${apiBaseUrl}/retailers?country=FR`)
+    fetch(`${apiBaseUrl}/retailers`)
       .then((r) => (r.ok ? r.json() : []))
-      .then((data: Retailer[]) => setRetailers(data))
-      .catch(() => setRetailers([]))
+      .then((data: Retailer[]) => {
+        setAllRetailers(data);
+        const countries = [...new Set(data.map((r: Retailer) => r.country))];
+        const defaultCountry = countries.includes('FR')
+          ? 'FR'
+          : (countries[0] ?? 'FR');
+        setSelectedCountry(defaultCountry);
+      })
+      .catch(() => setAllRetailers([]))
       .finally(() => setLoading(false));
   }, []);
+
+  const countries = [...new Set(allRetailers.map((r) => r.country))].sort();
+  const visible = allRetailers.filter((r) => r.country === selectedCountry);
 
   if (loading)
     return (
@@ -108,12 +132,30 @@ function RetailersSection() {
         style={{ marginTop: spacing[4] }}
       />
     );
-  if (retailers.length === 0) return null;
+  if (allRetailers.length === 0) return null;
 
   return (
     <View style={styles.group}>
       <Text style={styles.groupTitle}>Où acheter</Text>
-      {retailers.map((r) => (
+
+      {/* Country picker */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.countryPicker}
+      >
+        {countries.map((code) => (
+          <Chip
+            key={code}
+            label={COUNTRY_LABELS[code] ?? code}
+            selected={selectedCountry === code}
+            onPress={() => setSelectedCountry(code)}
+          />
+        ))}
+      </ScrollView>
+
+      {/* Retailer list */}
+      {visible.map((r) => (
         <Pressable
           key={r.id}
           style={styles.retailerRow}
@@ -133,7 +175,17 @@ function RetailersSection() {
   );
 }
 
-function ProductBody({ product }: { product: MichelinProduct }) {
+interface ProductBodyProps {
+  product: MichelinProduct;
+  onScrollToRetailers?: () => void;
+  onNavigateToComparator?: () => void;
+}
+
+function ProductBody({
+  product,
+  onScrollToRetailers,
+  onNavigateToComparator,
+}: ProductBodyProps) {
   const name = productName(product);
   const range = productRange(product);
   const cycleType = productCycleType(product);
@@ -271,6 +323,24 @@ function ProductBody({ product }: { product: MichelinProduct }) {
               </View>
             ))}
           </View>
+          <View style={styles.heroActions}>
+            {onScrollToRetailers ? (
+              <Pressable
+                style={styles.heroPrimaryBtn}
+                onPress={onScrollToRetailers}
+              >
+                <Text style={styles.heroPrimaryBtnText}>Où l'acheter</Text>
+              </Pressable>
+            ) : null}
+            {onNavigateToComparator ? (
+              <Pressable
+                style={styles.heroSecondaryBtn}
+                onPress={onNavigateToComparator}
+              >
+                <Text style={styles.heroSecondaryBtnText}>Comparer</Text>
+              </Pressable>
+            ) : null}
+          </View>
         </View>
       </ImageBackground>
 
@@ -307,12 +377,20 @@ function ProductBody({ product }: { product: MichelinProduct }) {
   );
 }
 
-export function ProductDetailScreen({ id, onBack }: ProductDetailScreenProps) {
+export function ProductDetailScreen({
+  id,
+  onBack,
+  onNavigateToComparator,
+}: ProductDetailScreenProps) {
   const { data, error, isLoading, notFound } = useProduct(id);
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollToRetailers = useCallback(() => {
+    scrollRef.current?.scrollToEnd({ animated: true });
+  }, []);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView ref={scrollRef} contentContainerStyle={styles.content}>
         <Pressable
           onPress={onBack}
           accessibilityRole="button"
@@ -328,7 +406,11 @@ export function ProductDetailScreen({ id, onBack }: ProductDetailScreenProps) {
         ) : error ? (
           <Text style={styles.message}>Produit indisponible. {error}</Text>
         ) : data ? (
-          <ProductBody product={data} />
+          <ProductBody
+            product={data}
+            onScrollToRetailers={scrollToRetailers}
+            onNavigateToComparator={onNavigateToComparator}
+          />
         ) : null}
       </ScrollView>
     </SafeAreaView>
@@ -400,6 +482,36 @@ const styles = StyleSheet.create({
     borderTopColor: 'rgba(255,255,255,0.2)',
   },
   heroFact: { flex: 1 },
+  heroActions: {
+    flexDirection: 'row',
+    gap: spacing[3],
+    marginTop: spacing[4],
+  },
+  heroPrimaryBtn: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: spacing[3],
+    borderRadius: radius.large,
+    backgroundColor: colors.brandYellow,
+  },
+  heroPrimaryBtnText: {
+    fontSize: fontSize.bodySmall,
+    fontWeight: fontWeight.black,
+    color: colors.textOnYellow,
+  },
+  heroSecondaryBtn: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: spacing[3],
+    borderRadius: radius.large,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.4)',
+  },
+  heroSecondaryBtnText: {
+    fontSize: fontSize.bodySmall,
+    fontWeight: fontWeight.bold,
+    color: '#fff',
+  },
   heroFactLabel: {
     fontSize: 10,
     fontWeight: fontWeight.bold,
@@ -471,6 +583,10 @@ const styles = StyleSheet.create({
     fontSize: fontSize.h4,
     fontWeight: fontWeight.black,
     color: colors.textPrimary,
+  },
+  countryPicker: {
+    paddingVertical: spacing[3],
+    gap: spacing[2],
   },
   retailerRow: {
     flexDirection: 'row',

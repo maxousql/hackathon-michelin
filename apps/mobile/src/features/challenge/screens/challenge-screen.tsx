@@ -865,7 +865,7 @@ function SegmentTab({ challenge }: { challenge: Challenge | null }) {
         ) : null}
       </View>
 
-      {/* Strava CTA */}
+      {/* Bouton Strava */}
       <Pressable
         style={({ pressed }) => [
           segStyles.stravaBtn,
@@ -873,37 +873,75 @@ function SegmentTab({ challenge }: { challenge: Challenge | null }) {
         ]}
         onPress={() => Linking.openURL(challenge.strava_segment_url)}
       >
-        <Ionicons name="open-outline" size={16} color={colors.base.white} />
+        <Ionicons name="open-outline" size={16} color="#fff" />
         <Text style={segStyles.stravaBtnText}>Voir le segment sur Strava</Text>
       </Pressable>
 
-      {/* Classement */}
+      {/* Classement natif */}
       {challenge.entries.length > 0 ? (
-        <View style={segStyles.section}>
-          <Text style={segStyles.sectionTitle}>Classement</Text>
-          {challenge.entries.map((entry) => (
-            <View key={entry.rank} style={segStyles.entryRow}>
-              <View
-                style={[
-                  segStyles.rankBadge,
-                  entry.rank === 1 && segStyles.rankFirst,
-                  entry.rank === 2 && segStyles.rankSecond,
-                  entry.rank === 3 && segStyles.rankThird,
-                ]}
-              >
-                <Text style={segStyles.rankText}>{entry.rank}</Text>
+        <View style={segStyles.leaderboardCard}>
+          {/* Header */}
+          <View style={segStyles.leaderboardHeader}>
+            <Text style={segStyles.leaderboardKicker}>Classement</Text>
+            <Text style={segStyles.leaderboardTitle}>
+              La référence du mois.
+            </Text>
+          </View>
+
+          {/* Column headers */}
+          <View style={segStyles.colHeader}>
+            <Text style={[segStyles.colLabel, { width: 36 }]}>#</Text>
+            <Text style={[segStyles.colLabel, { flex: 1 }]}>Athlète</Text>
+            <Text
+              style={[segStyles.colLabel, { width: 64, textAlign: 'right' }]}
+            >
+              Temps
+            </Text>
+            <Text
+              style={[segStyles.colLabel, { width: 52, textAlign: 'right' }]}
+            >
+              Écart
+            </Text>
+          </View>
+
+          {challenge.entries.map((entry) => {
+            const leaderTime = challenge.entries[0]?.time_seconds ?? 0;
+            const gapSec = entry.rank > 1 ? entry.time_seconds - leaderTime : 0;
+            return (
+              <View key={entry.rank} style={segStyles.entryRow}>
+                <View
+                  style={[
+                    segStyles.rankBadge,
+                    entry.rank === 1 && segStyles.rankFirst,
+                    entry.rank === 2 && segStyles.rankSecond,
+                    entry.rank === 3 && segStyles.rankThird,
+                  ]}
+                >
+                  <Text style={segStyles.rankText}>{entry.rank}</Text>
+                </View>
+                <View style={segStyles.entryInfo}>
+                  <Text style={segStyles.entryName} numberOfLines={1}>
+                    {entry.athlete_name}
+                  </Text>
+                  {entry.club ? (
+                    <Text style={segStyles.entryClub} numberOfLines={1}>
+                      {entry.club}
+                    </Text>
+                  ) : null}
+                </View>
+                <View style={segStyles.entryTimes}>
+                  <Text style={segStyles.entryTime}>
+                    {formatTime(entry.time_seconds)}
+                  </Text>
+                  {gapSec > 0 ? (
+                    <Text style={segStyles.entryGap}>
+                      +{formatTime(gapSec)}
+                    </Text>
+                  ) : null}
+                </View>
               </View>
-              <View style={segStyles.entryInfo}>
-                <Text style={segStyles.entryName}>{entry.athlete_name}</Text>
-                {entry.club ? (
-                  <Text style={segStyles.entryClub}>{entry.club}</Text>
-                ) : null}
-              </View>
-              <Text style={segStyles.entryTime}>
-                {formatTime(entry.time_seconds)}
-              </Text>
-            </View>
-          ))}
+            );
+          })}
         </View>
       ) : null}
     </ScrollView>
@@ -985,6 +1023,34 @@ const segStyles = StyleSheet.create({
     fontSize: fontSize.bodySmall,
     opacity: 0.8,
   },
+  leaderboardCard: {
+    backgroundColor: colors.surfaceDefault,
+    borderRadius: radius.large,
+    borderWidth: 1,
+    borderColor: colors.borderDefault,
+    overflow: 'hidden',
+  },
+  leaderboardHeader: {
+    paddingHorizontal: spacing[4],
+    paddingTop: spacing[4],
+    paddingBottom: spacing[3],
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderDefault,
+    backgroundColor: colors.surfaceCanvas,
+    gap: 2,
+  },
+  leaderboardKicker: {
+    fontSize: fontSize.caption,
+    fontWeight: fontWeight.bold,
+    color: colors.brandBlue,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  leaderboardTitle: {
+    fontSize: fontSize.bodyLarge,
+    fontWeight: fontWeight.black,
+    color: colors.textPrimary,
+  },
   stravaBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -995,25 +1061,33 @@ const segStyles = StyleSheet.create({
     paddingVertical: spacing[4],
   },
   stravaBtnText: {
-    color: colors.base.white,
+    color: '#fff',
     fontSize: fontSize.body,
     fontWeight: fontWeight.bold,
   },
-  section: { gap: spacing[3] },
-  sectionTitle: {
-    color: colors.textPrimary,
-    fontSize: fontSize.bodyLarge,
+  colHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[2],
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderDefault,
+  },
+  colLabel: {
+    fontSize: 10,
     fontWeight: fontWeight.bold,
+    color: colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   entryRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing[3],
-    backgroundColor: colors.surfaceDefault,
-    borderRadius: radius.large,
-    padding: spacing[4],
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderDefault,
   },
   rankBadge: {
     width: 34,
@@ -1040,10 +1114,18 @@ const segStyles = StyleSheet.create({
     fontWeight: fontWeight.semibold,
   },
   entryClub: { color: colors.textSecondary, fontSize: fontSize.caption },
+  entryTimes: {
+    alignItems: 'flex-end',
+    gap: 2,
+  },
   entryTime: {
     color: colors.brandBlue,
     fontSize: fontSize.bodySmall,
     fontWeight: fontWeight.bold,
+  },
+  entryGap: {
+    color: colors.textSecondary,
+    fontSize: fontSize.caption,
   },
 });
 
@@ -1083,7 +1165,7 @@ export function ChallengeScreen() {
       {/* Header */}
       <View style={screenStyles.header}>
         <Text style={screenStyles.eyebrow}>Challenge Michelin</Text>
-        <Text style={screenStyles.title} numberOfLines={1}>
+        <Text style={screenStyles.title} numberOfLines={2} adjustsFontSizeToFit>
           {!loading && challenge ? challenge.name : 'Tour de France 2026'}
         </Text>
 
@@ -1144,9 +1226,9 @@ const screenStyles = StyleSheet.create({
   },
   title: {
     color: colors.base.white,
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: '900',
-    letterSpacing: -0.4,
+    letterSpacing: -0.3,
     marginBottom: spacing[3],
   },
   tabBar: {

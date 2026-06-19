@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
 import logo from '../../assets/logo-michelin-race.png';
 
@@ -72,10 +73,12 @@ function ProductDetailWrapper({
   route,
   navigation,
 }: NativeStackScreenProps<CatalogStackParamList, 'ProductDetail'>) {
+  const tabNav = useNavigation<BottomTabNavigationProp<AppTabParamList>>();
   return (
     <ProductDetailScreen
       id={route.params.id}
       onBack={() => navigation.goBack()}
+      onNavigateToComparator={() => tabNav.navigate('Comparateur')}
     />
   );
 }
