@@ -62,8 +62,8 @@ export const createBikeRequestSchema = z.object({
   isPrimary: z.boolean().default(false),
 });
 
-export type CreateBikeRequest = z.infer<typeof createBikeRequestSchema>;
+export type CreateBikeRequest = z.input<typeof createBikeRequestSchema>;
 
 export const updateBikeRequestSchema = createBikeRequestSchema.partial();
 
-export type UpdateBikeRequest = z.infer<typeof updateBikeRequestSchema>;
+export type UpdateBikeRequest = z.input<typeof updateBikeRequestSchema>;
