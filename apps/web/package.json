@@ -16,7 +16,7 @@
     "@michelin/contracts": "workspace:*",
     "gsap": "^3.15.0",
     "leaflet": "^1.9.4",
-    "next": "16.2.9",
+    "next": "16.2.10",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-leaflet": "^5.0.0"
@@ -30,6 +30,6 @@
     "@types/react-dom": "19.2.3",
     "eslint": "^9.39.1",
     "typescript": "5.9.3",
-    "vitest": "4.1.9"
+    "vitest": "4.1.10"
   }
 }
