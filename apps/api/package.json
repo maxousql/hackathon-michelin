@@ -11,17 +11,17 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@nestjs/common": "11.1.27",
+    "@nestjs/common": "11.2.1",
     "@nestjs/config": "4.0.4",
-    "@nestjs/core": "11.1.27",
+    "@nestjs/core": "11.2.1",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.0",
-    "@nestjs/platform-express": "11.1.27",
-    "@nestjs/swagger": "11.4.4",
-    "@supabase/supabase-js": "^2.49.0",
+    "@nestjs/platform-express": "11.2.1",
+    "@nestjs/swagger": "11.4.7",
+    "@supabase/supabase-js": "^2.112.3",
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.3",
-    "jwks-rsa": "^4.0.1",
+    "class-validator": "^0.15.1",
+    "jwks-rsa": "^4.1.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
@@ -32,15 +32,15 @@
     "@michelin/config-eslint": "workspace:*",
     "@michelin/config-typescript": "workspace:*",
     "@michelin/contracts": "workspace:*",
-    "@nestjs/cli": "^11.0.16",
-    "@nestjs/testing": "11.1.27",
+    "@nestjs/cli": "^11.0.24",
+    "@nestjs/testing": "11.2.1",
     "@types/node": "^22.19.0",
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^6.0.3",
     "eslint": "^9.39.1",
     "supertest": "^7.1.4",
     "typescript": "5.9.3",
-    "vitest": "4.1.9"
+    "vitest": "4.1.11"
   },
   "files": [
     "dist"
